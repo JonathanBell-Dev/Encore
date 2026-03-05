@@ -1,0 +1,175 @@
+*{
+box-sizing:border-box;
+}
+
+body{
+margin:0;
+font-family:Arial, Helvetica, sans-serif;
+background:#000;
+}
+
+/* center page */
+.page{
+min-height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+background:#e9e9e9;
+}
+
+
+/* gradient frame */
+
+.card-frame{
+padding:14px;
+border-radius:10px;
+background: linear-gradient(
+180deg,
+rgba(244,87,90,1) 0%,
+rgba(255,193,174,0.9) 50%,
+rgba(244,87,90,1) 100%
+);
+
+}
+
+
+/* main card */
+.card{
+width:420px;
+background:white;
+border-radius:6px;
+padding:45px 40px 35px;
+text-align:center;
+
+}
+
+
+/* logo */
+.logo{
+
+font-family:'Agbalumo', cursive;
+font-size:34px;
+color:#2e4374;
+margin-bottom:30px;
+
+}
+
+
+/* title */
+
+h1{
+
+font-size:38px;
+color:#2e4374;
+margin-bottom:35px;
+font-weight:600;
+
+}
+
+
+/* user login */
+
+.login-title{
+
+color:#2e4374;
+
+letter-spacing:1px;
+
+margin-bottom:20px;
+
+font-weight:600;
+
+}
+
+
+/* inputs */
+
+input{
+
+width:100%;
+
+padding:12px;
+
+margin-bottom:18px;
+
+border:none;
+
+background:#cfcfcf;
+
+font-size:15px;
+
+color:#333;
+
+}
+
+
+/* remember me/ forgot password*/
+.options{
+
+display:flex;
+
+justify-content:space-between;
+
+align-items:center;
+
+font-size:14px;
+
+margin-bottom:40px;
+
+}
+
+/* Remember me checkbox text */
+.remember{
+display:flex;
+align-items:center;
+gap:8px;
+white-space:nowrap;
+}
+
+.remember input{
+margin: 0;
+}
+
+
+/* Forgot password style */
+.options a{
+
+text-decoration:none;
+
+color:#000;
+
+}
+
+
+/* login button */
+
+.login-btn{
+
+width:220px;
+
+padding:14px;
+
+background:#F4575A;
+
+border:none;
+
+color:white;
+
+font-size:22px;
+
+font-weight:bold;
+
+cursor:pointer;
+
+margin-bottom:25px;
+
+}
+
+
+/* signup */
+
+.signup{
+
+font-size:18px;
+
+}
