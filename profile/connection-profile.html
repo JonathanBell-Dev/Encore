@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ATL Events – Connection Profile</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="profile.css">
+  <style>
+    /* ── PAGE-SPECIFIC ── */
+    .conn-profile-hero {
+      background: linear-gradient(110deg, var(--orange) 0%, #e03000 55%, #c02800 100%);
+      padding: 2.5rem 2.5rem 2rem;
+      display: flex; align-items: flex-end; gap: 1.75rem;
+      position: relative; overflow: hidden;
+    }
+    .conn-profile-hero::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse 70% 120% at 100% 50%, rgba(255,255,255,.06) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    .conn-hero-avatar {
+      position: relative; flex-shrink: 0; z-index: 1;
+    }
+    .conn-hero-avatar-circle {
+      width: 100px; height: 100px; border-radius: 50%;
+      border: 3px solid rgba(255,255,255,.5);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2.2rem; font-weight: 700; color: #fff;
+      background: rgba(255,255,255,.15);
+    }
+
+    .conn-hero-info { z-index: 1; flex: 1; }
+    .conn-hero-name-row {
+      display: flex; align-items: center; gap: 1rem;
+      margin-bottom: .5rem; flex-wrap: wrap;
+    }
+    .conn-hero-name {
+      font-size: 1.9rem; font-weight: 800;
+      color: #fff; letter-spacing: -.03em; line-height: 1;
+    }
+
+    .btn-connect {
+      display: inline-flex; align-items: center; gap: .45rem;
+      background: #fff; border: none; color: var(--orange);
+      font-family: 'Inter', sans-serif; font-size: .78rem; font-weight: 700;
+      letter-spacing: .02em; padding: .45rem 1.1rem;
+      border-radius: 8px; cursor: pointer;
+      transition: background .18s, transform .15s;
+    }
+    .btn-connect:hover { background: #f8f8f8; transform: translateY(-1px); }
+    .btn-connect svg { width: 13px; height: 13px; }
+
+    .btn-connected {
+      display: inline-flex; align-items: center; gap: .45rem;
+      background: transparent; border: 1.5px solid rgba(255,255,255,.7);
+      color: #fff; font-family: 'Inter', sans-serif;
+      font-size: .78rem; font-weight: 600; letter-spacing: .02em;
+      padding: .42rem 1rem; border-radius: 8px; cursor: pointer;
+      transition: background .18s;
+    }
+    .btn-connected:hover { background: rgba(255,255,255,.15); }
+    .btn-connected svg { width: 13px; height: 13px; }
+
+    /* Content layout */
+    .conn-profile-content {
+      max-width: 1100px; margin: 0 auto;
+      padding: 1.75rem 2.5rem;
+      display: grid; grid-template-columns: 300px 1fr; gap: 1.5rem;
+    }
+
+    .back-link {
+      display: inline-flex; align-items: center; gap: .4rem;
+      font-size: .82rem; font-weight: 600; color: var(--muted);
+      text-decoration: none; margin-bottom: 1rem;
+      transition: color .18s; grid-column: 1 / -1;
+    }
+    .back-link:hover { color: var(--text); }
+    .back-link svg { width: 15px; height: 15px; }
+
+    /* Shared events card */
+    .shared-events-list {
+      list-style: none; display: flex; flex-direction: column; gap: .75rem;
+    }
+    .shared-event-row {
+      display: flex; align-items: center; gap: .85rem;
+      padding: .65rem 0; border-bottom: 1px solid var(--border);
+    }
+    .shared-event-row:last-child { border-bottom: none; }
+    .shared-event-icon {
+      width: 38px; height: 38px; border-radius: 8px;
+      background: var(--tag-bg); display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .shared-event-icon svg { width: 16px; height: 16px; color: var(--orange); }
+    .shared-event-info { flex: 1; }
+    .shared-event-info p { font-size: .82rem; font-weight: 600; color: var(--text); line-height: 1.2; }
+    .shared-event-info span { font-size: .72rem; color: var(--muted); }
+
+    /* About section */
+    .about-text {
+      font-size: .875rem; color: var(--muted); line-height: 1.65; margin-bottom: 1rem;
+    }
+    .about-row {
+      display: flex; align-items: center; gap: .5rem;
+      font-size: .82rem; color: var(--muted); margin-bottom: .5rem;
+    }
+    .about-row svg { width: 14px; height: 14px; flex-shrink: 0; color: var(--orange); }
+
+    /* Message card */
+    .message-card textarea {
+      width: 100%; min-height: 80px; resize: vertical;
+      font-family: 'Inter', sans-serif; font-size: .875rem; color: var(--text);
+      background: var(--light); border: 1px solid var(--border);
+      border-radius: 8px; padding: .65rem .85rem; outline: none;
+      transition: border-color .18s, box-shadow .18s;
+    }
+    .message-card textarea:focus {
+      border-color: var(--orange);
+      box-shadow: 0 0 0 3px rgba(232,71,10,.1);
+    }
+    .btn-send {
+      font-family: 'Inter', sans-serif; font-size: .82rem; font-weight: 700;
+      color: #fff; background: var(--orange); border: none;
+      border-radius: 8px; padding: .6rem 1.3rem; cursor: pointer;
+      display: inline-flex; align-items: center; gap: .4rem;
+      transition: background .18s;
+    }
+    .btn-send:hover { background: var(--orange-dark); }
+    .btn-send svg { width: 14px; height: 14px; }
+
+    @media (max-width: 820px) {
+      .conn-profile-content { grid-template-columns: 1fr; }
+      .conn-profile-hero { flex-direction: column; align-items: flex-start; padding: 2rem 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="site-nav">
+    <a href="profile.html" class="nav-brand">
+      <div class="nav-brand-icon">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <rect x="3" y="4" width="18" height="18" rx="3" fill="none" stroke="#fff" stroke-width="2"/>
+          <line x1="3" y1="9" x2="21" y2="9" stroke="#fff" stroke-width="2"/>
+          <line x1="8" y1="2" x2="8" y2="6" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+          <line x1="16" y1="2" x2="16" y2="6" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <span class="nav-brand-name">ATL Events</span>
+    </a>
+    <div class="nav-links">
+      <a href="index.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12L12 3l9 9"/><path d="M9 21V12h6v9"/></svg>
+        Explore
+      </a>
+      <a href="profile.html" class="active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+        Profile
+      </a>
+      <a href="#">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Logout
+      </a>
+    </div>
+  </nav>
+
+  <!-- HERO — filled by JS -->
+  <section class="conn-profile-hero" id="conn-hero">
+    <div class="conn-hero-avatar">
+      <div class="conn-hero-avatar-circle" id="hero-initials">--</div>
+    </div>
+    <div class="conn-hero-info">
+      <div class="conn-hero-name-row">
+        <h1 class="conn-hero-name" id="hero-name">Loading...</h1>
+        <button class="btn-connected" id="connect-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          Connected
+        </button>
+      </div>
+      <p class="hero-location" id="hero-location">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s-8-5.8-8-12a8 8 0 0 1 16 0c0 6.2-8 12-8 12z"/><circle cx="12" cy="10" r="3"/></svg>
+        <span id="hero-location-text">Atlanta, GA</span>
+      </p>
+      <p class="hero-bio" id="hero-bio">ATL Events member</p>
+      <ul class="stats">
+        <li><strong id="stat-events">0</strong><span>Events Attended</span></li>
+        <li><strong id="stat-shared">0</strong><span>Shared Events</span></li>
+        <li><strong id="stat-connections">0</strong><span>Connections</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- CONTENT -->
+  <div class="conn-profile-content">
+
+    <a href="connections.html" class="back-link" id="back-link">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      Back to Connections
+    </a>
+
+    <!-- LEFT SIDEBAR -->
+    <aside>
+
+      <!-- About -->
+      <div class="card">
+        <h2 class="card-title">About</h2>
+        <p class="about-text" id="about-text">ATL Events member</p>
+        <div class="about-row">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s-8-5.8-8-12a8 8 0 0 1 16 0c0 6.2-8 12-8 12z"/><circle cx="12" cy="10" r="3"/></svg>
+          <span id="about-location">Atlanta, GA</span>
+        </div>
+        <div class="about-row" style="margin-top:.25rem;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/></svg>
+          <span id="about-joined">Member since 2024</span>
+        </div>
+      </div>
+
+      <!-- Interests -->
+      <div class="card">
+        <h2 class="card-title">Interests</h2>
+        <ul class="interests-list" id="interests-list"></ul>
+      </div>
+
+      <!-- Send Message -->
+      <div class="card message-card">
+        <h2 class="card-title">Send a Message</h2>
+        <textarea placeholder="Write a message..."></textarea>
+        <div style="display:flex;justify-content:flex-end;margin-top:.75rem;">
+          <button class="btn-send">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            Send
+          </button>
+        </div>
+      </div>
+
+    </aside>
+
+    <!-- RIGHT: Shared events + activity -->
+    <section style="display:flex;flex-direction:column;gap:1.25rem;">
+
+      <div class="card">
+        <h2 class="card-title">Events Attended Together</h2>
+        <ul class="shared-events-list" id="shared-events-list"></ul>
+      </div>
+
+      <div class="card">
+        <h2 class="card-title">Recent Activity</h2>
+        <ul class="activity-list" id="activity-list"></ul>
+      </div>
+
+    </section>
+  </div>
+
+  <script>
+    // ── Connection data ──────────────────────────────────────────
+    const people = {
+      'sarah-johnson': {
+        name: 'Sarah Johnson', initials: 'SJ', location: 'Atlanta, GA',
+        bio: 'Music lover and art enthusiast. Always looking for the next great live show in Atlanta!',
+        joined: 'Member since Jan 2024',
+        interests: ['Music', 'Arts & Culture', 'Nightlife'],
+        eventsAttended: 18, sharedEvents: 2, connections: 31,
+        shared: [
+          { icon: 'music', title: 'Summer Music Festival 2026', date: 'Jun 14, 2026' },
+          { icon: 'art',   title: 'Contemporary Art Exhibition Opening', date: 'Mar 4, 2026' },
+        ],
+        activity: [
+          { label: 'Events Attended', val: '18' },
+          { label: 'Favorites Saved', val: '11' },
+          { label: 'Reviews Written', val: '5' },
+        ]
+      },
+      'marcus-williams': {
+        name: 'Marcus Williams', initials: 'MW', location: 'Decatur, GA',
+        bio: 'Food is life. Finding Atlanta\'s best dining events one bite at a time.',
+        joined: 'Member since Mar 2024',
+        interests: ['Music', 'Food & Drink', 'Sports'],
+        eventsAttended: 14, sharedEvents: 1, connections: 19,
+        shared: [
+          { icon: 'food', title: 'Atlanta Food & Wine Experience', date: 'Mar 9, 2026' },
+        ],
+        activity: [
+          { label: 'Events Attended', val: '14' },
+          { label: 'Favorites Saved', val: '7' },
+          { label: 'Reviews Written', val: '3' },
+        ]
+      },
+      'emily-chen': {
+        name: 'Emily Chen', initials: 'EC', location: 'Atlanta, GA',
+        bio: 'Artist and foodie exploring Atlanta\'s incredible cultural scene.',
+        joined: 'Member since Feb 2024',
+        interests: ['Arts & Culture', 'Food & Drink', 'Film & Media'],
+        eventsAttended: 22, sharedEvents: 2, connections: 45,
+        shared: [
+          { icon: 'art',  title: 'Contemporary Art Exhibition Opening', date: 'Mar 4, 2026' },
+          { icon: 'food', title: 'Atlanta Food & Wine Experience', date: 'Mar 9, 2026' },
+        ],
+        activity: [
+          { label: 'Events Attended', val: '22' },
+          { label: 'Favorites Saved', val: '15' },
+          { label: 'Reviews Written', val: '9' },
+        ]
+      },
+      'james-thompson': {
+        name: 'James Thompson', initials: 'JT', location: 'Marietta, GA',
+        bio: 'Live music is my religion. Catch me at every festival in the metro area.',
+        joined: 'Member since May 2024',
+        interests: ['Music', 'Nightlife', 'Comedy'],
+        eventsAttended: 11, sharedEvents: 1, connections: 14,
+        shared: [
+          { icon: 'music', title: 'Summer Music Festival 2026', date: 'Jun 14, 2026' },
+        ],
+        activity: [
+          { label: 'Events Attended', val: '11' },
+          { label: 'Favorites Saved', val: '4' },
+          { label: 'Reviews Written', val: '2' },
+        ]
+      },
+      'aisha-robinson': {
+        name: 'Aisha Robinson', initials: 'AR', location: 'Atlanta, GA',
+        bio: 'Curator, connector, community builder. Passionate about Atlanta\'s arts scene.',
+        joined: 'Member since Nov 2023',
+        interests: ['Arts & Culture', 'Food & Drink', 'Business & Networking'],
+        eventsAttended: 29, sharedEvents: 2, connections: 58,
+        shared: [
+          { icon: 'art',  title: 'Contemporary Art Exhibition Opening', date: 'Mar 4, 2026' },
+          { icon: 'food', title: 'Atlanta Food & Wine Experience', date: 'Mar 9, 2026' },
+        ],
+        activity: [
+          { label: 'Events Attended', val: '29' },
+          { label: 'Favorites Saved', val: '20' },
+          { label: 'Reviews Written', val: '12' },
+        ]
+      },
+      'derek-foster': {
+        name: 'Derek Foster', initials: 'DF', location: 'Sandy Springs, GA',
+        bio: 'Chef by trade, music fan by heart. Always hunting for the best eats and beats.',
+        joined: 'Member since Jun 2024',
+        interests: ['Music', 'Food & Drink', 'Outdoor & Adventure'],
+        eventsAttended: 9, sharedEvents: 1, connections: 12,
+        shared: [
+          { icon: 'food', title: 'Atlanta Food & Wine Experience', date: 'Mar 9, 2026' },
+        ],
+        activity: [
+          { label: 'Events Attended', val: '9' },
+          { label: 'Favorites Saved', val: '6' },
+          { label: 'Reviews Written', val: '1' },
+        ]
+      },
+      'priya-patel': {
+        name: 'Priya Patel', initials: 'PP', location: 'Alpharetta, GA',
+        bio: 'Tech by day, art by night. Love discovering new galleries and culinary experiences.',
+        joined: 'Member since Apr 2024',
+        interests: ['Arts & Culture', 'Food & Drink', 'Tech & Innovation'],
+        eventsAttended: 16, sharedEvents: 1, connections: 27,
+        shared: [
+          { icon: 'art', title: 'Contemporary Art Exhibition Opening', date: 'Mar 4, 2026' },
+        ],
+        activity: [
+          { label: 'Events Attended', val: '16' },
+          { label: 'Favorites Saved', val: '9' },
+          { label: 'Reviews Written', val: '4' },
+        ]
+      },
+      'carlos-mendez': {
+        name: 'Carlos Mendez', initials: 'CM', location: 'Atlanta, GA',
+        bio: 'Musician and visual artist. If there\'s a stage or a canvas, I\'ll be there.',
+        joined: 'Member since Jan 2024',
+        interests: ['Music', 'Arts & Culture', 'Nightlife'],
+        eventsAttended: 20, sharedEvents: 2, connections: 33,
+        shared: [
+          { icon: 'music', title: 'Summer Music Festival 2026', date: 'Jun 14, 2026' },
+          { icon: 'art',   title: 'Contemporary Art Exhibition Opening', date: 'Mar 4, 2026' },
+        ],
+        activity: [
+          { label: 'Events Attended', val: '20' },
+          { label: 'Favorites Saved', val: '13' },
+          { label: 'Reviews Written', val: '7' },
+        ]
+      }
+    };
+
+    // ── Icon SVGs for shared events ─────────────────────────────
+    const icons = {
+      music: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>`,
+      food:  `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>`,
+      art:   `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8.56 2.75c4.37 6.03 6.02 9.42 8.03 17.72m2.54-15.38c-3.72 4.35-8.94 5.66-16.88 5.85m19.5 1.9c-3.5-.93-6.63-.82-8.94 0-2.58.92-5.01 2.86-7.44 6.32"/></svg>`,
+    };
+
+    // ── Render page ─────────────────────────────────────────────
+    function getParam(name) {
+      return new URLSearchParams(window.location.search).get(name);
+    }
+
+    const id = getParam('id') || 'sarah-johnson';
+    const person = people[id] || people['sarah-johnson'];
+
+    // Update document title
+    document.title = `ATL Events – ${person.name}`;
+
+    // Hero
+    document.getElementById('hero-initials').textContent = person.initials;
+    document.getElementById('hero-name').textContent = person.name;
+    document.getElementById('hero-location-text').textContent = person.location;
+    document.getElementById('hero-bio').textContent = person.bio;
+    document.getElementById('stat-events').textContent = person.eventsAttended;
+    document.getElementById('stat-shared').textContent = person.sharedEvents;
+    document.getElementById('stat-connections').textContent = person.connections;
+
+    // About
+    document.getElementById('about-text').textContent = person.bio;
+    document.getElementById('about-location').textContent = person.location;
+    document.getElementById('about-joined').textContent = person.joined;
+
+    // Interests
+    const interestsList = document.getElementById('interests-list');
+    person.interests.forEach(i => {
+      const li = document.createElement('li');
+      li.textContent = i;
+      interestsList.appendChild(li);
+    });
+
+    // Shared events
+    const sharedList = document.getElementById('shared-events-list');
+    if (person.shared.length === 0) {
+      sharedList.innerHTML = '<li style="font-size:.875rem;color:var(--muted);padding:.5rem 0;">No shared events yet.</li>';
+    } else {
+      person.shared.forEach(ev => {
+        sharedList.innerHTML += `
+          <li class="shared-event-row">
+            <div class="shared-event-icon">${icons[ev.icon] || icons.music}</div>
+            <div class="shared-event-info">
+              <p>${ev.title}</p>
+              <span>${ev.date}</span>
+            </div>
+          </li>`;
+      });
+    }
+
+    // Activity
+    const actList = document.getElementById('activity-list');
+    const actIcons = [
+      `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/></svg>`,
+      `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>`,
+      `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>`,
+    ];
+    person.activity.forEach((a, i) => {
+      actList.innerHTML += `
+        <li>
+          ${actIcons[i] || actIcons[0]}
+          <span class="act-label">${a.label}</span>
+          <strong>${a.val}</strong>
+        </li>`;
+    });
+  </script>
+
+</body>
+</html>
