@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ATL Events – Connections</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="profile.css">
+  <style>
+    /* ── PAGE-SPECIFIC ── */
+    .connections-hero {
+      background: linear-gradient(110deg, var(--orange) 0%, #e03000 55%, #c02800 100%);
+      padding: 2rem 2.5rem;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 1.5rem; position: relative; overflow: hidden;
+    }
+    .connections-hero::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse 70% 120% at 100% 50%, rgba(255,255,255,.06) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .connections-hero-text { z-index: 1; }
+    .connections-hero-text h1 {
+      font-size: 1.6rem; font-weight: 800; color: #fff;
+      letter-spacing: -.03em; line-height: 1; margin-bottom: .3rem;
+    }
+    .connections-hero-text p { font-size: .875rem; color: rgba(255,255,255,.8); }
+
+    .connections-hero-stat {
+      z-index: 1;
+      background: rgba(255,255,255,.15);
+      border: 1px solid rgba(255,255,255,.25);
+      border-radius: 12px;
+      padding: .9rem 1.6rem;
+      text-align: center; flex-shrink: 0;
+    }
+    .connections-hero-stat strong {
+      display: block; font-size: 2rem; font-weight: 800;
+      color: #fff; line-height: 1; letter-spacing: -.03em;
+    }
+    .connections-hero-stat span {
+      font-size: .75rem; color: rgba(255,255,255,.75); font-weight: 500;
+      text-transform: uppercase; letter-spacing: .07em;
+    }
+
+    /* Content area */
+    .connections-content {
+      max-width: 900px; margin: 0 auto;
+      padding: 1.75rem 2.5rem;
+      display: flex; flex-direction: column; gap: 1.25rem;
+    }
+
+    /* Search + filter bar */
+    .search-bar {
+      display: flex; gap: .75rem; align-items: center;
+    }
+    .search-input-wrap {
+      position: relative; flex: 1;
+    }
+    .search-input-wrap svg {
+      position: absolute; left: .85rem; top: 50%; transform: translateY(-50%);
+      width: 16px; height: 16px; color: var(--muted); pointer-events: none;
+    }
+    .search-input-wrap input {
+      width: 100%; padding: .62rem .85rem .62rem 2.4rem;
+      border: 1px solid var(--border); border-radius: 10px;
+      background: var(--card); font-family: 'Inter', sans-serif;
+      font-size: .875rem; color: var(--text); outline: none;
+      transition: border-color .18s, box-shadow .18s;
+    }
+    .search-input-wrap input:focus {
+      border-color: var(--orange);
+      box-shadow: 0 0 0 3px rgba(232,71,10,.1);
+    }
+    .search-input-wrap input::placeholder { color: var(--muted); }
+
+    .filter-select {
+      font-family: 'Inter', sans-serif; font-size: .82rem; font-weight: 500;
+      color: var(--text); background: var(--card);
+      border: 1px solid var(--border); border-radius: 10px;
+      padding: .62rem 2rem .62rem .9rem; outline: none; cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b6b7b' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right .7rem center;
+      transition: border-color .18s;
+    }
+    .filter-select:focus { border-color: var(--orange); }
+
+    /* Section label */
+    .section-label {
+      font-size: .78rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .08em; color: var(--muted);
+      display: flex; align-items: center; gap: .6rem;
+    }
+    .section-label::after {
+      content: ''; flex: 1; height: 1px; background: var(--border);
+    }
+
+    /* Connections grid */
+    .connections-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 1rem;
+    }
+
+    .connection-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 14px; padding: 1.2rem;
+      display: flex; flex-direction: column; align-items: center;
+      text-align: center; gap: .6rem;
+      transition: box-shadow .2s, transform .2s;
+      animation: fadeUp .4s ease both;
+    }
+    .connection-card:hover {
+      box-shadow: 0 6px 22px rgba(0,0,0,.09);
+      transform: translateY(-3px);
+    }
+
+    .conn-card-avatar {
+      width: 64px; height: 64px; border-radius: 50%;
+      background: var(--tag-bg); border: 2px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem; font-weight: 700; color: var(--muted);
+      flex-shrink: 0;
+    }
+    .conn-card-avatar.female-1 { background: #fde8e0; color: #c05030; border-color: #f4c0b0; }
+    .conn-card-avatar.male-1   { background: #e0eaf8; color: #3060a0; border-color: #b0c8f0; }
+    .conn-card-avatar.female-2 { background: #e8f4e0; color: #408030; border-color: #b0d8a0; }
+    .conn-card-avatar.male-2   { background: #f0e8f8; color: #7030a0; border-color: #d0b0f0; }
+    .conn-card-avatar.female-3 { background: #fdf4e0; color: #a07010; border-color: #f0d890; }
+    .conn-card-avatar.male-3   { background: #e0f4f4; color: #107070; border-color: #90d8d8; }
+
+    .conn-card-name {
+      font-size: .95rem; font-weight: 700; color: var(--text);
+      letter-spacing: -.01em; line-height: 1.2;
+    }
+    .conn-card-meta {
+      font-size: .78rem; color: var(--muted); font-weight: 500;
+      display: flex; align-items: center; justify-content: center; gap: .35rem;
+    }
+    .conn-card-meta svg { width: 12px; height: 12px; flex-shrink: 0; }
+
+    .conn-card-interests {
+      display: flex; flex-wrap: wrap; justify-content: center; gap: .35rem;
+      margin-top: .1rem;
+    }
+    .conn-card-interests span {
+      font-size: .68rem; font-weight: 600; letter-spacing: .03em;
+      background: var(--tag-bg); border: 1px solid var(--border);
+      color: var(--muted); padding: .2rem .6rem; border-radius: 999px;
+    }
+
+    .conn-card-footer {
+      width: 100%; padding-top: .75rem; border-top: 1px solid var(--border);
+      display: flex; gap: .5rem;
+    }
+    .btn-view-full {
+      flex: 1; font-family: 'Inter', sans-serif; font-size: .78rem;
+      font-weight: 700; color: #fff; background: var(--orange);
+      border: none; border-radius: 8px; padding: .5rem .75rem;
+      cursor: pointer; text-decoration: none; text-align: center;
+      transition: background .18s;
+      display: flex; align-items: center; justify-content: center; gap: .35rem;
+    }
+    .btn-view-full:hover { background: var(--orange-dark); }
+    .btn-view-full svg { width: 13px; height: 13px; }
+    .btn-message {
+      font-family: 'Inter', sans-serif; font-size: .78rem; font-weight: 600;
+      color: var(--muted); background: var(--light);
+      border: 1px solid var(--border); border-radius: 8px;
+      padding: .5rem .75rem; cursor: pointer;
+      transition: color .18s, border-color .18s;
+      display: flex; align-items: center; gap: .35rem;
+    }
+    .btn-message:hover { color: var(--orange); border-color: var(--orange); }
+    .btn-message svg { width: 13px; height: 13px; }
+
+    /* Stagger animation for cards */
+    .connection-card:nth-child(2)  { animation-delay: .04s; }
+    .connection-card:nth-child(3)  { animation-delay: .08s; }
+    .connection-card:nth-child(4)  { animation-delay: .12s; }
+    .connection-card:nth-child(5)  { animation-delay: .16s; }
+    .connection-card:nth-child(6)  { animation-delay: .20s; }
+    .connection-card:nth-child(7)  { animation-delay: .24s; }
+    .connection-card:nth-child(8)  { animation-delay: .28s; }
+
+    /* Back link */
+    .back-link {
+      display: inline-flex; align-items: center; gap: .4rem;
+      font-size: .82rem; font-weight: 600; color: var(--muted);
+      text-decoration: none; margin-bottom: .25rem;
+      transition: color .18s;
+    }
+    .back-link:hover { color: var(--text); }
+    .back-link svg { width: 15px; height: 15px; }
+
+    @media (max-width: 600px) {
+      .connections-content { padding: 1.25rem 1.25rem; }
+      .connections-hero { padding: 1.75rem 1.25rem; flex-direction: column; align-items: flex-start; }
+      .connections-grid { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="site-nav">
+    <a href="profile.html" class="nav-brand">
+      <div class="nav-brand-icon">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <rect x="3" y="4" width="18" height="18" rx="3" fill="none" stroke="#fff" stroke-width="2"/>
+          <line x1="3" y1="9" x2="21" y2="9" stroke="#fff" stroke-width="2"/>
+          <line x1="8" y1="2" x2="8" y2="6" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+          <line x1="16" y1="2" x2="16" y2="6" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <span class="nav-brand-name">ATL Events</span>
+    </a>
+    <div class="nav-links">
+      <a href="../homepage/home_page.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12L12 3l9 9"/><path d="M9 21V12h6v9"/></svg>
+        Explore
+      </a>
+      <a href="profile.html" class="active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+        Profile
+      </a>
+      <a href="../../login/signup/login.html" id="nav-logout">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Logout
+      </a>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="connections-hero">
+    <div class="connections-hero-text">
+      <h1>Your Connections</h1>
+      <p>People you've met and connected with through ATL Events</p>
+    </div>
+    <div class="connections-hero-stat">
+      <strong>24</strong>
+      <span>Total Connections</span>
+    </div>
+  </section>
+
+  <!-- CONTENT -->
+  <div class="connections-content">
+
+    <a href="profile.html" class="back-link">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      Back to Profile
+    </a>
+
+    <!-- Search + Filter -->
+    <div class="search-bar">
+      <div class="search-input-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="search-input" placeholder="Search connections..." oninput="filterConnections()">
+      </div>
+      <select class="filter-select" id="filter-select" onchange="filterConnections()">
+        <option value="all">All</option>
+        <option value="recent">Recently Added</option>
+        <option value="music">Music</option>
+        <option value="food">Food &amp; Drink</option>
+        <option value="arts">Arts &amp; Culture</option>
+      </select>
+    </div>
+
+    <!-- Recent Connections -->
+    <p class="section-label">Recent</p>
+
+    <div class="connections-grid" id="connections-grid">
+
+      <div class="connection-card" data-name="sarah johnson" data-interests="music arts">
+        <div class="conn-card-avatar female-1">SJ</div>
+        <p class="conn-card-name">Sarah Johnson</p>
+        <p class="conn-card-meta">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s-8-5.8-8-12a8 8 0 0 1 16 0c0 6.2-8 12-8 12z"/><circle cx="12" cy="10" r="3"/></svg>
+          Atlanta, GA
+        </p>
+        <div class="conn-card-interests">
+          <span>Music</span><span>Arts &amp; Culture</span>
+        </div>
+        <div class="conn-card-footer">
+          <a href="connection-profile.html?id=sarah-johnson" class="btn-view-full">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+            View Profile
+          </a>
+          <button class="btn-message">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="connection-card" data-name="marcus williams" data-interests="music food">
+        <div class="conn-card-avatar male-1">MW</div>
+        <p class="conn-card-name">Marcus Williams</p>
+        <p class="conn-card-meta">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s-8-5.8-8-12a8 8 0 0 1 16 0c0 6.2-8 12-8 12z"/><circle cx="12" cy="10" r="3"/></svg>
+          Decatur, GA
+        </p>
+        <div class="conn-card-interests">
+          <span>Music</span><span>Food &amp; Drink</span>
+        </div>
+        <div class="conn-card-footer">
+          <a href="connection-profile.html?id=marcus-williams" class="btn-view-full">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+            View Profile
+          </a>
+          <button class="btn-message">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="connection-card" data-name="emily chen" data-interests="arts food">
+        <div class="conn-card-avatar female-2">EC</div>
+        <p class="conn-card-name">Emily Chen</p>
+        <p class="conn-card-meta">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s-8-5.8-8-12a8 8 0 0 1 16 0c0 6.2-8 12-8 12z"/><circle cx="12" cy="10" r="3"/></svg>
+          Atlanta, GA
+        </p>
+        <div class="conn-card-interests">
+          <span>Arts &amp; Culture</span><span>Food &amp; Drink</span>
+        </div>
+        <div class="conn-card-footer">
+          <a href="connection-profile.html?id=emily-chen" class="btn-view-full">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+            View Profile
+          </a>
+          <button class="btn-message">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="connection-card" data-name="james thompson" data-interests="music">
+        <div class="conn-card-avatar male-2">JT</div>
+        <p class="conn-card-name">James Thompson</p>
+        <p class="conn-card-meta">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s-8-5.8-8-12a8 8 0 0 1 16 0c0 6.2-8 12-8 12z"/><circle cx="12" cy="10" r="3"/></svg>
+          Marietta, GA
+        </p>
+        <div class="conn-card-interests">
+          <span>Music</span><span>Nightlife</span>
+        </div>
+        <div class="conn-card-footer">
+          <a href="connection-profile.html?id=james-thompson" class="btn-view-full">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+            View Profile
+          </a>
+          <button class="btn-message">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="connection-card" data-name="aisha robinson" data-interests="arts food">
+        <div class="conn-card-avatar female-3">AR</div>
+        <p class="conn-card-name">Aisha Robinson</p>
+        <p class="conn-card-meta">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s-8-5.8-8-12a8 8 0 0 1 16 0c0 6.2-8 12-8 12z"/><circle cx="12" cy="10" r="3"/></svg>
+          Atlanta, GA
+        </p>
+        <div class="conn-card-interests">
+          <span>Arts &amp; Culture</span><span>Food &amp; Drink</span>
+        </div>
+        <div class="conn-card-footer">
+          <a href="connection-profile.html?id=aisha-robinson" class="btn-view-full">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+            View Profile
+          </a>
+          <button class="btn-message">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="connection-card" data-name="derek foster" data-interests="music food">
+        <div class="conn-card-avatar male-3">DF</div>
+        <p class="conn-card-name">Derek Foster</p>
+        <p class="conn-card-meta">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s-8-5.8-8-12a8 8 0 0 1 16 0c0 6.2-8 12-8 12z"/><circle cx="12" cy="10" r="3"/></svg>
+          Sandy Springs, GA
+        </p>
+        <div class="conn-card-interests">
+          <span>Music</span><span>Food &amp; Drink</span>
+        </div>
+        <div class="conn-card-footer">
+          <a href="connection-profile.html?id=derek-foster" class="btn-view-full">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+            View Profile
+          </a>
+          <button class="btn-message">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="connection-card" data-name="priya patel" data-interests="arts food">
+        <div class="conn-card-avatar female-1">PP</div>
+        <p class="conn-card-name">Priya Patel</p>
+        <p class="conn-card-meta">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s-8-5.8-8-12a8 8 0 0 1 16 0c0 6.2-8 12-8 12z"/><circle cx="12" cy="10" r="3"/></svg>
+          Alpharetta, GA
+        </p>
+        <div class="conn-card-interests">
+          <span>Arts &amp; Culture</span><span>Food &amp; Drink</span>
+        </div>
+        <div class="conn-card-footer">
+          <a href="connection-profile.html?id=priya-patel" class="btn-view-full">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+            View Profile
+          </a>
+          <button class="btn-message">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="connection-card" data-name="carlos mendez" data-interests="music arts">
+        <div class="conn-card-avatar male-1">CM</div>
+        <p class="conn-card-name">Carlos Mendez</p>
+        <p class="conn-card-meta">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s-8-5.8-8-12a8 8 0 0 1 16 0c0 6.2-8 12-8 12z"/><circle cx="12" cy="10" r="3"/></svg>
+          Atlanta, GA
+        </p>
+        <div class="conn-card-interests">
+          <span>Music</span><span>Arts &amp; Culture</span>
+        </div>
+        <div class="conn-card-footer">
+          <a href="connection-profile.html?id=carlos-mendez" class="btn-view-full">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+            View Profile
+          </a>
+          <button class="btn-message">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- No results message (hidden by default) -->
+    <div id="no-results" style="display:none; text-align:center; padding:3rem 1rem;">
+      <p style="font-size:.95rem; color:var(--muted); font-weight:500;">No connections match your search.</p>
+    </div>
+
+  </div>
+
+  <script>
+    function filterConnections() {
+      const query = document.getElementById('search-input').value.toLowerCase();
+      const filter = document.getElementById('filter-select').value;
+      const cards = document.querySelectorAll('.connection-card');
+      let visible = 0;
+
+      cards.forEach(card => {
+        const name = card.dataset.name || '';
+        const interests = card.dataset.interests || '';
+        const matchesSearch = name.includes(query);
+        const matchesFilter = filter === 'all' || filter === 'recent' || interests.includes(filter);
+        const show = matchesSearch && matchesFilter;
+        card.style.display = show ? '' : 'none';
+        if (show) visible++;
+      });
+
+      document.getElementById('no-results').style.display = visible === 0 ? 'block' : 'none';
+    }
+  </script>
+
+</body>
+</html>
