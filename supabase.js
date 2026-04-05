@@ -1,7 +1,4 @@
-// ─── Supabase Configuration ───────────────────────────────────────────────────
-// Replace these values with your actual Supabase project URL and anon key.
-// Find them at: https://app.supabase.com → your project → Settings → API
-// ──────────────────────────────────────────────────────────────────────────────
+
 
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
