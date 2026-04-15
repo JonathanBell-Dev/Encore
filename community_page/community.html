@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Encore - Community</title>
+    <link rel="stylesheet" href="community.css">
+    <link rel="stylesheet" href="../css/toast.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script type="module">
+      import { guardPage } from '../src/utils/guard.js';
+      guardPage();
+    </script>
+</head>
+<body>
+
+    <header class="navbar">
+        <div class="logo" style="display:flex;align-items:center;gap:.55rem;">
+            <div style="width:30px;height:30px;background:#e8470a;border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="16" height="16"><rect x="2.5" y="11" width="5" height="10" rx="2.5" fill="#fff"/><rect x="9.5" y="5" width="5" height="16" rx="2.5" fill="#fff"/><rect x="16.5" y="8" width="5" height="8" rx="2.5" fill="#fff"/></svg>
+            </div>
+            Encore
+        </div>
+        <nav>
+            <a href="../homepage/home_page.html">Explore</a>
+            <a href="../homepage/home_page.html">Neighborhood</a>
+            <a href="community.html" class="active">Community</a>
+            <a href="../profile/profile.html">Profile</a>
+        </nav>
+        <div class="auth-buttons" id="nav-auth-actions">
+            <a href="../login/signup/login.html" class="login-btn" style="text-decoration:none">Log in</a>
+            <a href="../login/signup/login.html" class="join-btn" style="text-decoration:none">Join Free</a>
+        </div>
+    </header>
+
+    <main class="community-page">
+
+        <div class="community-main">
+            <!-- Upcoming Events Reel -->
+        <section class="upcoming-events-section" id="upcoming-events-section" style="display:none">
+          <div class="upcoming-header">
+            <h2 class="upcoming-title">Coming Up in ATL</h2>
+            <a href="../homepage/home_page.html" class="upcoming-see-all">See all</a>
+          </div>
+          <div class="upcoming-reel" id="upcoming-reel"></div>
+        </section>
+
+        <section class="create-post">
+                <div class="user-avatar">HJ</div>
+                <div class="post-input-area">
+                    <textarea placeholder="Share your music experience in ATL..."></textarea>
+                    <div class="post-actions">
+                        <button class="icon-btn"><i class="fa-solid fa-image"></i> Photo</button>
+                        <button class="submit-post-btn">Post</button>
+                    </div>
+                </div>
+            </section>
+
+            <p id="feed-loading" style="color:#6b6b7b;font-size:.875rem;padding:1.5rem 0;text-align:center">Loading community posts…</p>
+
+            <div class="feed" id="feed"></div>
+
+            <div id="feed-empty" style="display:none;text-align:center;padding:3rem 1rem;color:#6b6b7b">
+              <p style="font-weight:600;margin-bottom:.4rem">No posts yet</p>
+              <p style="font-size:.85rem">Be the first to share something with the community!</p>
+            </div>
+
+            <div style="text-align:center;padding:1rem 0" id="load-more-wrap" style="display:none">
+              <button id="btn-load-more" style="background:none;border:1px solid #e8e8ec;border-radius:9px;padding:.6rem 1.6rem;font-size:.85rem;font-weight:600;color:#6b6b7b;cursor:pointer">Load more</button>
+            </div>
+        </div>
+
+        <aside class="community-side">
+            <section class="trending-card">
+                <div class="trending-title">
+                    <span class="trending-icon">🔥</span>
+                    <div>
+                        <h3>Trending This Week</h3>
+                        <p>See what people are talking about in ATL</p>
+                    </div>
+                </div>
+
+                <div class="trending-tags">
+                    <span class="trend-tag jazz">🎷 #JazzNight</span>
+                    <span class="trend-tag park">🌳 #GrantParkLive</span>
+                    <span class="trend-tag rock">🎸 #RockFestATL</span>
+                    <span class="trend-tag indie">✨ #LittleFivePoints</span>
+                    <span class="trend-tag live">🎶 #FreeLiveMusic</span>
+                </div>
+            </section>
+        </aside>
+
+    </main>
+
+  <!-- Supabase CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script>
+    // ── Config ────────────────────────────────────────────────────────────────
+    const SUPABASE_URL  = 'https://qgvoznhldglucpsaisfs.supabase.co';
+    const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFndm96bmhsZGdsdWNwc2Fpc2ZzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxOTU4MjUsImV4cCI6MjA5MTc3MTgyNX0.e-5X1Lh4Tg8cP-FL-3eorV5pAZCDe4CR6i2AFeDKHWQ';
+    const { createClient } = supabase;
+    const sb = createClient(SUPABASE_URL, SUPABASE_ANON);
+
+    let currentUser = null;
+    let currentProfile = null;
+
+    // ── Boot ──────────────────────────────────────────────────────────────────
+    async function init() {
+      const { data: { session } } = await sb.auth.getSession();
+      if (session) {
+        currentUser = session.user;
+        const { data: profile } = await sb
+          .from('accounts')
+          .select('first_name,last_name,user_name,avatar_url')
+          .eq('id', currentUser.id)
+          .single();
+        if (profile) {
+          currentProfile = profile;
+          const initials = ((profile.first_name?.[0] || '') + (profile.last_name?.[0] || '')).toUpperCase() || '?';
+          document.querySelector('.create-post .user-avatar').textContent = initials;
+          updateAuthNav(profile);
+        }
+      }
+    }
+
+    function updateAuthNav(profile) {
+      const container = document.getElementById('nav-auth-actions');
+      if (!container) return;
+      const name = [profile.first_name, profile.last_name].filter(Boolean).join(' ') || profile.user_name || 'Account';
+      const initials = name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) || '?';
+      container.innerHTML = '';
+
+      const avatarLink = document.createElement('a');
+      avatarLink.href = '../profile/profile.html';
+      avatarLink.style.cssText = 'display:flex;align-items:center;gap:.5rem;text-decoration:none;color:inherit;font-size:.875rem;font-weight:600;';
+      const av = document.createElement('div');
+      av.style.cssText = 'width:32px;height:32px;border-radius:50%;background:#e8470a;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;color:#fff;flex-shrink:0;';
+      av.textContent = initials;
+      avatarLink.appendChild(av);
+      avatarLink.appendChild(document.createTextNode(name.split(' ')[0]));
+
+      const logoutBtn = document.createElement('button');
+      logoutBtn.className = 'login-btn';
+      logoutBtn.textContent = 'Log out';
+      logoutBtn.style.cssText = 'background:none;border:1px solid #dee0e6;border-radius:8px;padding:.35rem .9rem;font-size:.875rem;font-weight:600;cursor:pointer;color:#6b6b7b;';
+      logoutBtn.addEventListener('click', async () => {
+        await sb.auth.signOut();
+        window.location.href = '../login/signup/login.html';
+      });
+
+      container.appendChild(avatarLink);
+      container.appendChild(logoutBtn);
+    }
+
+    // ── Upcoming events reel ──────────────────────────────────────────────────
+    let userFavEvents = new Set();
+
+    async function loadUpcomingEvents() {
+      // Load user's favorited events in parallel with the event query
+      const queries = [
+        sb.from('events')
+          .select('id, title, category, venue_name, starts_at, ticket_price, is_free')
+          .eq('status', 'published')
+          .gte('starts_at', new Date().toISOString())
+          .order('starts_at', { ascending: true })
+          .limit(10)
+      ];
+
+      if (currentUser) {
+        queries.push(
+          sb.from('event_favorites').select('event_id').eq('account_id', currentUser.id)
+        );
+      }
+
+      const [evResult, favResult] = await Promise.all(queries);
+      const events = evResult.data || [];
+      if (favResult?.data) favResult.data.forEach(r => userFavEvents.add(r.event_id));
+
+      if (!events.length) return;
+
+      const section = document.getElementById('upcoming-events-section');
+      const reel = document.getElementById('upcoming-reel');
+      section.style.display = 'block';
+      reel.innerHTML = '';
+
+      events.forEach(ev => {
+        const d = new Date(ev.starts_at);
+        const dateStr = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        const price = ev.is_free || !ev.ticket_price || ev.ticket_price <= 0 ? 'Free' : '$' + Number(ev.ticket_price).toFixed(0) + '+';
+        const isFav = userFavEvents.has(ev.id);
+
+        const card = document.createElement('div');
+        card.className = 'event-reel-card';
+
+        card.innerHTML = `
+          <div class="event-reel-category">${ev.category || 'Event'}</div>
+          <div class="event-reel-title">${escHtml(ev.title)}</div>
+          <div class="event-reel-meta">
+            <span>${dateStr}</span>
+            ${ev.venue_name ? `<span>${escHtml(ev.venue_name)}</span>` : ''}
+          </div>
+          <div class="event-reel-footer">
+            <span class="event-reel-price${ev.is_free || !ev.ticket_price || ev.ticket_price <= 0 ? ' free' : ''}">${price}</span>
+            <button class="event-reel-fav${isFav ? ' active' : ''}" data-event-id="${ev.id}" title="${isFav ? 'Unfavorite' : 'Save event'}">
+              ${isFav ? '★' : '☆'}
+            </button>
+          </div>`;
+
+        // Click card body → go to detail
+        card.addEventListener('click', e => {
+          if (e.target.closest('.event-reel-fav')) return;
+          window.location.href = `../events/detail.html?id=${ev.id}`;
+        });
+
+        // Favorite button
+        const favBtn = card.querySelector('.event-reel-fav');
+        favBtn.addEventListener('click', async e => {
+          e.stopPropagation();
+          if (!currentUser) { showToast('Sign in to save events', 'info'); return; }
+          favBtn.disabled = true;
+          if (userFavEvents.has(ev.id)) {
+            await sb.from('event_favorites').delete()
+              .eq('event_id', ev.id).eq('account_id', currentUser.id);
+            userFavEvents.delete(ev.id);
+            favBtn.textContent = '☆';
+            favBtn.classList.remove('active');
+          } else {
+            await sb.from('event_favorites').upsert(
+              { event_id: ev.id, account_id: currentUser.id },
+              { onConflict: 'event_id,account_id' }
+            );
+            userFavEvents.add(ev.id);
+            favBtn.textContent = '★';
+            favBtn.classList.add('active');
+            showToast('Event saved!');
+          }
+          favBtn.disabled = false;
+        });
+
+        reel.appendChild(card);
+      });
+    }
+
+    function escHtml(str) {
+      return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    // ── Post submission ───────────────────────────────────────────────────────
+    document.querySelector('.submit-post-btn').addEventListener('click', async () => {
+      if (!currentUser) {
+        showToast('You must be logged in to post.', 'error');
+        return;
+      }
+
+      const textarea = document.querySelector('.create-post textarea');
+      // Strip HTML to prevent XSS — only plain text is stored
+      const rawText = textarea.value;
+      const stripped = stripTags(rawText).trim();
+
+      if (!stripped) {
+        showToast('Post cannot be empty.', 'warning');
+        return;
+      }
+      if (stripped.length > 500) {
+        showToast('Post must be 500 characters or fewer.', 'warning');
+        return;
+      }
+
+      const btn = document.querySelector('.submit-post-btn');
+      btn.disabled = true;
+      btn.textContent = 'Posting…';
+
+      const { data, error } = await sb.from('posts').insert({
+        account_id: currentUser.id,
+        title:      stripped.split('\n')[0].slice(0, 80) || 'Post',
+        content:    stripped,
+      }).select().single();
+
+      btn.disabled = false;
+      btn.textContent = 'Post';
+
+      if (error) {
+        showToast('Failed to create post. Please try again.', 'error');
+        return;
+      }
+
+      textarea.value = '';
+      showToast('Post shared!', 'success');
+      // data may be null if the SELECT policy hasn't been applied yet — build a minimal stub
+      const postStub = data || { id: crypto.randomUUID(), content: stripped, created_at: new Date().toISOString() };
+      prependPostCard(postStub, currentUser);
+    });
+
+    // ── Time formatter ─────────────────────────────────────────────────────────
+    function timeAgo(dateStr) {
+      const diff = Date.now() - new Date(dateStr).getTime();
+      const mins = Math.floor(diff / 60000);
+      if (mins < 1) return 'Just now';
+      if (mins < 60) return `${mins}m ago`;
+      const hrs = Math.floor(mins / 60);
+      if (hrs < 24) return `${hrs}h ago`;
+      const days = Math.floor(hrs / 24);
+      return days === 1 ? 'Yesterday' : `${days}d ago`;
+    }
+
+    // ── Avatar colors ──────────────────────────────────────────────────────────
+    const COLORS = ['#e8470a','#2D5E4E','#4A90E2','#8E44AD','#1ABC9C','#E14D2A','#F39C12'];
+    function colorFor(id) { return COLORS[(id || '').charCodeAt(0) % COLORS.length]; }
+
+    // ── Build post card DOM ───────────────────────────────────────────────────
+    function buildPostCard(post, likedIds = new Set()) {
+      const account = post.accounts || {};
+      const name = [account.first_name, account.last_name].filter(Boolean).join(' ') || account.user_name || 'Encore Member';
+      const initials = name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+      const isLiked = likedIds.has(post.id);
+
+      const article = document.createElement('article');
+      article.className = 'post-card';
+      article.dataset.postId = post.id;
+
+      // Header
+      const header = document.createElement('div');
+      header.className = 'post-header';
+      const userInfo = document.createElement('div');
+      userInfo.className = 'user-info';
+
+      const av = document.createElement('div');
+      av.className = 'post-avatar';
+      if (account.avatar_url) {
+        av.style.backgroundImage = `url(${account.avatar_url})`;
+        av.style.backgroundSize = 'cover';
+        av.style.backgroundPosition = 'center';
+      } else {
+        av.style.backgroundColor = colorFor(account.id || '');
+        av.textContent = initials;
+      }
+
+      const nameWrap = document.createElement('div');
+      const usernameSpan = document.createElement('span');
+      usernameSpan.className = 'username';
+      usernameSpan.textContent = name;
+      const timeSpan = document.createElement('span');
+      timeSpan.className = 'post-time';
+      timeSpan.textContent = timeAgo(post.created_at);
+      nameWrap.appendChild(usernameSpan);
+      nameWrap.appendChild(timeSpan);
+      userInfo.appendChild(av);
+      userInfo.appendChild(nameWrap);
+      header.appendChild(userInfo);
+
+      // Delete button — only visible to the post author
+      if (currentUser && post.account_id === currentUser.id) {
+        const deleteBtn = document.createElement('button');
+        deleteBtn.className = 'post-delete-btn';
+        deleteBtn.title = 'Delete post';
+        deleteBtn.innerHTML = '<i class="fa-regular fa-trash-can"></i>';
+        deleteBtn.addEventListener('click', () => deletePost(post.id, article));
+        header.appendChild(deleteBtn);
+      }
+
+      // Content
+      const content = document.createElement('div');
+      content.className = 'post-content';
+      const p = document.createElement('p');
+      p.textContent = post.content;
+      content.appendChild(p);
+
+      // Footer — like button
+      const footer = document.createElement('div');
+      footer.className = 'post-footer';
+
+      const likeBtn = document.createElement('button');
+      likeBtn.className = 'action-btn' + (isLiked ? ' liked' : '');
+      likeBtn.dataset.liked = isLiked ? '1' : '0';
+
+      const likeCount = document.createElement('span');
+      likeCount.className = 'like-count';
+      likeCount.textContent = (post.post_likes || []).length;
+
+      likeBtn.innerHTML = `<i class="${isLiked ? 'fa-solid' : 'fa-regular'} fa-heart"></i> `;
+      likeBtn.appendChild(likeCount);
+
+      likeBtn.addEventListener('click', () => toggleLike(post.id, likeBtn, likeCount));
+
+      const commentBtn = document.createElement('button');
+      commentBtn.className = 'action-btn';
+      commentBtn.innerHTML = `<i class="fa-regular fa-comment"></i> ${(post.post_comments || []).length}`;
+      commentBtn.addEventListener('click', () => toggleComments(post.id, article, commentBtn));
+
+      footer.appendChild(likeBtn);
+      footer.appendChild(commentBtn);
+
+      article.appendChild(header);
+      article.appendChild(content);
+      article.appendChild(footer);
+      return article;
+    }
+
+    // ── Delete post ───────────────────────────────────────────────────────────
+    async function deletePost(postId, article) {
+      if (!confirm('Delete this post? This cannot be undone.')) return;
+      const { error } = await sb.from('posts').delete().eq('id', postId);
+      if (error) { showToast('Delete failed. Try again.', 'error'); return; }
+      article.style.transition = 'opacity .25s';
+      article.style.opacity = '0';
+      setTimeout(() => article.remove(), 260);
+      showToast('Post deleted');
+    }
+
+    // ── Comments ─────────────────────────────────────────────────────────────
+    async function toggleComments(postId, article, commentBtn) {
+      let section = article.querySelector('.comments-section');
+      if (section) {
+        section.style.display = section.style.display === 'none' ? '' : 'none';
+        return;
+      }
+
+      // First open: build the section
+      section = document.createElement('div');
+      section.className = 'comments-section';
+
+      const listEl = document.createElement('div');
+      listEl.className = 'comments-list';
+      section.appendChild(listEl);
+
+      // Input row
+      const inputRow = document.createElement('div');
+      inputRow.className = 'comment-input-row';
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.className = 'comment-input';
+      input.placeholder = 'Write a comment…';
+      input.maxLength = 300;
+      const submitBtn = document.createElement('button');
+      submitBtn.className = 'comment-submit-btn';
+      submitBtn.textContent = 'Post';
+      inputRow.appendChild(input);
+      inputRow.appendChild(submitBtn);
+      section.appendChild(inputRow);
+
+      article.appendChild(section);
+
+      // Load existing comments
+      await refreshComments(postId, listEl, commentBtn);
+
+      // Submit on button click or Enter
+      const submit = async () => {
+        const text = input.value.trim();
+        if (!text) return;
+        if (!currentUser) { showToast('Sign in to comment', 'info'); return; }
+        submitBtn.disabled = true;
+        const { error } = await sb.from('post_comments').insert({
+          post_id: postId,
+          account_id: currentUser.id,
+          content: text,
+        });
+        submitBtn.disabled = false;
+        if (error) { showToast('Failed to post comment', 'error'); return; }
+        input.value = '';
+        await refreshComments(postId, listEl, commentBtn);
+      };
+      submitBtn.addEventListener('click', submit);
+      input.addEventListener('keydown', e => { if (e.key === 'Enter') submit(); });
+    }
+
+    async function refreshComments(postId, listEl, commentBtn) {
+      const { data: comments } = await sb
+        .from('post_comments')
+        .select('id, content, created_at, account_id')
+        .eq('post_id', postId)
+        .order('created_at', { ascending: true });
+
+      listEl.innerHTML = '';
+
+      if (comments && comments.length) {
+        const authorIds = [...new Set(comments.map(c => c.account_id))];
+        const { data: accounts } = await sb
+          .from('accounts')
+          .select('id, first_name, last_name, user_name')
+          .in('id', authorIds);
+        const accountMap = Object.fromEntries((accounts || []).map(a => [a.id, a]));
+
+        comments.forEach(c => {
+          const acc = accountMap[c.account_id] || {};
+          const displayName = acc.user_name || 'user';
+          const div = document.createElement('div');
+          div.className = 'comment';
+          const userSpan = document.createElement('span');
+          userSpan.className = 'comment-user';
+          userSpan.textContent = '@' + displayName;
+          const textSpan = document.createElement('span');
+          textSpan.className = 'comment-text';
+          textSpan.textContent = c.content;
+          div.appendChild(userSpan);
+          div.appendChild(textSpan);
+          listEl.appendChild(div);
+        });
+      }
+
+      if (commentBtn) {
+        commentBtn.innerHTML = `<i class="fa-regular fa-comment"></i> ${(comments || []).length}`;
+      }
+    }
+
+    // ── Like toggle ───────────────────────────────────────────────────────────
+    async function toggleLike(postId, btn, countEl) {
+      if (!currentUser) { showToast('Sign in to like posts', 'info'); return; }
+      const isLiked = btn.dataset.liked === '1';
+
+      if (isLiked) {
+        await sb.from('post_likes').delete().eq('post_id', postId).eq('account_id', currentUser.id);
+        btn.dataset.liked = '0';
+        btn.querySelector('i').className = 'fa-regular fa-heart';
+        btn.classList.remove('liked');
+        countEl.textContent = Math.max(0, parseInt(countEl.textContent) - 1);
+      } else {
+        await sb.from('post_likes').upsert({ post_id: postId, account_id: currentUser.id });
+        btn.dataset.liked = '1';
+        btn.querySelector('i').className = 'fa-solid fa-heart';
+        btn.classList.add('liked');
+        countEl.textContent = parseInt(countEl.textContent) + 1;
+      }
+    }
+
+    // ── Load feed ─────────────────────────────────────────────────────────────
+    const PAGE_SIZE = 10;
+    let feedPage = 0;
+    let likedPostIds = new Set();
+
+    async function loadFeed(reset = false) {
+      if (reset) { feedPage = 0; document.getElementById('feed').innerHTML = ''; likedPostIds = new Set(); }
+
+      // Step 1: load posts (simple — no embedded joins, avoids FK ambiguity)
+      const { data: posts, error } = await sb
+        .from('posts')
+        .select('id, content, created_at, account_id')
+        .order('created_at', { ascending: false })
+        .range(feedPage * PAGE_SIZE, (feedPage + 1) * PAGE_SIZE - 1);
+
+      const feedLoadingEl = document.getElementById('feed-loading');
+      if (feedLoadingEl) feedLoadingEl.style.display = 'none';
+
+      if (error) {
+        if (feedPage === 0) {
+          const empty = document.getElementById('feed-empty');
+          empty.textContent = 'Could not load posts. Please refresh and try again.';
+          empty.style.display = 'block';
+        }
+        document.getElementById('load-more-wrap').style.display = 'none';
+        return;
+      }
+
+      if (!posts || !posts.length) {
+        if (feedPage === 0) document.getElementById('feed-empty').style.display = 'block';
+        document.getElementById('load-more-wrap').style.display = 'none';
+        return;
+      }
+
+      // Step 2: fetch authors for this page of posts
+      const authorIds = [...new Set(posts.map(p => p.account_id))];
+      const { data: accounts } = await sb
+        .from('accounts')
+        .select('id, first_name, last_name, user_name, avatar_url')
+        .in('id', authorIds);
+      const accountMap = Object.fromEntries((accounts || []).map(a => [a.id, a]));
+
+      // Step 3: fetch likes for this page of posts
+      const postIds = posts.map(p => p.id);
+      const { data: likes } = await sb
+        .from('post_likes')
+        .select('post_id, account_id')
+        .in('post_id', postIds);
+      const likesByPost = {};
+      (likes || []).forEach(l => {
+        if (!likesByPost[l.post_id]) likesByPost[l.post_id] = [];
+        likesByPost[l.post_id].push(l);
+        if (currentUser && l.account_id === currentUser.id) likedPostIds.add(l.post_id);
+      });
+
+      // Step 4: fetch comment counts for this page of posts
+      const { data: commentRows } = await sb
+        .from('post_comments')
+        .select('post_id')
+        .in('post_id', postIds);
+      const commentCountByPost = {};
+      (commentRows || []).forEach(r => {
+        commentCountByPost[r.post_id] = (commentCountByPost[r.post_id] || 0) + 1;
+      });
+
+      // Attach resolved data so buildPostCard works unchanged
+      posts.forEach(post => {
+        post.accounts      = accountMap[post.account_id] || {};
+        post.post_likes    = likesByPost[post.id] || [];
+        post.post_comments = Array(commentCountByPost[post.id] || 0).fill(null);
+      });
+
+      const feed = document.getElementById('feed');
+      posts.forEach(post => feed.appendChild(buildPostCard(post, likedPostIds)));
+
+      feedPage++;
+      const loadMoreWrap = document.getElementById('load-more-wrap');
+      loadMoreWrap.style.display = posts.length === PAGE_SIZE ? 'block' : 'none';
+    }
+
+    document.getElementById('btn-load-more').addEventListener('click', () => loadFeed());
+
+    // ── Realtime: new posts appear live ──────────────────────────────────────
+    function subscribeRealtime() {
+      sb.channel('community-feed')
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'posts' }, async (payload) => {
+          const post = payload.new;
+          // Fetch author
+          const { data: account } = await sb.from('accounts').select('id,first_name,last_name,user_name,avatar_url').eq('id', post.account_id).single();
+          post.accounts = account;
+          post.post_likes = [];
+          post.post_comments = [];
+          // Don't duplicate if we just posted it ourselves
+          if (document.querySelector(`[data-post-id="${post.id}"]`)) return;
+          const feed = document.getElementById('feed');
+          feed.insertBefore(buildPostCard(post, likedPostIds), feed.firstChild);
+        })
+        .subscribe();
+    }
+
+    // ── Render a new post card after submission ───────────────────────────────
+    function prependPostCard(post, user) {
+      const account = {
+        id:         user.id,
+        first_name: currentProfile?.first_name || null,
+        last_name:  currentProfile?.last_name  || null,
+        user_name:  currentProfile?.user_name  || null,
+        avatar_url: currentProfile?.avatar_url || null,
+      };
+      post.accounts      = account;
+      post.account_id    = user.id;
+      post.post_likes    = [];
+      post.post_comments = [];
+
+      const card = buildPostCard(post, likedPostIds);
+      // If no avatar, set initials from the create-post widget
+      if (!account.avatar_url) {
+        const initials = document.querySelector('.create-post .user-avatar').textContent;
+        card.querySelector('.post-avatar').textContent = initials;
+      }
+
+      const feed = document.getElementById('feed');
+      feed.insertBefore(card, feed.firstChild);
+      document.getElementById('feed-empty').style.display = 'none';
+    }
+
+    // ── Sanitize: strip all HTML tags ────────────────────────────────────────
+    function stripTags(str) {
+      const tmp = document.createElement('div');
+      tmp.innerHTML = str;
+      return tmp.textContent || tmp.innerText || '';
+    }
+
+    // ── Toast helper ──────────────────────────────────────────────────────────
+    function showToast(message, type = 'success') {
+      let c = document.getElementById('toast-container');
+      if (!c) {
+        c = document.createElement('div');
+        c.id = 'toast-container';
+        document.body.appendChild(c);
+      }
+      const item = document.createElement('div');
+      item.className = `toast toast-${type}`;
+      const icons = { success: '✓', error: '✕', info: 'i', warning: '!' };
+      const iconEl = document.createElement('span');
+      iconEl.className = 'toast-icon';
+      iconEl.textContent = icons[type] || 'i';
+      const msgEl = document.createElement('span');
+      msgEl.className = 'toast-msg';
+      msgEl.textContent = message;
+      const closeEl = document.createElement('button');
+      closeEl.className = 'toast-close';
+      closeEl.textContent = '×';
+      closeEl.onclick = () => dismiss(item);
+      item.append(iconEl, msgEl, closeEl);
+      c.appendChild(item);
+      requestAnimationFrame(() => item.classList.add('toast-visible'));
+      setTimeout(() => dismiss(item), 3500);
+      function dismiss(el) {
+        el.classList.remove('toast-visible');
+        el.classList.add('toast-hiding');
+        el.addEventListener('transitionend', () => el.remove(), { once: true });
+      }
+    }
+
+    init().then(() => {
+      loadFeed(true);
+      loadUpcomingEvents();
+      subscribeRealtime();
+    });
+  </script>
+
+  <style>
+    .action-btn.liked { color: #e8470a; }
+    .action-btn.liked i { color: #e8470a; }
+    #load-more-wrap { display: none; }
+    #feed-empty { display: none; }
+  </style>
+</body>
+</html>

@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Encore – Connections</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="profile.css">
+  <link rel="stylesheet" href="../css/toast.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script type="module">
+    import { guardPage } from '../src/utils/guard.js';
+    guardPage();
+
+    const SUPABASE_URL  = 'https://qgvoznhldglucpsaisfs.supabase.co';
+    const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFndm96bmhsZGdsdWNwc2Fpc2ZzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxOTU4MjUsImV4cCI6MjA5MTc3MTgyNX0.e-5X1Lh4Tg8cP-FL-3eorV5pAZCDe4CR6i2AFeDKHWQ';
+    const { createClient } = supabase;
+    const sb = createClient(SUPABASE_URL, SUPABASE_ANON);
+
+    let currentUserId = null;
+    let allCards = [];   // { el, name, interests } for client-side filter
+
+    // ── Toast ─────────────────────────────────────────────────────────────────
+    function showToast(msg, type = 'success') {
+      const t = document.createElement('div');
+      t.className = 'toast toast-' + type;
+      t.textContent = msg;
+      document.body.appendChild(t);
+      requestAnimationFrame(() => t.classList.add('toast-visible'));
+      setTimeout(() => { t.classList.remove('toast-visible'); setTimeout(() => t.remove(), 300); }, 3000);
+    }
+
+    // ── Build connection card DOM ─────────────────────────────────────────────
+    function buildCard(person, connId) {
+      const name = [person.first_name, person.last_name].filter(Boolean).join(' ') || person.user_name || 'User';
+      const initials = name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+      const interests = (person.interests || []);
+
+      const card = document.createElement('div');
+      card.className = 'connection-card';
+      card.dataset.name = name.toLowerCase();
+      card.dataset.interests = interests.map(i => i.toLowerCase()).join(' ');
+
+      // Avatar
+      const av = document.createElement('div');
+      av.className = 'conn-card-avatar';
+      if (person.avatar_url) {
+        av.style.backgroundImage = `url(${person.avatar_url})`;
+        av.style.backgroundSize = 'cover';
+        av.style.backgroundPosition = 'center';
+      } else {
+        av.textContent = initials;
+      }
+
+      const pName = document.createElement('p');
+      pName.className = 'conn-card-name';
+      pName.textContent = name;
+
+      const pMeta = document.createElement('p');
+      pMeta.className = 'conn-card-meta';
+      pMeta.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s-8-5.8-8-12a8 8 0 0 1 16 0c0 6.2-8 12-8 12z"/><circle cx="12" cy="10" r="3"/></svg>';
+      pMeta.appendChild(document.createTextNode(' ' + (person.location || 'Atlanta, GA')));
+
+      // Interests
+      const chips = document.createElement('div');
+      chips.className = 'conn-card-interests';
+      interests.slice(0, 3).forEach(tag => {
+        const sp = document.createElement('span');
+        sp.textContent = tag;
+        chips.appendChild(sp);
+      });
+
+      // Footer: View + Message + Disconnect
+      const footer = document.createElement('div');
+      footer.className = 'conn-card-footer';
+
+      const viewLink = document.createElement('a');
+      viewLink.className = 'btn-view-full';
+      viewLink.href = `connection-profile.html?id=${person.id}`;
+      viewLink.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg> View';
+
+      const msgBtn = document.createElement('button');
+      msgBtn.className = 'btn-message';
+      msgBtn.title = 'Message';
+      msgBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>';
+      msgBtn.addEventListener('click', () => {
+        window.location.href = `messages.html?to=${person.id}`;
+      });
+
+      const discBtn = document.createElement('button');
+      discBtn.className = 'btn-message';
+      discBtn.title = 'Disconnect';
+      discBtn.style.cssText = 'color:#ff3b30;border-color:#ffd0d0';
+      discBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
+      discBtn.addEventListener('click', async () => {
+        if (!confirm(`Disconnect from ${name}?`)) return;
+        const { error } = await sb.from('connections').delete().eq('id', connId);
+        if (error) { showToast('Failed to disconnect', 'error'); return; }
+        card.style.transition = 'opacity .25s';
+        card.style.opacity = '0';
+        setTimeout(() => {
+          card.remove();
+          allCards = allCards.filter(c => c.el !== card);
+          updateCount();
+        }, 250);
+        showToast(`Disconnected from ${name}`);
+      });
+
+      footer.appendChild(viewLink);
+      footer.appendChild(msgBtn);
+      footer.appendChild(discBtn);
+
+      card.appendChild(av);
+      card.appendChild(pName);
+      card.appendChild(pMeta);
+      card.appendChild(chips);
+      card.appendChild(footer);
+      return card;
+    }
+
+    // ── Build pending request card ─────────────────────────────────────────────
+    function buildPendingCard(conn, person, isIncoming) {
+      const name = [person.first_name, person.last_name].filter(Boolean).join(' ') || person.user_name || 'User';
+      const initials = name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+
+      const card = document.createElement('div');
+      card.className = 'connection-card';
+      card.style.border = '1.5px dashed #e8e8ec';
+
+      const av = document.createElement('div');
+      av.className = 'conn-card-avatar';
+      av.textContent = initials;
+
+      const pName = document.createElement('p');
+      pName.className = 'conn-card-name';
+      pName.textContent = name;
+
+      const badge = document.createElement('p');
+      badge.className = 'conn-card-meta';
+      badge.textContent = isIncoming ? 'Wants to connect with you' : 'Request sent — pending';
+      badge.style.fontStyle = 'italic';
+
+      const footer = document.createElement('div');
+      footer.className = 'conn-card-footer';
+
+      if (isIncoming) {
+        const acceptBtn = document.createElement('button');
+        acceptBtn.className = 'btn-view-full';
+        acceptBtn.textContent = 'Accept';
+        acceptBtn.addEventListener('click', async () => {
+          const { error } = await sb.from('connections').update({ status: 'accepted' }).eq('id', conn.id);
+          if (error) { showToast('Failed to accept', 'error'); return; }
+          showToast(`Connected with ${name}!`);
+          await loadConnections(currentUserId);
+        });
+
+        const declineBtn = document.createElement('button');
+        declineBtn.className = 'btn-message';
+        declineBtn.textContent = 'Decline';
+        declineBtn.addEventListener('click', async () => {
+          const { error } = await sb.from('connections').delete().eq('id', conn.id);
+          if (error) { showToast('Failed to decline', 'error'); return; }
+          card.remove();
+          showToast('Request declined');
+        });
+
+        footer.appendChild(acceptBtn);
+        footer.appendChild(declineBtn);
+      } else {
+        const cancelBtn = document.createElement('button');
+        cancelBtn.className = 'btn-message';
+        cancelBtn.textContent = 'Cancel Request';
+        cancelBtn.addEventListener('click', async () => {
+          const { error } = await sb.from('connections').delete().eq('id', conn.id);
+          if (error) { showToast('Failed to cancel', 'error'); return; }
+          card.remove();
+        });
+        footer.appendChild(cancelBtn);
+      }
+
+      card.appendChild(av);
+      card.appendChild(pName);
+      card.appendChild(badge);
+      card.appendChild(footer);
+      return card;
+    }
+
+    // ── Update total count display ─────────────────────────────────────────────
+    function updateCount() {
+      const total = document.querySelectorAll('#connections-grid .connection-card').length;
+      document.getElementById('total-count').textContent = total;
+    }
+
+    // ── Filter (client-side) ──────────────────────────────────────────────────
+    window.filterConnections = function() {
+      const query = document.getElementById('search-input').value.toLowerCase();
+      const filter = document.getElementById('filter-select').value;
+      let visible = 0;
+
+      allCards.forEach(({ el, name, interests }) => {
+        const matchSearch = name.includes(query);
+        const matchFilter = filter === 'all' || filter === 'recent' || interests.includes(filter);
+        const show = matchSearch && matchFilter;
+        el.style.display = show ? '' : 'none';
+        if (show) visible++;
+      });
+
+      document.getElementById('no-results').style.display = visible === 0 ? 'block' : 'none';
+    };
+
+    // ── Load connections ──────────────────────────────────────────────────────
+    async function loadConnections(userId) {
+      const grid = document.getElementById('connections-grid');
+      const pendingGrid = document.getElementById('pending-grid');
+      const pendingSection = document.getElementById('pending-section');
+      allCards = [];
+      grid.innerHTML = '<p style="color:#6b6b7b;font-size:.85rem;padding:.5rem 0">Loading…</p>';
+
+      // Fetch accepted connections
+      const { data: accepted } = await sb
+        .from('connections')
+        .select('id, requester_id, addressee_id, requester:accounts!connections_requester_id_fkey(id,first_name,last_name,user_name,location,avatar_url), addressee:accounts!connections_addressee_id_fkey(id,first_name,last_name,user_name,location,avatar_url)')
+        .eq('status', 'accepted')
+        .or(`requester_id.eq.${userId},addressee_id.eq.${userId}`);
+
+      // Fetch pending
+      const { data: pending } = await sb
+        .from('connections')
+        .select('id, requester_id, addressee_id, requester:accounts!connections_requester_id_fkey(id,first_name,last_name,user_name), addressee:accounts!connections_addressee_id_fkey(id,first_name,last_name,user_name)')
+        .eq('status', 'pending')
+        .or(`requester_id.eq.${userId},addressee_id.eq.${userId}`);
+
+      grid.innerHTML = '';
+
+      // Render accepted
+      if (!accepted || !accepted.length) {
+        grid.innerHTML = '<p style="color:#6b6b7b;font-size:.85rem;grid-column:1/-1;padding:1rem 0">No connections yet — explore events to meet people!</p>';
+      } else {
+        accepted.forEach(conn => {
+          const person = conn.requester_id === userId ? conn.addressee : conn.requester;
+          if (!person) return;
+          const card = buildCard(person, conn.id);
+          allCards.push({ el: card, name: card.dataset.name, interests: card.dataset.interests });
+          grid.appendChild(card);
+        });
+        document.getElementById('total-count').textContent = accepted.length;
+      }
+
+      // Render pending
+      pendingGrid.innerHTML = '';
+      const hasPending = pending && pending.length;
+      pendingSection.style.display = hasPending ? 'block' : 'none';
+      if (hasPending) {
+        pending.forEach(conn => {
+          const isIncoming = conn.addressee_id === userId;
+          const person = isIncoming ? conn.requester : conn.addressee;
+          if (!person) return;
+          pendingGrid.appendChild(buildPendingCard(conn, person, isIncoming));
+        });
+      }
+    }
+
+    // ── Boot ──────────────────────────────────────────────────────────────────
+    sb.auth.getSession().then(async ({ data: { session } }) => {
+      if (!session) return;
+      currentUserId = session.user.id;
+      await loadConnections(currentUserId);
+    });
+  </script>
+  <style>
+    /* ── PAGE-SPECIFIC ── */
+    .connections-hero {
+      background: linear-gradient(110deg, var(--orange) 0%, #e03000 55%, #c02800 100%);
+      padding: 2rem 2.5rem;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 1.5rem; position: relative; overflow: hidden;
+    }
+    .connections-hero::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse 70% 120% at 100% 50%, rgba(255,255,255,.06) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .connections-hero-text { z-index: 1; }
+    .connections-hero-text h1 {
+      font-size: 1.6rem; font-weight: 800; color: #fff;
+      letter-spacing: -.03em; line-height: 1; margin-bottom: .3rem;
+    }
+    .connections-hero-text p { font-size: .875rem; color: rgba(255,255,255,.8); }
+
+    .connections-hero-stat {
+      z-index: 1;
+      background: rgba(255,255,255,.15);
+      border: 1px solid rgba(255,255,255,.25);
+      border-radius: 12px;
+      padding: .9rem 1.6rem;
+      text-align: center; flex-shrink: 0;
+    }
+    .connections-hero-stat strong {
+      display: block; font-size: 2rem; font-weight: 800;
+      color: #fff; line-height: 1; letter-spacing: -.03em;
+    }
+    .connections-hero-stat span {
+      font-size: .75rem; color: rgba(255,255,255,.75); font-weight: 500;
+      text-transform: uppercase; letter-spacing: .07em;
+    }
+
+    /* Content area */
+    .connections-content {
+      max-width: 900px; margin: 0 auto;
+      padding: 1.75rem 2.5rem;
+      display: flex; flex-direction: column; gap: 1.25rem;
+    }
+
+    /* Search + filter bar */
+    .search-bar {
+      display: flex; gap: .75rem; align-items: center;
+    }
+    .search-input-wrap {
+      position: relative; flex: 1;
+    }
+    .search-input-wrap svg {
+      position: absolute; left: .85rem; top: 50%; transform: translateY(-50%);
+      width: 16px; height: 16px; color: var(--muted); pointer-events: none;
+    }
+    .search-input-wrap input {
+      width: 100%; padding: .62rem .85rem .62rem 2.4rem;
+      border: 1px solid var(--border); border-radius: 10px;
+      background: var(--card); font-family: 'Inter', sans-serif;
+      font-size: .875rem; color: var(--text); outline: none;
+      transition: border-color .18s, box-shadow .18s;
+    }
+    .search-input-wrap input:focus {
+      border-color: var(--orange);
+      box-shadow: 0 0 0 3px rgba(232,71,10,.1);
+    }
+    .search-input-wrap input::placeholder { color: var(--muted); }
+
+    .filter-select {
+      font-family: 'Inter', sans-serif; font-size: .82rem; font-weight: 500;
+      color: var(--text); background: var(--card);
+      border: 1px solid var(--border); border-radius: 10px;
+      padding: .62rem 2rem .62rem .9rem; outline: none; cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b6b7b' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right .7rem center;
+      transition: border-color .18s;
+    }
+    .filter-select:focus { border-color: var(--orange); }
+
+    /* Section label */
+    .section-label {
+      font-size: .78rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .08em; color: var(--muted);
+      display: flex; align-items: center; gap: .6rem;
+    }
+    .section-label::after {
+      content: ''; flex: 1; height: 1px; background: var(--border);
+    }
+
+    /* Connections grid */
+    .connections-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 1rem;
+    }
+
+    .connection-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 14px; padding: 1.2rem;
+      display: flex; flex-direction: column; align-items: center;
+      text-align: center; gap: .6rem;
+      transition: box-shadow .2s, transform .2s;
+      animation: fadeUp .4s ease both;
+    }
+    .connection-card:hover {
+      box-shadow: 0 6px 22px rgba(0,0,0,.09);
+      transform: translateY(-3px);
+    }
+
+    .conn-card-avatar {
+      width: 64px; height: 64px; border-radius: 50%;
+      background: var(--tag-bg); border: 2px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem; font-weight: 700; color: var(--muted);
+      flex-shrink: 0;
+    }
+    .conn-card-avatar.female-1 { background: #fde8e0; color: #c05030; border-color: #f4c0b0; }
+    .conn-card-avatar.male-1   { background: #e0eaf8; color: #3060a0; border-color: #b0c8f0; }
+    .conn-card-avatar.female-2 { background: #e8f4e0; color: #408030; border-color: #b0d8a0; }
+    .conn-card-avatar.male-2   { background: #f0e8f8; color: #7030a0; border-color: #d0b0f0; }
+    .conn-card-avatar.female-3 { background: #fdf4e0; color: #a07010; border-color: #f0d890; }
+    .conn-card-avatar.male-3   { background: #e0f4f4; color: #107070; border-color: #90d8d8; }
+
+    .conn-card-name {
+      font-size: .95rem; font-weight: 700; color: var(--text);
+      letter-spacing: -.01em; line-height: 1.2;
+    }
+    .conn-card-meta {
+      font-size: .78rem; color: var(--muted); font-weight: 500;
+      display: flex; align-items: center; justify-content: center; gap: .35rem;
+    }
+    .conn-card-meta svg { width: 12px; height: 12px; flex-shrink: 0; }
+
+    .conn-card-interests {
+      display: flex; flex-wrap: wrap; justify-content: center; gap: .35rem;
+      margin-top: .1rem;
+    }
+    .conn-card-interests span {
+      font-size: .68rem; font-weight: 600; letter-spacing: .03em;
+      background: var(--tag-bg); border: 1px solid var(--border);
+      color: var(--muted); padding: .2rem .6rem; border-radius: 999px;
+    }
+
+    .conn-card-footer {
+      width: 100%; padding-top: .75rem; border-top: 1px solid var(--border);
+      display: flex; gap: .5rem;
+    }
+    .btn-view-full {
+      flex: 1; font-family: 'Inter', sans-serif; font-size: .78rem;
+      font-weight: 700; color: #fff; background: var(--orange);
+      border: none; border-radius: 8px; padding: .5rem .75rem;
+      cursor: pointer; text-decoration: none; text-align: center;
+      transition: background .18s;
+      display: flex; align-items: center; justify-content: center; gap: .35rem;
+    }
+    .btn-view-full:hover { background: var(--orange-dark); }
+    .btn-view-full svg { width: 13px; height: 13px; }
+    .btn-message {
+      font-family: 'Inter', sans-serif; font-size: .78rem; font-weight: 600;
+      color: var(--muted); background: var(--light);
+      border: 1px solid var(--border); border-radius: 8px;
+      padding: .5rem .75rem; cursor: pointer;
+      transition: color .18s, border-color .18s;
+      display: flex; align-items: center; gap: .35rem;
+    }
+    .btn-message:hover { color: var(--orange); border-color: var(--orange); }
+    .btn-message svg { width: 13px; height: 13px; }
+
+    /* Stagger animation for cards */
+    .connection-card:nth-child(2)  { animation-delay: .04s; }
+    .connection-card:nth-child(3)  { animation-delay: .08s; }
+    .connection-card:nth-child(4)  { animation-delay: .12s; }
+    .connection-card:nth-child(5)  { animation-delay: .16s; }
+    .connection-card:nth-child(6)  { animation-delay: .20s; }
+    .connection-card:nth-child(7)  { animation-delay: .24s; }
+    .connection-card:nth-child(8)  { animation-delay: .28s; }
+
+    /* Back link */
+    .back-link {
+      display: inline-flex; align-items: center; gap: .4rem;
+      font-size: .82rem; font-weight: 600; color: var(--muted);
+      text-decoration: none; margin-bottom: .25rem;
+      transition: color .18s;
+    }
+    .back-link:hover { color: var(--text); }
+    .back-link svg { width: 15px; height: 15px; }
+
+    @media (max-width: 600px) {
+      .connections-content { padding: 1.25rem 1.25rem; }
+      .connections-hero { padding: 1.75rem 1.25rem; flex-direction: column; align-items: flex-start; }
+      .connections-grid { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="site-nav">
+    <a href="profile.html" class="nav-brand">
+      <div class="nav-brand-icon">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect x="2.5" y="11" width="5" height="10" rx="2.5" fill="#fff"/><rect x="9.5" y="5" width="5" height="16" rx="2.5" fill="#fff"/><rect x="16.5" y="8" width="5" height="8" rx="2.5" fill="#fff"/></svg>
+      </div>
+      <span class="nav-brand-name">Encore</span>
+    </a>
+    <div class="nav-links">
+      <a href="../homepage/home_page.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12L12 3l9 9"/><path d="M9 21V12h6v9"/></svg>
+        Explore
+      </a>
+      <a href="profile.html" class="active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+        Profile
+      </a>
+      <a href="../login/signup/login.html" id="nav-logout">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Logout
+      </a>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="connections-hero">
+    <div class="connections-hero-text">
+      <h1>Your Connections</h1>
+      <p>People you've met and connected with through Encore</p>
+    </div>
+    <div class="connections-hero-stat">
+      <strong id="total-count">–</strong>
+      <span>Total Connections</span>
+    </div>
+  </section>
+
+  <!-- CONTENT -->
+  <div class="connections-content">
+
+    <a href="profile.html" class="back-link">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      Back to Profile
+    </a>
+
+    <!-- Search + Filter -->
+    <div class="search-bar">
+      <div class="search-input-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="search-input" placeholder="Search connections..." oninput="filterConnections()">
+      </div>
+      <select class="filter-select" id="filter-select" onchange="filterConnections()">
+        <option value="all">All</option>
+        <option value="recent">Recently Added</option>
+        <option value="music">Music</option>
+        <option value="food">Food &amp; Drink</option>
+        <option value="arts">Arts &amp; Culture</option>
+      </select>
+    </div>
+
+    <!-- Pending requests (hidden until there are some) -->
+    <div id="pending-section" style="display:none">
+      <p class="section-label">Pending Requests</p>
+      <div class="connections-grid" id="pending-grid"></div>
+    </div>
+
+    <!-- Connections -->
+    <p class="section-label">Your Connections</p>
+
+    <div class="connections-grid" id="connections-grid">
+      <p style="color:#6b6b7b;font-size:.85rem">Loading…</p>
+    </div>
+
+    <!-- No results message (hidden by default) -->
+    <div id="no-results" style="display:none; text-align:center; padding:3rem 1rem;">
+      <p style="font-size:.95rem; color:var(--muted); font-weight:500;">No connections match your search.</p>
+    </div>
+
+  </div>
+
+  <!-- Mobile bottom tab bar -->
+  <nav class="mobile-tab-bar">
+    <a href="../homepage/home_page.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12L12 3l9 9"/><path d="M9 21V12h6v9"/></svg>
+      Explore
+    </a>
+    <a href="profile.html" class="active">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+      Profile
+    </a>
+    <a href="messages.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      Messages
+    </a>
+    <a href="../community_page/community.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Community
+    </a>
+  </nav>
+  <style>
+    .mobile-tab-bar{display:none;position:fixed;bottom:0;left:0;right:0;height:60px;background:#fff;border-top:1px solid #e8e8ec;z-index:100;align-items:stretch;justify-content:space-around;padding:0 .25rem;padding-bottom:env(safe-area-inset-bottom)}
+    .mobile-tab-bar a{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.2rem;text-decoration:none;color:#6b6b7b;font-size:.65rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;transition:color .18s;padding:.5rem 0}
+    .mobile-tab-bar a.active,.mobile-tab-bar a:hover{color:#e8470a}
+    .mobile-tab-bar a svg{width:22px;height:22px}
+    @media(max-width:768px){.mobile-tab-bar{display:flex}body{padding-bottom:calc(60px + env(safe-area-inset-bottom))}}
+  </style>
+</body>
+</html>

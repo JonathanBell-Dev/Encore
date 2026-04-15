@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Host an Event — Encore</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/toast.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script type="module">
+    import { guardPage } from '../src/utils/guard.js';
+    guardPage();
+  </script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --orange: #e8470a; --orange-dark: #c43a06;
+      --bg: #f4f4f6; --card: #fff; --border: #e8e8ec;
+      --text: #111118; --muted: #6b6b7b; --light: #f9f9fb;
+      --danger: #ff3b30; --success: #34c759;
+    }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+    /* NAV */
+    nav.site-nav { display: flex; align-items: center; padding: 0 2.5rem; height: 60px; background: #fff; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 10; }
+    .nav-brand { display: flex; align-items: center; gap: .6rem; text-decoration: none; }
+    .nav-brand-icon { width: 32px; height: 32px; background: var(--orange); border-radius: 7px; display: flex; align-items: center; justify-content: center; }
+    .nav-brand-icon svg { width: 16px; height: 16px; }
+    .nav-brand-name { font-size: 1rem; font-weight: 700; color: var(--text); }
+    .nav-back { margin-left: auto; display: flex; align-items: center; gap: .4rem; font-size: .85rem; font-weight: 600; color: var(--muted); text-decoration: none; }
+    .nav-back:hover { color: var(--text); }
+    .nav-back svg { width: 16px; height: 16px; }
+
+    /* PAGE HEADER */
+    .page-header {
+      background: linear-gradient(110deg, var(--orange) 0%, #c43a06 60%, #a03206 100%);
+      padding: 2rem 2.5rem;
+    }
+    .page-header h1 { font-size: 1.75rem; font-weight: 800; color: #fff; letter-spacing: -.03em; }
+    .page-header p  { font-size: .9rem; color: rgba(255,255,255,.75); margin-top: .3rem; }
+
+    /* LAYOUT */
+    .create-layout {
+      max-width: 980px; margin: 0 auto; padding: 2rem 1.5rem;
+      display: grid; grid-template-columns: 1fr 280px; gap: 1.5rem;
+      align-items: start;
+    }
+    @media (max-width: 720px) { .create-layout { grid-template-columns: 1fr; } }
+
+    /* FORM CARDS */
+    .form-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 14px; padding: 1.5rem; margin-bottom: 1.25rem;
+    }
+    .form-section-title {
+      font-size: .72rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .09em; color: var(--muted); margin-bottom: 1.1rem;
+    }
+    .form-group { margin-bottom: 1rem; }
+    .form-group:last-child { margin-bottom: 0; }
+    .form-group label {
+      display: block; font-size: .78rem; font-weight: 600; color: var(--muted);
+      text-transform: uppercase; letter-spacing: .07em; margin-bottom: .4rem;
+    }
+    .form-group label span { color: var(--danger); margin-left: .2rem; }
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%; padding: .7rem .9rem;
+      border: 1.5px solid var(--border); border-radius: 8px;
+      font-family: 'Inter', sans-serif; font-size: .9rem; color: var(--text);
+      background: var(--light); outline: none; resize: vertical;
+      transition: border-color .18s, box-shadow .18s;
+    }
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      border-color: var(--orange); box-shadow: 0 0 0 3px rgba(232,71,10,.1); background: #fff;
+    }
+    .form-group textarea { min-height: 100px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; }
+    @media (max-width: 540px) { .form-row { grid-template-columns: 1fr; } }
+
+    /* Character counter */
+    .char-count { font-size: .72rem; color: var(--muted); text-align: right; margin-top: .3rem; }
+    .char-count.over { color: var(--danger); }
+
+    /* Toggle (is_free) */
+    .toggle-row { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1rem; }
+    .toggle-row-info p { font-size: .875rem; font-weight: 600; }
+    .toggle-row-info span { font-size: .78rem; color: var(--muted); }
+    .toggle { position: relative; display: inline-block; width: 42px; height: 24px; flex-shrink: 0; }
+    .toggle input { opacity: 0; width: 0; height: 0; }
+    .toggle-slider {
+      position: absolute; inset: 0; border-radius: 24px;
+      background: #ccc; cursor: pointer; transition: background .2s;
+    }
+    .toggle-slider::before {
+      content: ''; position: absolute; height: 18px; width: 18px; left: 3px; bottom: 3px;
+      background: #fff; border-radius: 50%; transition: transform .2s;
+    }
+    .toggle input:checked + .toggle-slider { background: var(--orange); }
+    .toggle input:checked + .toggle-slider::before { transform: translateX(18px); }
+
+    /* Vibe tag chips */
+    .chips-grid { display: flex; flex-wrap: wrap; gap: .5rem; }
+    .chip {
+      padding: .35rem .85rem; border-radius: 20px;
+      border: 1.5px solid var(--border); background: var(--light);
+      font-size: .8rem; font-weight: 500; cursor: pointer;
+      transition: all .15s; user-select: none;
+    }
+    .chip.selected { border-color: var(--orange); background: rgba(232,71,10,.07); color: var(--orange); font-weight: 600; }
+
+    /* Cover image preview */
+    .cover-preview {
+      width: 100%; height: 160px; border-radius: 10px;
+      background: linear-gradient(135deg, #1A3A2A, #52B788);
+      margin-bottom: .75rem; overflow: hidden; display: flex;
+      align-items: center; justify-content: center; position: relative;
+    }
+    .cover-preview img { width: 100%; height: 100%; object-fit: cover; display: none; }
+    .cover-preview-placeholder { color: rgba(255,255,255,.5); font-size: .85rem; font-weight: 500; }
+
+    /* Status radio */
+    .status-options { display: flex; gap: .75rem; }
+    .status-option {
+      flex: 1; padding: .75rem 1rem; border-radius: 10px;
+      border: 1.5px solid var(--border); cursor: pointer;
+      transition: all .15s; display: flex; align-items: center; gap: .6rem;
+    }
+    .status-option input[type="radio"] { accent-color: var(--orange); width: 16px; height: 16px; flex-shrink: 0; }
+    .status-option.selected { border-color: var(--orange); background: rgba(232,71,10,.05); }
+    .status-option p { font-size: .85rem; font-weight: 600; }
+    .status-option span { font-size: .72rem; color: var(--muted); display: block; margin-top: .1rem; }
+
+    /* Form actions */
+    .form-actions { display: flex; gap: .75rem; margin-top: .25rem; }
+    .btn-draft {
+      flex: 1; padding: .85rem; border: 1.5px solid var(--border); border-radius: 9px;
+      background: none; font-family: 'Inter', sans-serif; font-size: .9rem; font-weight: 700;
+      color: var(--muted); cursor: pointer; transition: border-color .15s, color .15s;
+    }
+    .btn-draft:hover { border-color: var(--text); color: var(--text); }
+    .btn-publish {
+      flex: 2; padding: .85rem; border: none; border-radius: 9px;
+      background: var(--orange); color: #fff;
+      font-family: 'Inter', sans-serif; font-size: .9rem; font-weight: 700;
+      cursor: pointer; transition: background .18s;
+      display: flex; align-items: center; justify-content: center; gap: .5rem;
+    }
+    .btn-publish:hover { background: var(--orange-dark); }
+    .btn-publish:disabled { opacity: .6; cursor: not-allowed; }
+
+    /* PREVIEW CARD (sticky sidebar) */
+    .preview-wrap { position: sticky; top: 80px; }
+    .preview-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 14px; overflow: hidden;
+    }
+    .preview-card-top {
+      height: 130px; background: linear-gradient(135deg, #1A3A2A, #52B788);
+      position: relative; overflow: hidden;
+    }
+    .preview-card-top img { width: 100%; height: 100%; object-fit: cover; display: none; }
+    .preview-date-badge {
+      position: absolute; top: .75rem; left: .75rem;
+      background: rgba(0,0,0,.5); backdrop-filter: blur(6px);
+      border-radius: 8px; padding: .3rem .55rem; text-align: center;
+      min-width: 38px;
+    }
+    .preview-date-month { font-size: .55rem; font-weight: 700; color: rgba(255,255,255,.8); text-transform: uppercase; }
+    .preview-date-day   { font-size: 1rem; font-weight: 800; color: #fff; line-height: 1; }
+    .preview-body { padding: .85rem 1rem; }
+    .preview-cat  { font-size: .65rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--orange); margin-bottom: .3rem; }
+    .preview-title { font-size: .9rem; font-weight: 700; line-height: 1.3; margin-bottom: .3rem; color: var(--text); }
+    .preview-venue { font-size: .75rem; color: var(--muted); margin-bottom: .5rem; }
+    .preview-price { font-size: .75rem; font-weight: 700; color: var(--orange); }
+
+    .preview-label {
+      font-size: .7rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .08em; color: var(--muted); padding: .75rem 1rem .25rem;
+      border-top: 1px solid var(--border); margin-top: .25rem; display: block;
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="site-nav">
+    <a href="../homepage/home_page.html" class="nav-brand">
+      <div class="nav-brand-icon">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect x="2.5" y="11" width="5" height="10" rx="2.5" fill="#fff"/><rect x="9.5" y="5" width="5" height="16" rx="2.5" fill="#fff"/><rect x="16.5" y="8" width="5" height="8" rx="2.5" fill="#fff"/></svg>
+      </div>
+      <span class="nav-brand-name">Encore</span>
+    </a>
+    <a href="../profile/profile.html" class="nav-back">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      Back to Profile
+    </a>
+  </nav>
+
+  <div class="page-header">
+    <h1>Host an Event</h1>
+    <p>Share your event with the Atlanta community</p>
+  </div>
+
+  <div class="create-layout">
+
+    <!-- LEFT: Form -->
+    <div>
+
+      <!-- Event Details -->
+      <div class="form-card">
+        <p class="form-section-title">Event Details</p>
+
+        <div class="form-group">
+          <label for="ev-title">Event Title <span>*</span></label>
+          <input type="text" id="ev-title" placeholder="e.g. Atlanta Jazz Night at Piedmont Park" maxlength="120">
+          <div class="char-count" id="title-count">0 / 120</div>
+        </div>
+
+        <div class="form-group">
+          <label for="ev-category">Category <span>*</span></label>
+          <select id="ev-category">
+            <option value="">Select a category…</option>
+            <option value="Music">Music</option>
+            <option value="Food &amp; Drink">Food &amp; Drink</option>
+            <option value="Arts &amp; Culture">Arts &amp; Culture</option>
+            <option value="Sports">Sports</option>
+            <option value="Comedy">Comedy</option>
+            <option value="Nightlife">Nightlife</option>
+            <option value="Outdoor &amp; Adventure">Outdoor &amp; Adventure</option>
+            <option value="Film &amp; Media">Film &amp; Media</option>
+            <option value="Tech &amp; Innovation">Tech &amp; Innovation</option>
+            <option value="Health &amp; Wellness">Health &amp; Wellness</option>
+            <option value="Family">Family</option>
+            <option value="Business &amp; Networking">Business &amp; Networking</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="ev-description">Description</label>
+          <textarea id="ev-description" placeholder="What's happening at your event? Include details about performers, activities, dress code, etc." maxlength="2000"></textarea>
+          <div class="char-count" id="desc-count">0 / 2000</div>
+        </div>
+      </div>
+
+      <!-- Vibe Tags -->
+      <div class="form-card">
+        <p class="form-section-title">Vibe Tags</p>
+        <p style="font-size:.82rem;color:var(--muted);margin-bottom:.85rem;">Add tags to help people find your event.</p>
+        <div class="chips-grid" id="vibe-chips">
+          <div class="chip" data-tag="Live Music">Live Music</div>
+          <div class="chip" data-tag="DJ Set">DJ Set</div>
+          <div class="chip" data-tag="Free Entry">Free Entry</div>
+          <div class="chip" data-tag="Outdoor">Outdoor</div>
+          <div class="chip" data-tag="Rooftop">Rooftop</div>
+          <div class="chip" data-tag="Black-Owned">Black-Owned</div>
+          <div class="chip" data-tag="LGBTQ+">LGBTQ+</div>
+          <div class="chip" data-tag="Festival">Festival</div>
+          <div class="chip" data-tag="Chill">Chill</div>
+          <div class="chip" data-tag="Open Bar">Open Bar</div>
+          <div class="chip" data-tag="21+">21+</div>
+          <div class="chip" data-tag="All Ages">All Ages</div>
+          <div class="chip" data-tag="VIP">VIP</div>
+          <div class="chip" data-tag="Food Included">Food Included</div>
+          <div class="chip" data-tag="Charity">Charity</div>
+          <div class="chip" data-tag="Workshop">Workshop</div>
+          <div class="chip" data-tag="Networking">Networking</div>
+          <div class="chip" data-tag="Pop-Up">Pop-Up</div>
+          <div class="chip" data-tag="Family Friendly">Family Friendly</div>
+        </div>
+      </div>
+
+      <!-- Location -->
+      <div class="form-card">
+        <p class="form-section-title">Location</p>
+
+        <div class="form-group">
+          <label for="ev-neighborhood">Neighborhood</label>
+          <select id="ev-neighborhood">
+            <option value="">Select a neighborhood…</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="ev-venue">Venue Name</label>
+          <input type="text" id="ev-venue" placeholder="e.g. Piedmont Park, The Tabernacle">
+        </div>
+
+        <div class="form-group">
+          <label for="ev-address">Address</label>
+          <input type="text" id="ev-address" placeholder="400 Park Dr NE, Atlanta, GA 30306">
+        </div>
+      </div>
+
+      <!-- Date & Time -->
+      <div class="form-card">
+        <p class="form-section-title">Date &amp; Time</p>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="ev-start">Start <span>*</span></label>
+            <input type="datetime-local" id="ev-start">
+          </div>
+          <div class="form-group">
+            <label for="ev-end">End <span style="color:var(--muted);font-weight:400;">(optional)</span></label>
+            <input type="datetime-local" id="ev-end">
+          </div>
+        </div>
+      </div>
+
+      <!-- Ticketing -->
+      <div class="form-card">
+        <p class="form-section-title">Ticketing</p>
+
+        <div class="toggle-row">
+          <div class="toggle-row-info">
+            <p>Free Event</p>
+            <span>Toggle off to set a ticket price</span>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" id="ev-is-free" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div id="price-fields" style="display:none">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="ev-price">Ticket Price ($)</label>
+              <input type="number" id="ev-price" min="0" step="0.01" placeholder="0.00">
+            </div>
+            <div class="form-group">
+              <label for="ev-capacity">Capacity</label>
+              <input type="number" id="ev-capacity" min="1" placeholder="e.g. 200">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="ev-ticket-url">Ticket Link</label>
+            <input type="url" id="ev-ticket-url" placeholder="https://eventbrite.com/...">
+          </div>
+        </div>
+
+        <div id="free-capacity" class="form-group">
+          <label for="ev-capacity-free">Capacity <span style="color:var(--muted);font-weight:400;">(optional)</span></label>
+          <input type="number" id="ev-capacity-free" min="1" placeholder="e.g. 500">
+        </div>
+      </div>
+
+      <!-- Cover Image -->
+      <div class="form-card">
+        <p class="form-section-title">Cover Image</p>
+        <div class="cover-preview" id="cover-preview">
+          <img id="cover-preview-img" alt="Cover preview">
+          <span class="cover-preview-placeholder">Image preview</span>
+        </div>
+        <div class="form-group">
+          <label for="ev-cover-url">Image URL</label>
+          <input type="url" id="ev-cover-url" placeholder="https://images.unsplash.com/...">
+        </div>
+      </div>
+
+      <!-- Publish / Draft -->
+      <div class="form-card">
+        <p class="form-section-title">Visibility</p>
+        <div class="status-options" id="status-options">
+          <label class="status-option selected">
+            <input type="radio" name="ev-status" value="published" checked>
+            <div>
+              <p>Publish Now</p>
+              <span>Visible to everyone immediately</span>
+            </div>
+          </label>
+          <label class="status-option">
+            <input type="radio" name="ev-status" value="draft">
+            <div>
+              <p>Save as Draft</p>
+              <span>Only visible to you</span>
+            </div>
+          </label>
+        </div>
+
+        <div class="form-actions" style="margin-top:1.25rem;">
+          <button class="btn-draft" id="btn-cancel" onclick="history.back()">Cancel</button>
+          <button class="btn-publish" id="btn-submit">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><polyline points="20 6 9 17 4 12"/></svg>
+            Publish Event
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- RIGHT: Preview -->
+    <div class="preview-wrap">
+      <span class="preview-label">Live Preview</span>
+      <div class="preview-card">
+        <div class="preview-card-top" id="preview-top">
+          <img id="preview-cover" alt="">
+          <div class="preview-date-badge">
+            <div class="preview-date-month" id="preview-month">–</div>
+            <div class="preview-date-day"   id="preview-day">–</div>
+          </div>
+        </div>
+        <div class="preview-body">
+          <div class="preview-cat"   id="preview-cat">Category</div>
+          <div class="preview-title" id="preview-title">Your Event Title</div>
+          <div class="preview-venue" id="preview-venue">Venue · Date · Time</div>
+          <div class="preview-price" id="preview-price">Free</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const SUPABASE_URL  = 'https://qgvoznhldglucpsaisfs.supabase.co';
+    const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFndm96bmhsZGdsdWNwc2Fpc2ZzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxOTU4MjUsImV4cCI6MjA5MTc3MTgyNX0.e-5X1Lh4Tg8cP-FL-3eorV5pAZCDe4CR6i2AFeDKHWQ';
+    const { createClient } = supabase;
+    const sb = createClient(SUPABASE_URL, SUPABASE_ANON);
+
+    let currentUser = null;
+
+    // ── Auth ───────────────────────────────────────────────────────────────────
+    async function init() {
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session) { window.location.href = '../login/signup/login.html'; return; }
+      currentUser = session.user;
+      await loadNeighborhoods();
+      setDefaultStartTime();
+    }
+
+    // ── Neighborhoods dropdown ─────────────────────────────────────────────────
+    async function loadNeighborhoods() {
+      const { data } = await sb.from('neighborhoods').select('id, name').order('name');
+      const sel = document.getElementById('ev-neighborhood');
+      (data || []).forEach(n => {
+        const opt = document.createElement('option');
+        opt.value = n.id;
+        opt.textContent = n.name;
+        sel.appendChild(opt);
+      });
+    }
+
+    // ── Default start time (next hour, rounded) ────────────────────────────────
+    function setDefaultStartTime() {
+      const d = new Date();
+      d.setHours(d.getHours() + 1, 0, 0, 0);
+      const local = new Date(d.getTime() - d.getTimezoneOffset() * 60000)
+        .toISOString().slice(0, 16);
+      document.getElementById('ev-start').value = local;
+      updatePreview();
+    }
+
+    // ── Vibe tag chips ─────────────────────────────────────────────────────────
+    document.querySelectorAll('.chip').forEach(chip => {
+      chip.addEventListener('click', () => chip.classList.toggle('selected'));
+    });
+
+    // ── Free/paid toggle ───────────────────────────────────────────────────────
+    document.getElementById('ev-is-free').addEventListener('change', function() {
+      document.getElementById('price-fields').style.display = this.checked ? 'none' : 'block';
+      document.getElementById('free-capacity').style.display = this.checked ? 'block' : 'none';
+      updatePreview();
+    });
+
+    // ── Status radio styling ───────────────────────────────────────────────────
+    document.querySelectorAll('input[name="ev-status"]').forEach(radio => {
+      radio.addEventListener('change', function() {
+        document.querySelectorAll('.status-option').forEach(o => o.classList.remove('selected'));
+        this.closest('.status-option').classList.add('selected');
+        document.getElementById('btn-submit').textContent =
+          this.value === 'draft' ? 'Save as Draft' : 'Publish Event';
+      });
+    });
+
+    // ── Character counters ─────────────────────────────────────────────────────
+    function wireCounter(inputId, countId, max) {
+      const el = document.getElementById(inputId);
+      const ct = document.getElementById(countId);
+      el.addEventListener('input', () => {
+        const len = el.value.length;
+        ct.textContent = len + ' / ' + max;
+        ct.classList.toggle('over', len > max);
+        updatePreview();
+      });
+    }
+    wireCounter('ev-title', 'title-count', 120);
+    wireCounter('ev-description', 'desc-count', 2000);
+
+    // ── Cover image preview ────────────────────────────────────────────────────
+    document.getElementById('ev-cover-url').addEventListener('input', function() {
+      const url = this.value.trim();
+      const img = document.getElementById('cover-preview-img');
+      const placeholder = document.querySelector('.cover-preview-placeholder');
+      const previewCover = document.getElementById('preview-cover');
+      if (url) {
+        img.src = url;
+        img.style.display = 'block';
+        placeholder.style.display = 'none';
+        previewCover.src = url;
+        previewCover.style.display = 'block';
+      } else {
+        img.style.display = 'none';
+        placeholder.style.display = '';
+        previewCover.style.display = 'none';
+      }
+    });
+
+    // ── Live preview update ────────────────────────────────────────────────────
+    function updatePreview() {
+      const title    = document.getElementById('ev-title').value.trim() || 'Your Event Title';
+      const category = document.getElementById('ev-category').value || 'Category';
+      const venue    = document.getElementById('ev-venue').value.trim();
+      const isFree   = document.getElementById('ev-is-free').checked;
+      const price    = document.getElementById('ev-price').value;
+      const startVal = document.getElementById('ev-start').value;
+
+      document.getElementById('preview-title').textContent = title;
+      document.getElementById('preview-cat').textContent   = category;
+
+      if (startVal) {
+        const d = new Date(startVal);
+        document.getElementById('preview-month').textContent =
+          d.toLocaleDateString('en-US', { month: 'short' });
+        document.getElementById('preview-day').textContent = d.getDate();
+        const timeStr = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+        document.getElementById('preview-venue').textContent =
+          (venue ? venue + ' · ' : '') +
+          d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) +
+          ' · ' + timeStr;
+      } else {
+        document.getElementById('preview-venue').textContent = venue || 'Venue · Date · Time';
+      }
+
+      if (isFree) {
+        document.getElementById('preview-price').textContent = 'Free';
+      } else {
+        document.getElementById('preview-price').textContent =
+          price ? '$' + parseFloat(price).toFixed(0) : '$—';
+      }
+    }
+
+    // Wire remaining inputs to preview
+    ['ev-category', 'ev-venue', 'ev-start', 'ev-price'].forEach(id => {
+      document.getElementById(id).addEventListener('change', updatePreview);
+      document.getElementById(id).addEventListener('input', updatePreview);
+    });
+
+    // ── Submit ─────────────────────────────────────────────────────────────────
+    document.getElementById('btn-submit').addEventListener('click', async () => {
+      const title    = document.getElementById('ev-title').value.trim();
+      const category = document.getElementById('ev-category').value;
+      const startVal = document.getElementById('ev-start').value;
+
+      if (!title)    { showToast('Event title is required.', 'error'); return; }
+      if (!category) { showToast('Please select a category.', 'error'); return; }
+      if (!startVal) { showToast('Start date and time are required.', 'error'); return; }
+
+      const isFree     = document.getElementById('ev-is-free').checked;
+      const endVal     = document.getElementById('ev-end').value;
+      const coverUrl   = document.getElementById('ev-cover-url').value.trim();
+      const nbhdId     = document.getElementById('ev-neighborhood').value;
+      const status     = document.querySelector('input[name="ev-status"]:checked').value;
+      const vibeTags   = [...document.querySelectorAll('.chip.selected')].map(c => c.dataset.tag);
+      const capacityFreeVal = document.getElementById('ev-capacity-free').value;
+      const priceVal   = document.getElementById('ev-price').value;
+      const capacityVal = document.getElementById('ev-capacity').value;
+      const ticketUrl  = document.getElementById('ev-ticket-url').value.trim();
+
+      const btn = document.getElementById('btn-submit');
+      btn.disabled = true;
+      btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Saving…';
+
+      const payload = {
+        organizer_id:    currentUser.id,
+        title,
+        category,
+        description:     document.getElementById('ev-description').value.trim() || null,
+        vibe_tags:       vibeTags.length ? vibeTags : null,
+        neighborhood_id: nbhdId ? parseInt(nbhdId) : null,
+        venue_name:      document.getElementById('ev-venue').value.trim() || null,
+        address:         document.getElementById('ev-address').value.trim() || null,
+        starts_at:       new Date(startVal).toISOString(),
+        ends_at:         endVal ? new Date(endVal).toISOString() : null,
+        cover_image_url: coverUrl || null,
+        is_free:         isFree,
+        ticket_price:    isFree ? 0 : (parseFloat(priceVal) || 0),
+        ticket_url:      (!isFree && ticketUrl) ? ticketUrl : null,
+        capacity:        isFree
+          ? (capacityFreeVal ? parseInt(capacityFreeVal) : null)
+          : (capacityVal ? parseInt(capacityVal) : null),
+        status,
+      };
+
+      const { data, error } = await sb.from('events').insert(payload).select('id').single();
+
+      btn.disabled = false;
+      btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><polyline points="20 6 9 17 4 12"/></svg> Publish Event';
+
+      if (error) {
+        showToast('Failed to create event: ' + error.message, 'error');
+        return;
+      }
+
+      showToast(status === 'published' ? 'Event published!' : 'Draft saved!');
+      setTimeout(() => {
+        window.location.href = 'detail.html?id=' + data.id;
+      }, 900);
+    });
+
+    function showToast(msg, type = 'success') {
+      const t = document.createElement('div');
+      t.className = 'toast toast-' + type;
+      t.textContent = msg;
+      document.body.appendChild(t);
+      requestAnimationFrame(() => t.classList.add('toast-visible'));
+      setTimeout(() => { t.classList.remove('toast-visible'); setTimeout(() => t.remove(), 300); }, 3500);
+    }
+
+    init();
+  </script>
+</body>
+</html>

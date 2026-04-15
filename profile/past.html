@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Encore – Past Events</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="profile.css">
+  <link rel="stylesheet" href="../css/toast.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script type="module">
+    import { guardPage } from '../src/utils/guard.js';
+    guardPage();
+
+    const SUPABASE_URL  = 'https://qgvoznhldglucpsaisfs.supabase.co';
+    const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFndm96bmhsZGdsdWNwc2Fpc2ZzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxOTU4MjUsImV4cCI6MjA5MTc3MTgyNX0.e-5X1Lh4Tg8cP-FL-3eorV5pAZCDe4CR6i2AFeDKHWQ';
+    const { createClient } = supabase;
+    const sb = createClient(SUPABASE_URL, SUPABASE_ANON);
+
+    function setText(el, text) { if (el) el.textContent = text; }
+
+    function formatDate(dateStr) {
+      if (!dateStr) return '';
+      const d = new Date(dateStr);
+      return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+    }
+
+    function formatPrice(price) {
+      if (!price || price === 0) return 'Free';
+      return '$' + Number(price).toFixed(0);
+    }
+
+    // ── Load sidebar profile ──────────────────────────────────────────────────
+    async function loadProfile(userId) {
+      const { data } = await sb.from('accounts').select('first_name,last_name,user_name,location,bio,avatar_url').eq('id', userId).single();
+      if (!data) return;
+
+      const name = [data.first_name, data.last_name].filter(Boolean).join(' ') || data.user_name || 'User';
+      setText(document.getElementById('hero-name'), name);
+      const locText = document.getElementById('hero-location-text');
+      if (locText) locText.textContent = data.location || 'Atlanta, GA';
+      setText(document.getElementById('hero-bio'), data.bio || '');
+
+      const avatarEl = document.querySelector('.avatar-placeholder');
+      if (data.avatar_url) {
+        avatarEl.style.backgroundImage = `url(${data.avatar_url})`;
+        avatarEl.style.backgroundSize = 'cover';
+        avatarEl.style.backgroundPosition = 'center';
+        avatarEl.textContent = '';
+      } else {
+        avatarEl.textContent = name.charAt(0).toUpperCase();
+      }
+
+      loadInterests(userId);
+    }
+
+    // ── Load interests ────────────────────────────────────────────────────────
+    async function loadInterests(userId) {
+      const { data } = await sb.from('account_interests').select('interests(name)').eq('account_id', userId);
+      if (!data || !data.length) return;
+      const list = document.getElementById('interests-list');
+      list.innerHTML = '';
+      data.forEach(r => {
+        if (!r.interests) return;
+        const li = document.createElement('li');
+        li.textContent = r.interests.name;
+        list.appendChild(li);
+      });
+    }
+
+    // ── Load stats ────────────────────────────────────────────────────────────
+    async function loadStats(userId) {
+      const [{ count: attending }, { count: past }, { count: conns }] = await Promise.all([
+        sb.from('event_attendance').select('*', { count: 'exact', head: true }).eq('account_id', userId),
+        sb.from('event_attendance').select('*', { count: 'exact', head: true }).eq('account_id', userId),
+        sb.from('connections').select('*', { count: 'exact', head: true }).eq('status', 'accepted').or(`requester_id.eq.${userId},addressee_id.eq.${userId}`)
+      ]);
+      setText(document.getElementById('stat-tickets'), attending ?? 0);
+      setText(document.getElementById('stat-connections'), conns ?? 0);
+      setText(document.getElementById('act-tickets'), attending ?? 0);
+      setText(document.getElementById('act-connections'), conns ?? 0);
+      setText(document.getElementById('tab-past-count'), past ?? 0);
+    }
+
+    // ── Load recent connections ───────────────────────────────────────────────
+    async function loadRecentConnections(userId) {
+      const { data } = await sb
+        .from('connections')
+        .select('requester_id, addressee_id, accounts!connections_addressee_id_fkey(id,first_name,last_name,user_name)')
+        .eq('status', 'accepted')
+        .or(`requester_id.eq.${userId},addressee_id.eq.${userId}`)
+        .limit(3);
+      if (!data || !data.length) return;
+      const list = document.getElementById('recent-connections-list');
+      list.innerHTML = '';
+      data.forEach(row => {
+        const friend = row.requester_id === userId ? row.accounts : { id: row.requester_id, ...row.accounts };
+        if (!friend) return;
+        const name = [friend.first_name, friend.last_name].filter(Boolean).join(' ') || friend.user_name || 'User';
+        const initials = name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+        const li = document.createElement('li');
+        const av = document.createElement('div'); av.className = 'conn-avatar'; av.textContent = initials;
+        const sp = document.createElement('span'); sp.className = 'conn-name'; sp.textContent = name;
+        const a  = document.createElement('a');   a.className = 'btn-view'; a.href = `connection-profile.html?id=${friend.id}`; a.textContent = 'View';
+        li.appendChild(av); li.appendChild(sp); li.appendChild(a);
+        list.appendChild(li);
+      });
+    }
+
+    // ── Render past event card ────────────────────────────────────────────────
+    function renderPastCard(att) {
+      const ev = att.events;
+      if (!ev) return null;
+
+      const article = document.createElement('article');
+      article.className = 'event-card past';
+
+      // Image
+      const imgDiv = document.createElement('div');
+      imgDiv.className = 'event-img';
+      if (ev.cover_image_url) {
+        imgDiv.style.backgroundImage = `url(${ev.cover_image_url})`;
+        imgDiv.style.backgroundSize = 'cover';
+        imgDiv.style.backgroundPosition = 'center';
+      } else {
+        imgDiv.style.background = 'linear-gradient(135deg,#e8470a11,#e8470a33)';
+      }
+
+      // "Event Ended" overlay
+      const overlay = document.createElement('div');
+      overlay.className = 'event-ended-overlay';
+      overlay.textContent = 'Event Ended';
+      imgDiv.appendChild(overlay);
+
+      // Category tag
+      if (ev.vibe_tags && ev.vibe_tags.length) {
+        const tag = document.createElement('span');
+        tag.className = 'event-tag';
+        tag.textContent = ev.vibe_tags[0];
+        imgDiv.appendChild(tag);
+      }
+
+      article.appendChild(imgDiv);
+
+      // Body
+      const body = document.createElement('div');
+      body.className = 'event-body';
+
+      const h3 = document.createElement('h3');
+      h3.textContent = ev.title || 'Untitled Event';
+
+      const meta = document.createElement('div');
+      meta.className = 'event-meta';
+
+      const dateRow = document.createElement('div');
+      dateRow.className = 'event-meta-row';
+      dateRow.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/></svg>';
+      const dateText = document.createTextNode(' ' + formatDate(ev.starts_at));
+      dateRow.appendChild(dateText);
+
+      const locRow = document.createElement('div');
+      locRow.className = 'event-meta-row';
+      locRow.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s-8-5.8-8-12a8 8 0 0 1 16 0c0 6.2-8 12-8 12z"/><circle cx="12" cy="10" r="3"/></svg>';
+      locRow.appendChild(document.createTextNode(' ' + (ev.venue_name || ev.address || '')));
+
+      meta.appendChild(dateRow);
+      meta.appendChild(locRow);
+
+      const footer = document.createElement('div');
+      footer.className = 'event-footer';
+      const priceSpan = document.createElement('span');
+      priceSpan.className = 'event-price';
+      priceSpan.textContent = formatPrice(ev.ticket_price);
+      footer.appendChild(priceSpan);
+
+      const detailLink = document.createElement('a');
+      detailLink.className = 'btn-view';
+      detailLink.href = `../events/detail.html?id=${ev.id}`;
+      detailLink.textContent = 'View Details';
+
+      body.appendChild(h3);
+      body.appendChild(meta);
+      body.appendChild(footer);
+      body.appendChild(detailLink);
+      article.appendChild(body);
+      return article;
+    }
+
+    // ── Load past events ──────────────────────────────────────────────────────
+    async function loadPastEvents(userId) {
+      const grid = document.getElementById('past-grid');
+      const empty = document.getElementById('empty-state');
+      const now = new Date().toISOString();
+
+      // Skeleton
+      grid.innerHTML = '';
+      for (let i = 0; i < 3; i++) {
+        const sk = document.createElement('div');
+        sk.style.cssText = 'height:220px;background:#f0f0f3;border-radius:12px;animation:pulse 1.4s ease-in-out infinite';
+        grid.appendChild(sk);
+      }
+
+      const { data, error } = await sb
+        .from('event_attendance')
+        .select('event_id, events(*)')
+        .eq('account_id', userId)
+        .lt('events.starts_at', now)
+        .order('created_at', { ascending: false });
+
+      grid.innerHTML = '';
+
+      // Filter out rows where event hasn't ended (join may return all)
+      const past = (data || []).filter(a => a.events && new Date(a.events.starts_at) < new Date());
+
+      if (error || !past.length) {
+        empty.style.display = 'flex';
+        setText(document.getElementById('tab-past-count'), 0);
+        return;
+      }
+
+      setText(document.getElementById('tab-past-count'), past.length);
+      empty.style.display = 'none';
+      past.forEach(att => {
+        const card = renderPastCard(att);
+        if (card) grid.appendChild(card);
+      });
+    }
+
+    // ── Boot ──────────────────────────────────────────────────────────────────
+    document.getElementById('nav-logout').addEventListener('click', async e => {
+      e.preventDefault();
+      await sb.auth.signOut();
+      window.location.href = '../login/signup/login.html';
+    });
+
+    sb.auth.getSession().then(async ({ data: { session } }) => {
+      if (!session) return;
+      const uid = session.user.id;
+      await Promise.all([
+        loadProfile(uid),
+        loadStats(uid),
+        loadRecentConnections(uid),
+        loadPastEvents(uid),
+        loadInterests(uid)
+      ]);
+    });
+  </script>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="site-nav">
+    <a href="profile.html" class="nav-brand">
+      <div class="nav-brand-icon">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect x="2.5" y="11" width="5" height="10" rx="2.5" fill="#fff"/><rect x="9.5" y="5" width="5" height="16" rx="2.5" fill="#fff"/><rect x="16.5" y="8" width="5" height="8" rx="2.5" fill="#fff"/></svg>
+      </div>
+      <span class="nav-brand-name">Encore</span>
+    </a>
+    <div class="nav-links">
+      <a href="../homepage/home_page.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12L12 3l9 9"/><path d="M9 21V12h6v9"/></svg>
+        Explore
+      </a>
+      <a href="profile.html" class="active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+        Profile
+      </a>
+      <a href="#" id="nav-logout">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Logout
+      </a>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-avatar">
+      <div class="avatar-placeholder" id="hero-avatar">U</div>
+    </div>
+    <div class="hero-info">
+      <div class="hero-name-row">
+        <h1 class="hero-name" id="hero-name">…</h1>
+        <a href="edit-profile.html" class="btn-edit">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          Edit Profile
+        </a>
+      </div>
+      <p class="hero-location">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s-8-5.8-8-12a8 8 0 0 1 16 0c0 6.2-8 12-8 12z"/><circle cx="12" cy="10" r="3"/></svg>
+        <span id="hero-location-text">Atlanta, GA</span>
+      </p>
+      <p class="hero-bio" id="hero-bio">…</p>
+      <ul class="stats">
+        <li><strong id="stat-tickets">–</strong><span>Events Attending</span></li>
+        <li><strong id="stat-connections">–</strong><span>Connections</span></li>
+        <li><strong id="stat-past">–</strong><span>Past Events</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- MAIN -->
+  <main>
+    <!-- SIDEBAR -->
+    <aside>
+      <div class="card">
+        <h2 class="card-title">Interests</h2>
+        <ul class="interests-list" id="interests-list">
+          <li>Loading…</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h2 class="card-title">Activity</h2>
+        <ul class="activity-list">
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+            <span class="act-label">Tickets Purchased</span><strong id="act-tickets">–</strong>
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            <span class="act-label">Past Events</span><strong id="act-past">–</strong>
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            <span class="act-label">Connections Made</span><strong id="act-connections">–</strong>
+          </li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="card-header-row">
+          <h2 class="card-title">Recent Connections</h2>
+          <a href="connections.html" class="view-all">View All</a>
+        </div>
+        <ul class="connections-list" id="recent-connections-list">
+          <li style="color:#6b6b7b;font-size:.85rem">Loading…</li>
+        </ul>
+      </div>
+    </aside>
+
+    <!-- EVENTS -->
+    <section class="events-section">
+      <nav class="tabs">
+        <a href="profile.html">Upcoming</a>
+        <a href="past.html" class="active">Past (<span id="tab-past-count">…</span>)</a>
+        <a href="favorites.html">Favorites</a>
+      </nav>
+
+      <div class="events-grid" id="past-grid"></div>
+
+      <div class="empty-state" id="empty-state" style="display:none">
+        <svg class="empty-state-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/>
+        </svg>
+        <h3>No past events yet</h3>
+        <p>Events you've attended will show up here after they end</p>
+        <a href="../homepage/home_page.html" class="btn-primary">Explore Events</a>
+      </div>
+    </section>
+  </main>
+
+  <style>
+    .event-ended-overlay { position:absolute; inset:0; background:rgba(0,0,0,.45); display:flex; align-items:center; justify-content:center; color:#fff; font-size:.8rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; border-radius:12px 12px 0 0; }
+    .event-card.past .event-img { border-radius:12px 12px 0 0; overflow:hidden; height:140px; background:#ddd; position:relative; }
+    .event-card.past .event-body { padding:1rem; }
+    .event-card.past h3 { font-size:.95rem; font-weight:700; margin-bottom:.4rem; }
+    .event-meta { font-size:.78rem; color:#6b6b7b; display:flex; flex-direction:column; gap:.3rem; margin-bottom:.6rem; }
+    .event-meta-row { display:flex; align-items:center; gap:.35rem; }
+    .event-meta-row svg { width:13px; height:13px; flex-shrink:0; }
+    .event-footer { display:flex; align-items:center; justify-content:space-between; }
+    .event-price { font-size:.85rem; font-weight:700; color:#e8470a; }
+    .event-card.past { background:#fff; border:1px solid #e8e8ec; border-radius:12px; overflow:hidden; margin-bottom:1rem; }
+    .btn-view { display:inline-block; padding:.35rem .75rem; background:#e8470a; color:#fff; border-radius:6px; font-size:.78rem; font-weight:700; text-decoration:none; }
+    .btn-view:hover { background:#c43a06; }
+    .event-tag { position:absolute; top:.5rem; left:.5rem; background:rgba(0,0,0,.55); color:#fff; font-size:.68rem; font-weight:600; padding:.2rem .45rem; border-radius:4px; z-index:1; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.5} }
+  </style>
+
+  <!-- Mobile bottom tab bar -->
+  <nav class="mobile-tab-bar">
+    <a href="../homepage/home_page.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12L12 3l9 9"/><path d="M9 21V12h6v9"/></svg>
+      Explore
+    </a>
+    <a href="profile.html" class="active">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+      Profile
+    </a>
+    <a href="messages.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      Messages
+    </a>
+    <a href="../community_page/community.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Community
+    </a>
+  </nav>
+  <style>
+    .mobile-tab-bar{display:none;position:fixed;bottom:0;left:0;right:0;height:60px;background:#fff;border-top:1px solid #e8e8ec;z-index:100;align-items:stretch;justify-content:space-around;padding:0 .25rem;padding-bottom:env(safe-area-inset-bottom)}
+    .mobile-tab-bar a{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.2rem;text-decoration:none;color:#6b6b7b;font-size:.65rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;transition:color .18s;padding:.5rem 0}
+    .mobile-tab-bar a.active,.mobile-tab-bar a:hover{color:#e8470a}
+    .mobile-tab-bar a svg{width:22px;height:22px}
+    @media(max-width:768px){.mobile-tab-bar{display:flex}body{padding-bottom:calc(60px + env(safe-area-inset-bottom))}}
+  </style>
+
+</body>
+</html>
