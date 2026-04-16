@@ -484,7 +484,7 @@
 
       <!-- Top bar -->
       <div class="auth-topbar">
-        <a href="index.html" class="auth-logo">En<span>core</span></a>
+        <a href="/homepage/home_page.html" class="auth-logo">En<span>core</span></a>
         <div class="auth-topbar-right" id="topbar-right">
           <span>No account?</span>
           <a href="#" id="topbar-switch" onclick="switchTab('signup'); return false;">Sign up</a>
@@ -837,6 +837,14 @@
       const loginVisible = document.getElementById('panel-login').style.display !== 'none';
       if (loginVisible) handleLogin(e); else handleSignup(e);
     });
+
+    const params = new URLSearchParams(window.location.search);
+    const tab = params.get('tab');
+    if (tab === 'login') {
+      switchTab('login');
+    } else if (tab === 'signup') {
+      switchTab('signup');
+    }
   </script>
 </body>
 </html>
