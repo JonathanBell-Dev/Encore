@@ -72,17 +72,18 @@
                     </div>
                 </div>
             </div>
-            <div class="hero-card">
-                <div class="hero-card-image" style="background:linear-gradient(135deg,#0D47A1,#1976D2,#42A5F5);display:flex;align-items:center;justify-content:center;">
+            <div class="hero-card" id="hero-featured-card" style="cursor:pointer;">
+                <div class="hero-card-image" id="hero-card-image" style="background:linear-gradient(135deg,#0D47A1,#1976D2,#42A5F5);display:flex;align-items:center;justify-content:center;">
                     <svg viewBox="0 0 80 80" width="72" height="72" xmlns="http://www.w3.org/2000/svg" style="opacity:.55"><circle cx="40" cy="40" r="38" fill="none" stroke="#fff" stroke-width="2"/><path d="M28 52 L28 28 L56 40 Z" fill="#fff"/></svg>
                 </div>
                 <div class="hero-card-content">
-                    <div class="hero-card-tag">Jazz · Live Music · FREE</div>
-                    <div class="hero-card-title">Atlanta Jazz Festival 2026</div>
-                    <div class="hero-card-venue">Piedmont Park · May 23–25 · 1:00 PM</div>
+                    <div class="hero-card-tag" id="hero-card-tag">Loading…</div>
+                    <div class="hero-card-title" id="hero-card-title"></div>
+                    <div class="hero-card-venue" id="hero-card-venue"></div>
                     <div class="hero-card-footer">
-                        <div class="hero-card-price">FREE entry</div>
-                        <button class="hero-card-btn">Learn more</button>
+                        <div class="hero-card-price" id="hero-card-price"></div>
+                        <div id="hero-card-going" style="font-size:.78rem;color:rgba(255,255,255,.65);font-weight:500;"></div>
+                        <button class="hero-card-btn" id="hero-card-btn">Learn more</button>
                     </div>
                 </div>
             </div>
@@ -837,8 +838,62 @@
     const grid = document.querySelector('.events-grid');
     if (grid && !grid.id) grid.id = 'events-grid';
 
+    // ── Featured hero event ───────────────────────────────────────────────────
+    const CATEGORY_GRADIENTS = {
+        'Music':         'linear-gradient(135deg,#4A148C,#CE93D8)',
+        'Arts & Culture':'linear-gradient(135deg,#1A1A2E,#E94560)',
+        'Food & Drink':  'linear-gradient(135deg,#BF360C,#FF8A65)',
+        'Nightlife':     'linear-gradient(135deg,#0D0D2B,#3949AB)',
+    };
+
+    async function loadFeaturedEvent() {
+        const { data } = await sb
+            .from('events')
+            .select('id, title, category, vibe_tags, venue_name, starts_at, ticket_price, is_free, event_attendance(account_id)')
+            .eq('status', 'published')
+            .gte('starts_at', new Date().toISOString())
+            .order('starts_at', { ascending: true })
+            .limit(20);
+
+        if (!data || !data.length) return;
+
+        // Sort by attendance count descending
+        data.sort((a, b) => (b.event_attendance?.length || 0) - (a.event_attendance?.length || 0));
+
+        const maxCount = data[0].event_attendance?.length || 0;
+        const topTied  = data.filter(e => (e.event_attendance?.length || 0) === maxCount);
+        // If all tied (including 0-0), pick randomly from the tied group
+        const featured = topTied[Math.floor(Math.random() * topTied.length)];
+
+        const d       = new Date(featured.starts_at);
+        const dateStr = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        const timeStr = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+        const price   = (featured.is_free || !featured.ticket_price || featured.ticket_price <= 0)
+            ? 'FREE entry' : '$' + parseFloat(featured.ticket_price).toFixed(0) + '+';
+        const tags    = (featured.vibe_tags || []).slice(0, 3).join(' · ') || featured.category || '';
+        const going   = featured.event_attendance?.length || 0;
+
+        document.getElementById('hero-card-tag').textContent   = tags;
+        document.getElementById('hero-card-title').textContent = featured.title;
+        document.getElementById('hero-card-venue').textContent = (featured.venue_name || '') + ' · ' + dateStr + ' · ' + timeStr;
+        document.getElementById('hero-card-price').textContent = price;
+        document.getElementById('hero-card-going').textContent = going > 0 ? going + ' going' : '';
+
+        const img = document.getElementById('hero-card-image');
+        if (img) img.style.background = CATEGORY_GRADIENTS[featured.category] || 'linear-gradient(135deg,#1A3A2A,#52B788)';
+
+        const card = document.getElementById('hero-featured-card');
+        if (card) {
+            card.onclick = () => { window.location.href = '../events/detail.html?id=' + featured.id; };
+        }
+        const btn = document.getElementById('hero-card-btn');
+        if (btn) {
+            btn.onclick = (e) => { e.stopPropagation(); window.location.href = '../events/detail.html?id=' + featured.id; };
+        }
+    }
+
     // Load events and neighborhoods on page load (after auth init)
-    initAuth().then(() => { loadEvents(); loadNeighborhoods(); });
+    initAuth().then(() => { loadEvents(); loadNeighborhoods(); loadFeaturedEvent(); });
 </script>
 </body>
 </html>
