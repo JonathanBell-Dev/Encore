@@ -13,14 +13,14 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
       --orange: #e8470a; --orange-dark: #c43a06;
-      --bg: #f4f4f6; --card: #fff; --border: #e8e8ec;
-      --text: #111118; --muted: #6b6b7b; --light: #f9f9fb;
+      --bg: #0C0C0C; --card: #141414; --border: #262626;
+      --text: #F0EDE8; --muted: #9A9590; --light: #1C1C1C;
       --success: #34c759;
     }
-    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; -webkit-font-smoothing: antialiased; }
 
     /* Nav */
-    nav { display: flex; align-items: center; padding: 0 2rem; height: 60px; background: #fff; border-bottom: 1px solid var(--border); }
+    nav { display: flex; align-items: center; padding: 0 2rem; height: 60px; background: rgba(12,12,12,0.9); border-bottom: 1px solid var(--border); backdrop-filter: blur(12px); }
     .nav-brand { display: flex; align-items: center; gap: .6rem; text-decoration: none; }
     .nav-brand-icon { width: 32px; height: 32px; background: var(--orange); border-radius: 7px; display: flex; align-items: center; justify-content: center; }
     .nav-brand-icon svg { width: 16px; height: 16px; }
