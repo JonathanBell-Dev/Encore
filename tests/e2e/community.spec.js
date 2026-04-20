@@ -8,8 +8,8 @@
 const { test, expect } = require('@playwright/test');
 
 const BASE_URL        = process.env.BASE_URL || 'http://localhost:5500';
-const COMMUNITY_PAGE  = `${BASE_URL}/community_page/community.html`;
-const LOGIN_PAGE      = `${BASE_URL}/login/signup/login.html`;
+const COMMUNITY_PAGE  = `${BASE_URL}/community/community.html`;
+const LOGIN_PAGE      = `${BASE_URL}/login/login.html`;
 
 // ── Auth guard ────────────────────────────────────────────────────────────────
 test('community page redirects unauthenticated users to login', async ({ page }) => {

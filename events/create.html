@@ -427,7 +427,7 @@
     // ── Auth ───────────────────────────────────────────────────────────────────
     async function init() {
       const { data: { session } } = await sb.auth.getSession();
-      if (!session) { window.location.href = '../login/signup/login.html'; return; }
+      if (!session) { window.location.href = '../login/login.html'; return; }
       currentUser = session.user;
       await loadNeighborhoods();
       setDefaultStartTime();

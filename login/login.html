@@ -466,7 +466,7 @@
       // Supabase may require email confirmation depending on your project settings.
       // If email confirmation is off, the user is immediately signed in.
       if (data.session) {
-        window.location.href = '../../onboarding.html';
+        window.location.href = '../auth/onboarding.html';
       } else {
         showAlert('Account created! Check your email to confirm, then sign in.', 'success');
         switchTab('login');
@@ -488,7 +488,7 @@
       if (!email) { showAlert('Enter your email address first, then click Forgot password.'); return; }
 
       const { error } = await sb.auth.resetPasswordForEmail(email, {
-        redirectTo: window.location.origin + '/reset-password.html'
+        redirectTo: window.location.origin + '/auth/reset-password.html'
       });
       if (error) { showAlert(error.message); return; }
       showAlert('Password reset email sent! Check your inbox.', 'success');

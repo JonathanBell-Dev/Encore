@@ -28,8 +28,8 @@
             <a href="../profile/profile.html">Profile</a>
         </nav>
         <div class="auth-buttons" id="nav-auth-actions">
-            <a href="../login/signup/login.html" class="login-btn" style="text-decoration:none">Log in</a>
-            <a href="../login/signup/login.html" class="join-btn" style="text-decoration:none">Join Free</a>
+            <a href="../login/login.html" class="login-btn" style="text-decoration:none">Log in</a>
+            <a href="../login/login.html" class="join-btn" style="text-decoration:none">Join Free</a>
         </div>
     </header>
 
@@ -145,7 +145,7 @@
       logoutBtn.style.cssText = 'background:none;border:1px solid #dee0e6;border-radius:8px;padding:.35rem .9rem;font-size:.875rem;font-weight:600;cursor:pointer;color:#6b6b7b;';
       logoutBtn.addEventListener('click', async () => {
         await sb.auth.signOut();
-        window.location.href = '../login/signup/login.html';
+        window.location.href = '../login/login.html';
       });
 
       container.appendChild(avatarLink);

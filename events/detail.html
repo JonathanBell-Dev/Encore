@@ -185,8 +185,8 @@
         Back
       </a>
       <div class="nav-auth" id="nav-auth-actions">
-        <a href="../login/signup/login.html" style="font-size:.8rem;font-weight:600;color:var(--muted);text-decoration:none;border:1px solid var(--border);border-radius:8px;padding:.3rem .8rem;">Log in</a>
-        <a href="../login/signup/login.html" style="font-size:.8rem;font-weight:700;color:#fff;text-decoration:none;border-radius:8px;padding:.35rem .9rem;background:var(--orange);">Join Free</a>
+        <a href="../login/login.html" style="font-size:.8rem;font-weight:600;color:var(--muted);text-decoration:none;border:1px solid var(--border);border-radius:8px;padding:.3rem .8rem;">Log in</a>
+        <a href="../login/login.html" style="font-size:.8rem;font-weight:700;color:#fff;text-decoration:none;border-radius:8px;padding:.35rem .9rem;background:var(--orange);">Join Free</a>
       </div>
     </div>
   </nav>
@@ -242,7 +242,7 @@
           <button class="ev-comment-submit" id="ev-comment-submit" onclick="submitEventComment()">Post</button>
         </div>
         <p id="ev-comment-login-prompt" style="display:none;font-size:.82rem;color:var(--muted);">
-          <a href="../login/signup/login.html" style="color:var(--orange);font-weight:600;">Sign in</a> to leave a comment.
+          <a href="../login/login.html" style="color:var(--orange);font-weight:600;">Sign in</a> to leave a comment.
         </p>
       </div>
     </div>
@@ -334,7 +334,7 @@
       logoutBtn.textContent = 'Log out';
       logoutBtn.addEventListener('click', async () => {
         await sb.auth.signOut();
-        window.location.href = '../login/signup/login.html';
+        window.location.href = '../login/login.html';
       });
       container.appendChild(avatarLink);
       container.appendChild(logoutBtn);
