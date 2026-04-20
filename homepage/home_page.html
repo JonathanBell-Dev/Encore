@@ -145,8 +145,8 @@
     </div>
 
     <section class="events-section">
-        
-        <div class="events-header">
+
+        <div class="events-header" data-reveal>
             <div>
                 <div class="section-eyebrow">Coming up in Atlanta</div>
                 <h2 class="section-title">Events you'll <em>love</em></h2>
@@ -283,7 +283,7 @@
     </section>
 
     <section class="explore-section" id="explore-neighborhoods">
-        <div class="explore-header">
+        <div class="explore-header" data-reveal>
             <div>
                 <div class="section-eyebrow">Explore by area</div>
                 <h2 class="section-title">Atlanta's <em>neighborhoods</em></h2>
@@ -293,7 +293,7 @@
         
         <div class="explore-grid">
 
-            <div class="explore-card">
+            <div class="explore-card" data-reveal data-delay="1">
                 <div class="explore-bg" style="background: linear-gradient(160deg, #1A3A2A, #52B788);">
                     <div class="explore-overlay"></div>
                     <div class="explore-info">
@@ -303,7 +303,7 @@
                 </div>
             </div>
 
-            <div class="explore-card">
+            <div class="explore-card" data-reveal data-delay="2">
                 <div class="explore-bg" style="background: linear-gradient(160deg, #7B2D8B, #C084FC);">
                     <div class="explore-overlay"></div>
                     <div class="explore-info">
@@ -313,7 +313,7 @@
                 </div>
             </div>
 
-            <div class="explore-card">
+            <div class="explore-card" data-reveal data-delay="3">
                 <div class="explore-bg" style="background: linear-gradient(160deg, #0f85fa, #bccefe);">
                     <div class="explore-overlay"></div>
                     <div class="explore-info">
@@ -323,7 +323,7 @@
                 </div>
             </div>
 
-            <div class="explore-card">
+            <div class="explore-card" data-reveal data-delay="4">
                 <div class="explore-bg" style="background: linear-gradient(160deg, #fa0f0f, #ffb69f);">
                     <div class="explore-overlay"></div>
                     <div class="explore-info">
@@ -331,9 +331,9 @@
                         <div class="explore-count">34 events this week</div>
                     </div>
                 </div>
-            </div> 
-            
-            <div class="explore-card">
+            </div>
+
+            <div class="explore-card" data-reveal data-delay="5">
                 <div class="explore-bg" style="background: linear-gradient(160deg, #52fa0f, #d6ffc3);">
                     <div class="explore-overlay"></div>
                     <div class="explore-info">
@@ -604,7 +604,16 @@
         const pagination = document.getElementById('events-pagination');
         if (!grid) return; // static page without the id yet
 
-        grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:3rem;color:#9a948c;">Loading events…</div>';
+        grid.innerHTML = Array(6).fill(`
+            <div class="skeleton-card">
+                <div class="skeleton-top"></div>
+                <div class="skeleton-body">
+                    <div class="skeleton-line" style="height:10px;width:40%;"></div>
+                    <div class="skeleton-line" style="height:18px;width:80%;"></div>
+                    <div class="skeleton-line" style="height:13px;width:60%;"></div>
+                    <div class="skeleton-line" style="height:13px;width:30%;margin-top:6px;"></div>
+                </div>
+            </div>`).join('');
 
         const from = currentPage * PAGE_SIZE;
         const to   = from + PAGE_SIZE - 1;
@@ -668,13 +677,20 @@
 
         // Render event cards using DOM APIs (XSS-safe)
         grid.innerHTML = '';
-        const gradients = [
+        const CAT_GRAD = {
+            'Music':          'linear-gradient(135deg, #4A148C, #CE93D8)',
+            'Arts & Culture': 'linear-gradient(135deg, #1A1A2E, #E94560)',
+            'Food & Drink':   'linear-gradient(135deg, #BF360C, #FF8A65)',
+            'Nightlife':      'linear-gradient(135deg, #0D0D2B, #3949AB)',
+            'Sports':         'linear-gradient(135deg, #1A3A2A, #52B788)',
+            'Comedy':         'linear-gradient(135deg, #F57F17, #FFD54F)',
+            'Fitness':        'linear-gradient(135deg, #006064, #4DD0E1)',
+            'Community':      'linear-gradient(135deg, #880E4F, #F48FB1)',
+        };
+        const fallbackGrads = [
             'linear-gradient(135deg, #1A3A2A, #52B788)',
             'linear-gradient(135deg, #7B2D8B, #C084FC)',
             'linear-gradient(135deg, #0f85fa, #bccefe)',
-            'linear-gradient(135deg, #fa0f0f, #ffb69f)',
-            'linear-gradient(135deg, #52fa0f, #d6ffc3)',
-            'linear-gradient(135deg, #fa0fe7, #ffbaf7)',
         ];
 
         data.forEach((event, i) => {
@@ -688,10 +704,14 @@
 
             const card = document.createElement('div');
             card.className = 'event-card';
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            card.style.transition = `opacity 0.4s ease ${i * 0.07}s, transform 0.4s ease ${i * 0.07}s, box-shadow 0.28s ease`;
+            setTimeout(() => { card.style.opacity = '1'; card.style.transform = 'none'; }, 20);
 
             const top = document.createElement('div');
             top.className = 'event-card-top';
-            top.style.background = gradients[i % gradients.length];
+            top.style.background = CAT_GRAD[event.category] || fallbackGrads[i % fallbackGrads.length];
 
             const badge = document.createElement('div');
             badge.className = 'event-date-badge';
@@ -894,6 +914,43 @@
 
     // Load events and neighborhoods on page load (after auth init)
     initAuth().then(() => { loadEvents(); loadNeighborhoods(); loadFeaturedEvent(); });
+
+    // ── Nav scroll shadow ─────────────────────────────────────────────────────
+    const nav = document.querySelector('nav');
+    window.addEventListener('scroll', () => {
+        nav && nav.classList.toggle('scrolled', window.scrollY > 10);
+    }, { passive: true });
+
+    // ── Scroll reveal ─────────────────────────────────────────────────────────
+    const revealObserver = new IntersectionObserver((entries) => {
+        entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('revealed'); revealObserver.unobserve(e.target); } });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('[data-reveal]').forEach(el => revealObserver.observe(el));
+
+    // ── Stat counter animation ────────────────────────────────────────────────
+    function animateCount(el, target, suffix) {
+        const duration = 1400;
+        const start = performance.now();
+        const update = (now) => {
+            const p = Math.min((now - start) / duration, 1);
+            const ease = 1 - Math.pow(1 - p, 3);
+            el.textContent = Math.floor(ease * target).toLocaleString() + suffix;
+            if (p < 1) requestAnimationFrame(update);
+        };
+        requestAnimationFrame(update);
+    }
+
+    const statsObserver = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+            if (!e.isIntersecting) return;
+            statsObserver.unobserve(e.target);
+            const nums = e.target.querySelectorAll('.hero-stat-num');
+            const targets = [[1200, '+'], [40, '+'], [8400, '']];
+            nums.forEach((el, i) => animateCount(el, targets[i][0], targets[i][1]));
+        });
+    }, { threshold: 0.5 });
+    const heroStats = document.querySelector('.hero-stats');
+    if (heroStats) statsObserver.observe(heroStats);
 </script>
 </body>
 </html>
