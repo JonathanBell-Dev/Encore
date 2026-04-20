@@ -20,7 +20,7 @@
     const sb = createClient(SUPABASE_URL, SUPABASE_ANON);
 
     // ── Helpers ───────────────────────────────────────────────────────────────
-    function setText(el, text) { el.textContent = text; }
+    function setText(el, text) { if (el) el.textContent = text; }
 
     function showToast(msg, type = 'success') {
       const t = document.createElement('div');
@@ -285,11 +285,10 @@
       const uid = session.user.id;
       await Promise.all([
         loadProfile(uid),
-        loadInterests(uid),
         loadStats(uid),
         loadRecentConnections(uid),
-        loadFavorites(uid)
-      ]);
+        loadFavorites(uid),
+      ]).catch(err => console.error('Profile load error:', err));
     });
   </script>
 </head>
@@ -394,7 +393,7 @@
       </nav>
 
       <!-- Event cards grid -->
-      <div id="favorites-grid" class="events-grid" style="display:contents"></div>
+      <div id="favorites-grid" class="events-grid"></div>
 
       <!-- Empty State -->
       <div class="empty-state" id="empty-state" style="display:none">

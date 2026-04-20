@@ -78,8 +78,10 @@
         sb.from('connections').select('*', { count: 'exact', head: true }).eq('status', 'accepted').or(`requester_id.eq.${userId},addressee_id.eq.${userId}`)
       ]);
       setText(document.getElementById('stat-tickets'), attending ?? 0);
+      setText(document.getElementById('stat-past'), past ?? 0);
       setText(document.getElementById('stat-connections'), conns ?? 0);
       setText(document.getElementById('act-tickets'), attending ?? 0);
+      setText(document.getElementById('act-past'), past ?? 0);
       setText(document.getElementById('act-connections'), conns ?? 0);
       setText(document.getElementById('tab-past-count'), past ?? 0);
     }
@@ -243,8 +245,7 @@
         loadStats(uid),
         loadRecentConnections(uid),
         loadPastEvents(uid),
-        loadInterests(uid)
-      ]);
+      ]).catch(err => console.error('Profile load error:', err));
     });
   </script>
 </head>
