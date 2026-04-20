@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/toast.css">
+  <link rel="stylesheet" href="../css/toast.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -106,7 +106,7 @@
 <body>
 
   <nav>
-    <a href="homepage/home_page.html" class="nav-brand">
+    <a href="../homepage/home_page.html" class="nav-brand">
       <div class="nav-brand-icon">
         <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect x="2.5" y="11" width="5" height="10" rx="2.5" fill="#fff"/><rect x="9.5" y="5" width="5" height="16" rx="2.5" fill="#fff"/><rect x="16.5" y="8" width="5" height="8" rx="2.5" fill="#fff"/></svg>
       </div>
@@ -245,12 +245,12 @@
         </div>
         <h2>You're all set!</h2>
         <p>Your Encore profile is ready. Start exploring what's happening in Atlanta.</p>
-        <button class="btn-primary" style="width:100%;justify-content:center" onclick="window.location.href='homepage/home_page.html'">
+        <button class="btn-primary" style="width:100%;justify-content:center" onclick="window.location.href='../homepage/home_page.html'">
           Explore Events
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><polyline points="9 18 15 12 9 6"/></svg>
         </button>
         <p style="margin-top:1rem;font-size:.82rem">
-          <a href="profile/profile.html" style="color:var(--orange);font-weight:600;text-decoration:none">Go to my profile →</a>
+          <a href="../profile/profile.html" style="color:var(--orange);font-weight:600;text-decoration:none">Go to my profile →</a>
         </p>
       </div>
 
@@ -324,7 +324,7 @@
     window.finish = async function() {
       const { data: { session } } = await sb.auth.getSession();
       if (!session) {
-        window.location.href = 'login/signup/login.html';
+        window.location.href = '../login/login.html';
         return;
       }
 
@@ -387,7 +387,7 @@
     (async () => {
       const { data: { session } } = await sb.auth.getSession();
       if (!session) {
-        window.location.href = 'login/signup/login.html';
+        window.location.href = '../login/login.html';
         return;
       }
 

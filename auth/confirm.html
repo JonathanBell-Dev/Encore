@@ -118,7 +118,7 @@
       <h1>Confirmation failed</h1>
       <p id="error-msg">This link may have expired or already been used.</p>
       <div style="display:flex;flex-direction:column;align-items:center;gap:.5rem;margin-top:1rem">
-        <a href="../login/signup/login.html" class="btn">Back to Login</a>
+        <a href="../login/login.html" class="btn">Back to Login</a>
         <a href="../homepage/home_page.html" class="btn-ghost">Browse Events</a>
       </div>
     </div>
@@ -184,12 +184,12 @@
       if (redirectType === 'recovery') {
         document.getElementById('success-msg').textContent = 'Verified! Taking you to reset your password…';
         show('state-success');
-        setTimeout(() => { window.location.href = '../reset-password.html'; }, 1500);
+        setTimeout(() => { window.location.href = './reset-password.html'; }, 1500);
       } else {
         // signup or email_change — go to onboarding
         document.getElementById('success-msg').textContent = 'Your account is verified. Taking you to set up your profile…';
         show('state-success');
-        setTimeout(() => { window.location.href = '../onboarding.html'; }, 1500);
+        setTimeout(() => { window.location.href = './onboarding.html'; }, 1500);
       }
     }
 

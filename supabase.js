@@ -28,7 +28,7 @@ export async function getSession() {
  * Redirect unauthenticated users to the login page.
  * Pass a relative path from the current page to login.html.
  */
-export async function requireAuth(redirectTo = '../login/signup/login.html') {
+export async function requireAuth(redirectTo = '../login/login.html') {
   const session = await getSession();
   if (!session) {
     window.location.replace(redirectTo);
@@ -37,7 +37,7 @@ export async function requireAuth(redirectTo = '../login/signup/login.html') {
   return session;
 }
 
-export async function signOut(redirectTo = '../login/signup/login.html') {
+export async function signOut(redirectTo = '../login/login.html') {
   await supabase.auth.signOut();
   window.location.href = redirectTo;
 }

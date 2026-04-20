@@ -17,7 +17,7 @@
 const { test, expect } = require('@playwright/test');
 
 const BASE_URL = process.env.BASE_URL || 'http://localhost:5500';
-const LOGIN_PAGE = `${BASE_URL}/login/signup/login.html`;
+const LOGIN_PAGE = `${BASE_URL}/login/login.html`;
 const PROFILE_PAGE = `${BASE_URL}/profile/profile.html`;
 
 // ── Login page loads ─────────────────────────────────────────────────────────

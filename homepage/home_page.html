@@ -16,12 +16,12 @@
             <ul class="nav-links">
                 <li><a href="home_page.html">Explore</a></li>
                 <li><a href="#explore-neighborhoods">Neighborhood</a></li>
-                <li><a href="../community_page/community.html">Community</a></li>
+                <li><a href="../community/community.html">Community</a></li>
                 <li><a href="../profile/profile.html">Profile</a></li>
             </ul>
             <div class="nav-actions" id="nav-auth-actions">
-                <a href="../login/signup/login.html" class="btn-ghost" style="text-decoration:none">Log in</a>
-                <a href="../login/signup/login.html" class="btn-primary" style="text-decoration:none">Join Free</a>
+                <a href="../login/login.html" class="btn-ghost" style="text-decoration:none">Log in</a>
+                <a href="../login/login.html" class="btn-primary" style="text-decoration:none">Join Free</a>
             </div>
         </div>
     </nav>
@@ -55,7 +55,7 @@
                 <p class="hero-description">Discover concerts, events, and experiences across Atlanta's neighborhoods - then connect with the people who make the city move.</p>
                 <div class="hero-actions">
                     <button class="hero-btn" onclick="document.querySelector('.events-section').scrollIntoView({behavior:'smooth'})">Explore Events</button>
-                    <button class="hero-btn-ghost" onclick="window.location.href='../community_page/community.html'">Browse Community</button>
+                    <button class="hero-btn-ghost" onclick="window.location.href='../community/community.html'">Browse Community</button>
                 </div>
                 <div class="hero-stats">
                     <div>
@@ -433,7 +433,7 @@
             <div>
                 <div class="footer-col-title">Community</div>
                 <ul class="footer-links">
-                    <li><a href="../community_page/community.html">Feed</a></li>
+                    <li><a href="../community/community.html">Feed</a></li>
                     <li><a href="../events/create.html">Host an Event</a></li>
                     <li><a href="../profile/profile.html">My Profile</a></li>
                 </ul>
@@ -528,7 +528,7 @@
         logoutBtn.style.cssText = 'background:none;border:1px solid #e8e8ec;border-radius:8px;padding:.35rem .9rem;font-size:.8rem;font-weight:600;cursor:pointer;color:#6b6b7b;';
         logoutBtn.addEventListener('click', async () => {
             await sb.auth.signOut();
-            window.location.href = '../login/signup/login.html';
+            window.location.href = '../login/login.html';
         });
 
         container.appendChild(avatarLink);
@@ -581,7 +581,7 @@
     // ── Toggle favorite ────────────────────────────────────────────────────────
     async function toggleFav(eventId, btn) {
         if (!currentUser) {
-            window.location.href = '../login/signup/login.html';
+            window.location.href = '../login/login.html';
             return;
         }
         const isFav = userFavs.has(eventId);
