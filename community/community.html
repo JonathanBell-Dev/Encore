@@ -324,8 +324,13 @@
       const userInfo = document.createElement('div');
       userInfo.className = 'user-info';
 
-      const av = document.createElement('div');
+      const isOwnPost = currentUser && post.account_id === currentUser.id;
+      const profileUrl = `../profile/${isOwnPost ? 'profile.html' : 'connection-profile.html?id=' + account.id}`;
+
+      const av = document.createElement('a');
+      av.href = profileUrl;
       av.className = 'post-avatar';
+      av.style.textDecoration = 'none';
       if (account.avatar_url) {
         av.style.backgroundImage = `url(${account.avatar_url})`;
         av.style.backgroundSize = 'cover';
@@ -336,9 +341,12 @@
       }
 
       const nameWrap = document.createElement('div');
-      const usernameSpan = document.createElement('span');
+      const usernameSpan = document.createElement('a');
       usernameSpan.className = 'username';
       usernameSpan.textContent = name;
+      usernameSpan.href = profileUrl;
+      usernameSpan.style.textDecoration = 'none';
+      usernameSpan.style.color = 'inherit';
       const timeSpan = document.createElement('span');
       timeSpan.className = 'post-time';
       timeSpan.textContent = timeAgo(post.created_at);
@@ -485,9 +493,16 @@
           const displayName = acc.user_name || 'user';
           const div = document.createElement('div');
           div.className = 'comment';
-          const userSpan = document.createElement('span');
+          const isOwn = currentUser && c.account_id === currentUser.id;
+          const commentProfileUrl = isOwn
+            ? '../profile/profile.html'
+            : `../profile/connection-profile.html?id=${c.account_id}`;
+          const userSpan = document.createElement('a');
           userSpan.className = 'comment-user';
           userSpan.textContent = '@' + displayName;
+          userSpan.href = commentProfileUrl;
+          userSpan.style.textDecoration = 'none';
+          userSpan.style.color = 'inherit';
           const textSpan = document.createElement('span');
           textSpan.className = 'comment-text';
           textSpan.textContent = c.content;

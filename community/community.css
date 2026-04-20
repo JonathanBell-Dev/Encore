@@ -161,7 +161,9 @@ nav a.active {
     display: flex; align-items: center;
     justify-content: center; font-weight: 700;
     font-size: .85rem; flex-shrink: 0;
+    transition: opacity .15s;
 }
+a.post-avatar:hover { opacity: .8; }
 
 .post-input-area { flex-grow: 1; }
 
@@ -219,6 +221,7 @@ textarea::placeholder { color: #4E4B48; }
     font-weight: 700; display: block;
     font-size: 14px; color: #F0EDE8;
 }
+a.username:hover { color: #e8470a; }
 
 .post-time {
     font-size: 11px; color: #4E4B48;
@@ -294,7 +297,8 @@ textarea::placeholder { color: #4E4B48; }
 }
 
 .comment { font-size: 13px; line-height: 1.5; color: #9A9590; }
-.comment-user { font-weight: 700; margin-right: 5px; color: #F0EDE8; }
+.comment-user { font-weight: 700; margin-right: 5px; color: #F0EDE8; cursor: pointer; }
+.comment-user:hover { color: #e8470a; }
 .comment-text { color: #9A9590; }
 
 .comment-input-row { display: flex; gap: 8px; margin-top: 8px; }

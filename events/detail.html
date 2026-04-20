@@ -116,10 +116,14 @@
     .btn-favorite:hover { border-color: var(--orange); color: var(--orange); }
     .btn-favorite.active { background: rgba(232,71,10,.08); border-color: var(--orange); color: var(--orange); }
 
-    .organizer-row { display: flex; align-items: center; gap: .75rem; }
+    .organizer-row { display: flex; align-items: center; gap: .75rem; border-radius: 10px; transition: background .15s; }
+    .organizer-row.clickable { cursor: pointer; }
+    .organizer-row.clickable:hover { background: var(--light); margin: -.5rem; padding: .5rem; }
     .organizer-av { width: 40px; height: 40px; border-radius: 50%; background: var(--orange); display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; color: #fff; }
     .organizer-name { font-size: .875rem; font-weight: 600; }
     .organizer-label { font-size: .72rem; color: var(--muted); }
+    .attendee-chip { cursor: pointer; text-decoration: none; color: var(--text); transition: border-color .15s, background .15s; }
+    .attendee-chip:hover { border-color: var(--orange); background: rgba(232,71,10,.06); }
 
     /* Skeleton */
     .skeleton { background: #e8e8ec; border-radius: 8px; animation: pulse 1.4s ease-in-out infinite; }
@@ -137,6 +141,7 @@
     .event-comment-list { display: flex; flex-direction: column; gap: .75rem; margin-bottom: 1rem; }
     .ev-comment { font-size: .875rem; line-height: 1.55; color: #444; }
     .ev-comment-author { font-weight: 700; color: var(--text); margin-right: .4rem; }
+    .ev-comment-author:hover { color: var(--orange); }
     .ev-comment-time { font-size: .72rem; color: var(--muted); margin-left: .5rem; }
     .ev-comment-input-row { display: flex; gap: .6rem; }
     .ev-comment-input {
@@ -272,7 +277,7 @@
       <!-- Organizer -->
       <div class="sidebar-card" id="organizer-card" style="display:none">
         <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:.75rem">Organizer</div>
-        <div class="organizer-row">
+        <div class="organizer-row" id="org-row">
           <div class="organizer-av" id="org-av">?</div>
           <div>
             <div class="organizer-name" id="org-name">–</div>
@@ -360,7 +365,7 @@
     async function loadAttendees(eventId) {
       const { data, count } = await sb
         .from('event_attendance')
-        .select('account_id, accounts!event_attendance_account_id_fkey(first_name,last_name,user_name,avatar_url)', { count: 'exact' })
+        .select('account_id, accounts!event_attendance_account_id_fkey(id,first_name,last_name,user_name,avatar_url)', { count: 'exact' })
         .eq('event_id', eventId)
         .limit(8);
 
@@ -377,8 +382,9 @@
         const name = [acc.first_name, acc.last_name].filter(Boolean).join(' ') || acc.user_name || 'Member';
         const initials = name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
 
-        const chip = document.createElement('div');
+        const chip = document.createElement('a');
         chip.className = 'attendee-chip';
+        chip.href = `../profile/connection-profile.html?id=${acc.id}`;
 
         const av = document.createElement('div');
         av.className = 'chip-av';
@@ -585,6 +591,12 @@
         } else {
           orgAv.textContent = initials;
         }
+        // Make organizer row clickable to view their profile
+        if (!currentUser || currentUser.id !== org.id) {
+          const orgRow = document.getElementById('org-row');
+          orgRow.classList.add('clickable');
+          orgRow.onclick = () => { window.location.href = `../profile/connection-profile.html?id=${org.id}`; };
+        }
       }
 
       // Show organizer controls if the logged-in user is the organizer
@@ -649,7 +661,7 @@
 
       const authorIds = [...new Set(comments.map(c => c.account_id))];
       const { data: accounts } = await sb
-        .from('accounts').select('id, user_name').in('id', authorIds);
+        .from('accounts').select('id, user_name, first_name, last_name').in('id', authorIds);
       const accountMap = Object.fromEntries((accounts || []).map(a => [a.id, a]));
 
       comments.forEach(c => {
@@ -658,8 +670,9 @@
         const timeStr = new Date(c.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
         const div = document.createElement('div');
         div.className = 'ev-comment';
+        const profileHref = acc.id ? `../profile/connection-profile.html?id=${acc.id}` : '#';
         div.innerHTML =
-          `<span class="ev-comment-author">${displayName}</span>` +
+          `<a class="ev-comment-author" href="${profileHref}" style="text-decoration:none;color:inherit;">${displayName}</a>` +
           `<span>${escHtml(c.content)}</span>` +
           `<span class="ev-comment-time">${timeStr}</span>`;
         listEl.appendChild(div);
