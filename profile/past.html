@@ -74,7 +74,7 @@
     async function loadStats(userId) {
       const [{ count: attending }, { count: past }, { count: conns }] = await Promise.all([
         sb.from('event_attendance').select('*', { count: 'exact', head: true }).eq('account_id', userId),
-        sb.from('event_attendance').select('*', { count: 'exact', head: true }).eq('account_id', userId),
+        sb.from('event_attendance').select('events!inner(starts_at)', { count: 'exact', head: true }).eq('account_id', userId).lt('events.starts_at', new Date().toISOString()),
         sb.from('connections').select('*', { count: 'exact', head: true }).eq('status', 'accepted').or(`requester_id.eq.${userId},addressee_id.eq.${userId}`)
       ]);
       setText(document.getElementById('stat-tickets'), attending ?? 0);

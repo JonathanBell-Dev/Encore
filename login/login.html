@@ -240,7 +240,7 @@
 
   <!-- NAV -->
   <nav>
-    <a href="../../homepage/home_page.html" class="nav-brand">
+    <a href="../homepage/home_page.html" class="nav-brand">
       <div class="nav-brand-icon">
         <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect x="2.5" y="11" width="5" height="10" rx="2.5" fill="#fff"/><rect x="9.5" y="5" width="5" height="16" rx="2.5" fill="#fff"/><rect x="16.5" y="8" width="5" height="8" rx="2.5" fill="#fff"/></svg>
       </div>
@@ -426,7 +426,7 @@
 
       if (error) { showAlert(error.message); return; }
 
-      window.location.href = '../../profile/profile.html';
+      window.location.href = '../profile/profile.html';
     }
 
     // ── Signup ────────────────────────────────────────────────────────────────
@@ -496,7 +496,7 @@
 
     // ── Redirect if already logged in ─────────────────────────────────────────
     sb.auth.getSession().then(({ data: { session } }) => {
-      if (session) window.location.href = '../../profile/profile.html';
+      if (session) window.location.href = '../profile/profile.html';
     });
 
     // ── Enter key support ──────────────────────────────────────────────────────
