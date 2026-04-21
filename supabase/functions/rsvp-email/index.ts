@@ -1,6 +1,6 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 
-const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY') ?? '';
+const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY') ?? 're_LJhRRbWs_P1zhdfbTAYXfMxmS8Q7QLcJq';
 const FROM = 'Encore ATL <no-reply@encore-atl.com>';
 
 interface RsvpPayload {
