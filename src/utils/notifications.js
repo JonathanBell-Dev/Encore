@@ -124,6 +124,23 @@ async function refreshBell(sb, userId) {
   list.innerHTML = items.length
     ? items.join('')
     : '<div class="notif-empty">You\'re all caught up ✓</div>';
+
+  // Push subscribe prompt (only if not already subscribed)
+  if ('PushManager' in window && Notification.permission === 'default') {
+    const dropdown = document.getElementById('notif-dropdown');
+    if (dropdown && !dropdown.querySelector('.notif-push-btn')) {
+      const btn = document.createElement('button');
+      btn.className = 'notif-push-btn';
+      btn.textContent = '🔔 Enable push notifications';
+      btn.onclick = async (e) => {
+        e.stopPropagation();
+        btn.textContent = 'Enabling…';
+        await window.subscribePush(sb, userId);
+        btn.remove();
+      };
+      dropdown.appendChild(btn);
+    }
+  }
 }
 
 function escH(s) {
@@ -193,6 +210,45 @@ function injectStyles() {
       padding: 1.5rem 1rem; text-align: center;
       font-size: .85rem; color: #9A9590; font-family: 'Inter', sans-serif;
     }
+    .notif-push-btn {
+      display: block; width: calc(100% - 2rem); margin: .75rem 1rem;
+      background: rgba(232,71,10,.12); border: 1px solid rgba(232,71,10,.3);
+      border-radius: 8px; padding: .55rem .9rem; color: #e8470a;
+      font-size: .8rem; font-weight: 700; cursor: pointer; font-family: 'Inter', sans-serif;
+      text-align: left;
+    }
+    .notif-push-btn:hover { background: rgba(232,71,10,.2); }
   `;
   document.head.appendChild(s);
+}
+
+// ── Push subscription ─────────────────────────────────────────────────────
+const VAPID_PUBLIC = 'BPjzFeudnl6Oan0EZJyY3bV2XmfnhoPc7x6xErRvuUYjAZqYyuiz6QOMGyfggXC-C8ACC39tSwbByyGc1AW8D6I';
+
+window.subscribePush = async function subscribePush(sb, userId) {
+  if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+  const perm = await Notification.requestPermission();
+  if (perm !== 'granted') return;
+  try {
+    const reg = await navigator.serviceWorker.ready;
+    const existing = await reg.pushManager.getSubscription();
+    const sub = existing || await reg.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC),
+    });
+    const j = sub.toJSON();
+    await sb.from('push_subscriptions').upsert({
+      account_id: userId,
+      endpoint: j.endpoint,
+      p256dh: j.keys.p256dh,
+      auth: j.keys.auth,
+    }, { onConflict: 'account_id,endpoint' });
+  } catch (_) {}
+};
+
+function urlBase64ToUint8Array(base64String) {
+  const padding = '='.repeat((4 - base64String.length % 4) % 4);
+  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+  const raw = atob(base64);
+  return Uint8Array.from([...raw].map(c => c.charCodeAt(0)));
 }

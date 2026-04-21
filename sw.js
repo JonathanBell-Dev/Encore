@@ -31,3 +31,28 @@ self.addEventListener('fetch', e => {
     }).catch(() => caches.match(e.request))
   );
 });
+
+// Push notifications
+self.addEventListener('push', e => {
+  let data = { title: 'Encore ATL', body: 'You have a new notification', url: '/' };
+  try { data = e.data ? JSON.parse(e.data.text()) : data; } catch (_) {}
+  e.waitUntil(
+    self.registration.showNotification(data.title, {
+      body: data.body,
+      icon: '/favicon.ico',
+      badge: '/favicon.ico',
+      data: { url: data.url },
+      vibrate: [100, 50, 100],
+    })
+  );
+});
+
+self.addEventListener('notificationclick', e => {
+  e.notification.close();
+  const url = e.notification.data?.url || '/';
+  e.waitUntil(clients.matchAll({ type: 'window', includeUncontrolled: true }).then(cs => {
+    const existing = cs.find(c => c.url.includes(self.location.origin));
+    if (existing) { existing.focus(); existing.navigate(url); }
+    else clients.openWindow(url);
+  }));
+});

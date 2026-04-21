@@ -146,6 +146,17 @@
         </div>
     </div>
 
+    <!-- You might like (personalized, logged-in only) -->
+    <section class="trending-section" id="foryou-section" style="display:none">
+      <div class="trending-header">
+        <div>
+          <div class="section-eyebrow">Personalized picks</div>
+          <h2 class="section-title">You might <em>like</em></h2>
+        </div>
+      </div>
+      <div class="trending-reel" id="foryou-reel"></div>
+    </section>
+
     <!-- Trending events horizontal reel -->
     <section class="trending-section" id="trending-section" style="display:none">
       <div class="trending-header">
@@ -531,6 +542,7 @@
         if (favs) favs.forEach(r => userFavs.add(r.event_id));
         updateAuthNav(profile);
         mountNotifBell(sb, currentUser.id);
+        window._currentUserId = currentUser.id;
     }
 
     function updateAuthNav(profile) {
@@ -1029,8 +1041,55 @@
     }
     initMap();
 
+    function escapeHtml(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+    // Personalized "You might like" recommendations
+    async function loadForYou(userId) {
+      if (!userId) return;
+      const now = new Date().toISOString();
+      // Get categories from user's past RSVPs
+      const { data: past } = await sb.from('event_attendance')
+        .select('events!event_attendance_event_id_fkey(category)')
+        .eq('account_id', userId).eq('status', 'going').limit(20);
+      const attended = (past || []).map(r => r.events?.category).filter(Boolean);
+      const topCats = [...new Set(attended)].slice(0, 3);
+      if (!topCats.length) return; // no history — skip section
+
+      // Also get event IDs they already RSVP'd to avoid duplicates
+      const { data: rsvpd } = await sb.from('event_attendance').select('event_id').eq('account_id', userId);
+      const rsvpdIds = new Set((rsvpd || []).map(r => r.event_id));
+
+      const { data: recs } = await sb.from('events')
+        .select('id,title,category,venue_name,starts_at,is_free,ticket_price,cover_image_url')
+        .eq('status', 'published').gte('starts_at', now)
+        .in('category', topCats).limit(16);
+      const filtered = (recs || []).filter(e => !rsvpdIds.has(e.id)).slice(0, 8);
+      if (!filtered.length) return;
+
+      const reel = document.getElementById('foryou-reel');
+      reel.innerHTML = filtered.map(ev => {
+        const grad = TREND_GRADS[ev.category] || 'linear-gradient(135deg,#1a1a1a,#3a3a3a)';
+        const dateStr = ev.starts_at ? new Date(ev.starts_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '';
+        const price = ev.is_free ? 'Free' : (ev.ticket_price ? `$${ev.ticket_price}` : 'Free');
+        return `<a href="../events/detail.html?id=${ev.id}" class="trending-card" style="text-decoration:none">
+          <div class="trending-card-top" style="${ev.cover_image_url ? `background:url(${ev.cover_image_url}) center/cover no-repeat` : `background:${grad}`}">
+            <span class="trending-badge">${escapeHtml(ev.category||'Event')}</span>
+          </div>
+          <div class="trending-card-body">
+            <div class="trending-card-title">${escapeHtml(ev.title||'Event')}</div>
+            <div class="trending-card-meta">${dateStr}${ev.venue_name ? ' · ' + escapeHtml(ev.venue_name) : ''}</div>
+            <div class="trending-card-going">${price}</div>
+          </div>
+        </a>`;
+      }).join('');
+      document.getElementById('foryou-section').style.display = 'block';
+    }
+
     // Load events and neighborhoods on page load (after auth init)
-    initAuth().then(() => { loadEvents(); loadNeighborhoods(); loadFeaturedEvent(); loadTrending(); });
+    initAuth().then(() => {
+      loadEvents(); loadNeighborhoods(); loadFeaturedEvent(); loadTrending();
+      if (window._currentUserId) loadForYou(window._currentUserId);
+    });
 
     // ── Nav scroll shadow ─────────────────────────────────────────────────────
     const nav = document.querySelector('nav');

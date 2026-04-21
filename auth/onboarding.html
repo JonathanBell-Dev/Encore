@@ -71,6 +71,16 @@
     .interest-chip.selected { background: rgba(232,71,10,.1); border-color: var(--orange); color: var(--orange); }
     .interest-hint { font-size: .75rem; color: var(--muted); margin-top: .5rem; }
 
+    /* Suggested users */
+    .suggest-card { display: flex; align-items: center; gap: .85rem; background: var(--light); border: 1px solid var(--border); border-radius: 12px; padding: .85rem 1rem; }
+    .suggest-av { width: 44px; height: 44px; border-radius: 50%; background: var(--orange); display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; color: #fff; flex-shrink: 0; overflow: hidden; }
+    .suggest-av img { width: 100%; height: 100%; object-fit: cover; }
+    .suggest-info { flex: 1; min-width: 0; }
+    .suggest-name { font-weight: 700; font-size: .9rem; }
+    .suggest-meta { font-size: .78rem; color: var(--muted); margin-top: .1rem; }
+    .suggest-btn { background: var(--orange); border: none; border-radius: 8px; padding: .4rem .95rem; color: #fff; font-size: .8rem; font-weight: 700; cursor: pointer; font-family: 'Inter', sans-serif; white-space: nowrap; flex-shrink: 0; }
+    .suggest-btn.following { background: var(--light); border: 1px solid var(--border); color: var(--muted); }
+
     /* Buttons */
     .btn-row { display: flex; gap: .75rem; margin-top: 1.75rem; }
     .btn-primary {
@@ -122,6 +132,7 @@
       <span class="progress-label active" id="lbl-1">About You</span>
       <span class="progress-label" id="lbl-2">Location</span>
       <span class="progress-label" id="lbl-3">Interests</span>
+      <span class="progress-label" id="lbl-4">Connect</span>
     </div>
     <div class="progress-track">
       <div class="progress-fill" id="progress-fill" style="width:33%"></div>
@@ -232,6 +243,30 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg>
             Back
           </button>
+          <button class="btn-primary" onclick="nextStep(4)">
+            Next
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+          <button class="btn-skip" onclick="skipAll()">Skip</button>
+        </div>
+      </div>
+
+      <!-- ── Step 4: Follow People ─────────────────────────────────────── -->
+      <div id="step-4" style="display:none">
+        <div class="step-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <div class="step-num">Step 4 of 4</div>
+        <h1>Find your people</h1>
+        <p class="subtitle">Connect with others in Atlanta's event community. You can always find more later.</p>
+        <div id="suggest-list" style="display:flex;flex-direction:column;gap:.75rem;margin-bottom:1.5rem;">
+          <div style="color:var(--muted);font-size:.85rem;">Loading suggestions…</div>
+        </div>
+        <div class="btn-row">
+          <button class="btn-skip" onclick="nextStep(3)" style="flex:0">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg>
+            Back
+          </button>
           <button class="btn-primary" id="btn-finish" onclick="finish()">
             <span id="finish-label">Finish Setup</span>
             <div class="spinner" id="finish-spinner" style="display:none"></div>
@@ -300,13 +335,14 @@
 
     // ── Progress ───────────────────────────────────────────────────────────
     function showStep(n) {
-      [1, 2, 3].forEach(i => {
+      [1, 2, 3, 4].forEach(i => {
         document.getElementById('step-' + i).style.display = i === n ? 'block' : 'none';
         const lbl = document.getElementById('lbl-' + i);
         if (lbl) lbl.classList.toggle('active', i === n);
       });
-      document.getElementById('progress-fill').style.width = (n / 3 * 100) + '%';
+      document.getElementById('progress-fill').style.width = (n / 4 * 100) + '%';
       currentStep = n;
+      if (n === 4) loadSuggestedUsers();
     }
 
     window.nextStep = function(n) { showStep(n); };
@@ -380,9 +416,58 @@
       }
 
       // Hide all steps, show success
-      [1, 2, 3].forEach(i => document.getElementById('step-' + i).style.display = 'none');
+      [1, 2, 3, 4].forEach(i => document.getElementById('step-' + i).style.display = 'none');
       document.getElementById('step-success').style.display = 'block';
       document.querySelector('.progress-wrap').style.display = 'none';
+    };
+
+    // ── Suggested users ───────────────────────────────────────────────────
+    const followedIds = new Set();
+    async function loadSuggestedUsers() {
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session) return;
+      const el = document.getElementById('suggest-list');
+      // Get users who share interests + have bio/avatar (active accounts)
+      const { data: users } = await sb.from('accounts')
+        .select('id,first_name,last_name,user_name,avatar_url,bio,location')
+        .neq('id', session.user.id)
+        .not('first_name', 'is', null)
+        .not('avatar_url', 'is', null)
+        .order('created_at', { ascending: false })
+        .limit(6);
+      if (!users || !users.length) {
+        el.innerHTML = '<div style="color:var(--muted);font-size:.85rem;">No suggestions yet — Atlanta is just getting started!</div>';
+        return;
+      }
+      el.innerHTML = users.map(u => {
+        const name = `${u.first_name||''} ${u.last_name||''}`.trim() || u.user_name || 'Encore Member';
+        const initials = name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+        const av = u.avatar_url ? `<img src="${u.avatar_url}" onerror="this.parentNode.textContent='${initials}'">` : initials;
+        const meta = [u.location, u.bio ? u.bio.slice(0,40)+(u.bio.length>40?'…':'') : null].filter(Boolean).join(' · ');
+        return `<div class="suggest-card" id="suggest-${u.id}">
+          <div class="suggest-av">${av}</div>
+          <div class="suggest-info">
+            <div class="suggest-name">${name}</div>
+            <div class="suggest-meta">${meta || 'Atlanta, GA'}</div>
+          </div>
+          <button class="suggest-btn" id="follow-btn-${u.id}" onclick="toggleFollow('${u.id}','${session.user.id}')">Follow</button>
+        </div>`;
+      }).join('');
+    }
+
+    window.toggleFollow = async function(targetId, myId) {
+      const btn = document.getElementById('follow-btn-' + targetId);
+      if (followedIds.has(targetId)) {
+        await sb.from('connections').delete().eq('requester_id', myId).eq('addressee_id', targetId);
+        followedIds.delete(targetId);
+        btn.textContent = 'Follow';
+        btn.className = 'suggest-btn';
+      } else {
+        await sb.from('connections').upsert({ requester_id: myId, addressee_id: targetId, status: 'pending' }, { onConflict: 'requester_id,addressee_id' });
+        followedIds.add(targetId);
+        btn.textContent = 'Requested ✓';
+        btn.className = 'suggest-btn following';
+      }
     };
 
     // ── Boot ──────────────────────────────────────────────────────────────
