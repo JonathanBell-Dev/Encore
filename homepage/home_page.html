@@ -1156,9 +1156,33 @@
       document.getElementById('activity-section').style.display = 'block';
     }
 
+    // Pre-apply ?vibe= or ?category= param from hashtag links
+    (function applyUrlFilter() {
+      const p = new URLSearchParams(location.search);
+      if (p.get('vibe')) {
+        currentFilterType  = 'vibe';
+        currentFilterValue = p.get('vibe');
+        // Highlight matching pill if present, otherwise leave none active
+        pills.forEach(function(pill) {
+          const match = pill.dataset.type === 'vibe' && pill.dataset.value === currentFilterValue;
+          pill.classList.toggle('active', match);
+        });
+      } else if (p.get('category')) {
+        currentFilterType  = 'category';
+        currentFilterValue = p.get('category');
+        pills.forEach(function(pill) {
+          const match = pill.dataset.type === 'category' && pill.dataset.value === currentFilterValue;
+          pill.classList.toggle('active', match);
+        });
+      }
+    })();
+
     // Load events and neighborhoods on page load (after auth init)
     initAuth().then(() => {
       loadEvents(); loadNeighborhoods(); loadFeaturedEvent(); loadTrending();
+      if (new URLSearchParams(location.search).get('vibe') || new URLSearchParams(location.search).get('category')) {
+        setTimeout(() => { const s = document.querySelector('.events-section'); if (s) s.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 400);
+      }
       if (window._currentUserId) {
         loadForYou(window._currentUserId);
         loadActivityFeed(window._currentUserId);

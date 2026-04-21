@@ -93,12 +93,8 @@
                     </div>
                 </div>
 
-                <div class="trending-tags">
-                    <span class="trend-tag jazz">🎷 #JazzNight</span>
-                    <span class="trend-tag park">🌳 #GrantParkLive</span>
-                    <span class="trend-tag rock">🎸 #RockFestATL</span>
-                    <span class="trend-tag indie">✨ #LittleFivePoints</span>
-                    <span class="trend-tag live">🎶 #FreeLiveMusic</span>
+                <div class="trending-tags" id="trending-tags">
+                    <span class="trend-tag" style="opacity:.4;pointer-events:none">Loading…</span>
                 </div>
             </section>
         </aside>
@@ -726,9 +722,65 @@
       }
     }
 
+    // ── Trending hashtags from real vibe_tags ─────────────────────────────────
+    async function loadTrendingTags() {
+      const now = new Date().toISOString();
+      const { data: events } = await sb.from('events')
+        .select('vibe_tags')
+        .gte('starts_at', now)
+        .not('vibe_tags', 'is', null)
+        .limit(200);
+
+      if (!events || !events.length) {
+        renderFallbackTags(); return;
+      }
+
+      // Count tag frequency
+      const counts = {};
+      events.forEach(ev => {
+        (ev.vibe_tags || []).forEach(tag => { counts[tag] = (counts[tag] || 0) + 1; });
+      });
+
+      const sorted = Object.entries(counts)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 8)
+        .map(([tag]) => tag);
+
+      if (!sorted.length) { renderFallbackTags(); return; }
+
+      const EMOJIS = {
+        'Live Music': '🎶', 'Free Entry': '🆓', 'Outdoor': '🌳', 'DJ Set': '🎧',
+        'Rooftop': '🏙️', 'Brunch': '🥂', 'Art': '🎨', 'Jazz': '🎷',
+        'Hip-Hop': '🎤', 'Comedy': '😂', 'Food': '🍽️', 'Sports': '⚽',
+        'Black-Owned': '✊', 'LGBTQ+': '🏳️‍🌈', 'Networking': '🤝',
+      };
+      const defaultEmoji = '🔥';
+
+      const container = document.getElementById('trending-tags');
+      container.innerHTML = sorted.map(tag => {
+        const emoji = Object.entries(EMOJIS).find(([k]) => tag.toLowerCase().includes(k.toLowerCase()))?.[1] || defaultEmoji;
+        const href = `../homepage/home_page.html?vibe=${encodeURIComponent(tag)}`;
+        return `<a class="trend-tag" href="${href}">${emoji} #${tag.replace(/\s+/g, '')}</a>`;
+      }).join('');
+    }
+
+    function renderFallbackTags() {
+      const fallback = [
+        { label: 'JazzNight', emoji: '🎷', vibe: 'Jazz' },
+        { label: 'LiveMusic', emoji: '🎶', vibe: 'Live Music' },
+        { label: 'FreeEntry', emoji: '🆓', vibe: 'Free Entry' },
+        { label: 'Rooftop',   emoji: '🏙️', vibe: 'Rooftop' },
+        { label: 'DJSet',     emoji: '🎧', vibe: 'DJ Set' },
+      ];
+      document.getElementById('trending-tags').innerHTML = fallback.map(t =>
+        `<a class="trend-tag" href="../homepage/home_page.html?vibe=${encodeURIComponent(t.vibe)}">${t.emoji} #${t.label}</a>`
+      ).join('');
+    }
+
     init().then(() => {
       loadFeed(true);
       loadUpcomingEvents();
+      loadTrendingTags();
       subscribeRealtime();
     });
   </script>
