@@ -361,6 +361,7 @@
 
   <!-- Supabase CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="../src/utils/notifications.js"></script>
   <script>
     // ── CONFIG ────────────────────────────────────────────────────────────────
     const SUPABASE_URL  = 'https://qgvoznhldglucpsaisfs.supabase.co';
@@ -380,6 +381,7 @@
       const { data: { session } } = await sb.auth.getSession();
       if (!session) { window.location.href = '../login/login.html'; return; }
       currentUser = session.user;
+      mountNotifBell(sb, currentUser.id);
 
       await loadThreads();
 

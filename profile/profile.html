@@ -202,6 +202,13 @@
   </section>
 
   <!-- MAIN CONTENT -->
+  <!-- Profile completeness nudge (shown by JS when profile is incomplete) -->
+  <div id="profile-nudge" style="display:none;background:rgba(232,71,10,.08);border-bottom:1px solid rgba(232,71,10,.25);padding:.75rem 2rem;font-family:'Inter',sans-serif;font-size:.85rem;color:#F0EDE8;display:none;align-items:center;gap:.75rem;justify-content:center;flex-wrap:wrap;">
+    <span id="profile-nudge-msg">Complete your profile to connect with more Atlanta locals.</span>
+    <a href="edit-profile.html" style="background:#e8470a;color:#fff;font-weight:700;font-size:.78rem;padding:.35rem .85rem;border-radius:6px;text-decoration:none;white-space:nowrap;">Complete Profile</a>
+    <button onclick="document.getElementById('profile-nudge').style.display='none'" style="background:none;border:none;color:#9A9590;cursor:pointer;font-size:1.1rem;line-height:1;padding:0 .25rem;">&times;</button>
+  </div>
+
   <main>
 
     <!-- LEFT SIDEBAR -->
@@ -331,6 +338,7 @@
 
   <!-- Supabase CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="../src/utils/notifications.js"></script>
   <script>
     // ── CONFIG ────────────────────────────────────────────────────────────────
     const SUPABASE_URL  = 'https://qgvoznhldglucpsaisfs.supabase.co';
@@ -364,6 +372,7 @@
       const { data: { session } } = await sb.auth.getSession();
       if (!session) { window.location.href = '../login/login.html'; return; }
       currentUser = session.user;
+      mountNotifBell(sb, currentUser.id);
       await loadProfile();
       await loadConnections();
       await Promise.all([loadHostedEvents(), loadUpcomingEvents()]);
@@ -425,6 +434,18 @@
 
       // Interests sidebar
       await loadInterests();
+
+      // Profile completeness nudge
+      const missing = [];
+      if (!data.avatar_url) missing.push('a profile photo');
+      if (!data.bio)        missing.push('a bio');
+      if (!data.location)   missing.push('your location');
+      if (missing.length) {
+        const nudge = document.getElementById('profile-nudge');
+        document.getElementById('profile-nudge-msg').textContent =
+          `Add ${missing.join(', ')} to help others find and connect with you.`;
+        nudge.style.display = 'flex';
+      }
     }
 
     // ── Load user interests ───────────────────────────────────────────────────

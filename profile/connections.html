@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="profile.css">
   <link rel="stylesheet" href="../css/toast.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="../src/utils/notifications.js"></script>
   <script type="module">
     import { guardPage } from '../src/utils/guard.js';
     guardPage();
@@ -266,6 +267,7 @@
     sb.auth.getSession().then(async ({ data: { session } }) => {
       if (!session) return;
       currentUserId = session.user.id;
+      mountNotifBell(sb, currentUserId);
       await loadConnections(currentUserId);
     });
   </script>

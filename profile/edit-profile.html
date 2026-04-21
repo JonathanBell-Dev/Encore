@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="profile.css">
   <link rel="stylesheet" href="../css/toast.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="../src/utils/notifications.js"></script>
   <script type="module">
     import { guardPage } from '../src/utils/guard.js';
     guardPage();
@@ -299,6 +300,7 @@
       const { data: { session } } = await sb.auth.getSession();
       if (!session) { window.location.href = '../login/login.html'; return; }
       currentUser = session.user;
+      mountNotifBell(sb, currentUser.id);
 
       const [{ data: profile }, { data: interests }] = await Promise.all([
         sb.from('accounts')

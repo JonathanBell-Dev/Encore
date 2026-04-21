@@ -9,6 +9,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/toast.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="../src/utils/notifications.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
@@ -115,6 +116,23 @@
     }
     .btn-favorite:hover { border-color: var(--orange); color: var(--orange); }
     .btn-favorite.active { background: rgba(232,71,10,.08); border-color: var(--orange); color: var(--orange); }
+
+    .btn-share {
+      width: 100%; padding: .65rem; border-radius: 9px;
+      font-family: 'Inter', sans-serif; font-size: .82rem; font-weight: 600;
+      cursor: pointer; display: flex; align-items: center; justify-content: center; gap: .5rem;
+      background: transparent; border: 1px solid var(--border); color: var(--muted);
+      transition: border-color .18s, color .18s;
+    }
+    .btn-share:hover { border-color: var(--text); color: var(--text); }
+    .share-toast {
+      position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%);
+      background: #1C1C1C; color: #F0EDE8; border: 1px solid #3a3a3a;
+      padding: .6rem 1.25rem; border-radius: 999px;
+      font-size: .85rem; font-weight: 600; font-family: 'Inter', sans-serif;
+      opacity: 0; transition: opacity .25s; pointer-events: none; z-index: 999;
+    }
+    .share-toast.show { opacity: 1; }
 
     .organizer-row { display: flex; align-items: center; gap: .75rem; border-radius: 10px; transition: background .15s; }
     .organizer-row.clickable { cursor: pointer; }
@@ -272,7 +290,12 @@
           <span id="fav-star">☆</span>
           <span id="fav-label">Save Event</span>
         </button>
+        <button class="btn-share" onclick="handleShare()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+          Share Event
+        </button>
       </div>
+      <div class="share-toast" id="share-toast">Link copied!</div>
 
       <!-- Organizer -->
       <div class="sidebar-card" id="organizer-card" style="display:none">
@@ -529,6 +552,7 @@
       if (currentUser) {
         sb.from('accounts').select('first_name,last_name,user_name').eq('id', currentUser.id).maybeSingle()
           .then(({ data }) => { if (data) updateAuthNav(data); });
+        mountNotifBell(sb, currentUser.id);
       }
 
       // Hero image
@@ -704,6 +728,26 @@
     document.getElementById('ev-comment-input').addEventListener('keydown', e => {
       if (e.key === 'Enter') { e.preventDefault(); submitEventComment(); }
     });
+
+    // ── Share event ───────────────────────────────────────────────────────────
+    async function handleShare() {
+      const url = window.location.href;
+      const title = document.querySelector('.event-main h1')?.textContent || 'Check out this event';
+      if (navigator.share) {
+        try { await navigator.share({ title, url }); return; } catch (_) {}
+      }
+      try {
+        await navigator.clipboard.writeText(url);
+      } catch (_) {
+        const ta = document.createElement('textarea');
+        ta.value = url; ta.style.position = 'fixed'; ta.style.opacity = '0';
+        document.body.appendChild(ta); ta.select(); document.execCommand('copy');
+        document.body.removeChild(ta);
+      }
+      const toast = document.getElementById('share-toast');
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2000);
+    }
 
     // ── Boot ──────────────────────────────────────────────────────────────────
     const params = new URLSearchParams(location.search);

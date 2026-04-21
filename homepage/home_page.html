@@ -144,6 +144,17 @@
         </div>
     </div>
 
+    <!-- Trending events horizontal reel -->
+    <section class="trending-section" id="trending-section" style="display:none">
+      <div class="trending-header">
+        <div>
+          <div class="section-eyebrow">Popular right now</div>
+          <h2 class="section-title">Trending in <em>Atlanta</em></h2>
+        </div>
+      </div>
+      <div class="trending-reel" id="trending-reel"></div>
+    </section>
+
     <section class="events-section">
 
         <div class="events-header" data-reveal>
@@ -449,6 +460,7 @@
 
 <link rel="stylesheet" href="/css/toast.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="../src/utils/notifications.js"></script>
 <script>
     // ── Filter pill UI ────────────────────────────────────────────────────────
     const pills = document.querySelectorAll('.filter-pill');
@@ -504,6 +516,7 @@
         ]);
         if (favs) favs.forEach(r => userFavs.add(r.event_id));
         updateAuthNav(profile);
+        mountNotifBell(sb, currentUser.id);
     }
 
     function updateAuthNav(profile) {
@@ -912,8 +925,64 @@
         }
     }
 
+    // ── Trending events ───────────────────────────────────────────────────────
+    const TREND_GRADS = {
+        'Music':          'linear-gradient(135deg,#4A148C,#CE93D8)',
+        'Arts & Culture': 'linear-gradient(135deg,#1A1A2E,#E94560)',
+        'Food & Drink':   'linear-gradient(135deg,#BF360C,#FF8A65)',
+        'Nightlife':      'linear-gradient(135deg,#0D0D2B,#3949AB)',
+        'Sports':         'linear-gradient(135deg,#1A3A2A,#52B788)',
+        'Comedy':         'linear-gradient(135deg,#F57F17,#FFD54F)',
+        'Fitness':        'linear-gradient(135deg,#006064,#4DD0E1)',
+        'Community':      'linear-gradient(135deg,#880E4F,#F48FB1)',
+    };
+    async function loadTrending() {
+        const now = new Date().toISOString();
+        const monthOut = new Date(Date.now() + 30 * 86400000).toISOString();
+        const [{ data: events }, { data: attendance }] = await Promise.all([
+            sb.from('events')
+              .select('id,title,category,venue_name,starts_at,is_free,ticket_price')
+              .eq('status', 'published').gte('starts_at', now).lte('starts_at', monthOut).limit(40),
+            sb.from('event_attendance').select('event_id').eq('status', 'going')
+        ]);
+        if (!events || !events.length) return;
+        const countMap = {};
+        (attendance || []).forEach(a => { countMap[a.event_id] = (countMap[a.event_id] || 0) + 1; });
+        const sorted = [...events]
+            .filter(e => (countMap[e.id] || 0) > 0)
+            .sort((a, b) => (countMap[b.id] || 0) - (countMap[a.id] || 0))
+            .slice(0, 8);
+        if (!sorted.length) return;
+        const section = document.getElementById('trending-section');
+        const reel    = document.getElementById('trending-reel');
+        reel.innerHTML = '';
+        sorted.forEach((ev, i) => {
+            const grad = TREND_GRADS[ev.category] || 'linear-gradient(135deg,#1a1a1a,#3a3a3a)';
+            const d    = new Date(ev.starts_at);
+            const mon  = d.toLocaleDateString('en-US', { month: 'short' });
+            const day  = d.getDate();
+            const going = countMap[ev.id] || 0;
+            const price = ev.is_free ? 'Free' : (ev.ticket_price ? '$' + Math.floor(ev.ticket_price) : 'Free');
+            const a = document.createElement('a');
+            a.className = 'trending-card';
+            a.href = `../events/detail.html?id=${ev.id}`;
+            a.innerHTML = `
+              <div class="trending-card-top" style="background:${grad}">
+                <span class="trending-badge">#${i+1} Trending</span>
+              </div>
+              <div class="trending-card-body">
+                <div class="trending-card-cat">${ev.category || 'Event'}</div>
+                <div class="trending-card-title">${ev.title || 'Untitled'}</div>
+                <div class="trending-card-meta">${mon} ${day} · ${ev.venue_name || 'ATL'}</div>
+                <div class="trending-card-going">${going} going · ${price}</div>
+              </div>`;
+            reel.appendChild(a);
+        });
+        section.style.display = 'block';
+    }
+
     // Load events and neighborhoods on page load (after auth init)
-    initAuth().then(() => { loadEvents(); loadNeighborhoods(); loadFeaturedEvent(); });
+    initAuth().then(() => { loadEvents(); loadNeighborhoods(); loadFeaturedEvent(); loadTrending(); });
 
     // ── Nav scroll shadow ─────────────────────────────────────────────────────
     const nav = document.querySelector('nav');
