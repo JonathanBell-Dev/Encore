@@ -23,19 +23,23 @@
 
 /* ── Global input / textarea / select dark theme ───── */
 input, textarea, select {
-    background-color: #1C1C1C;
-    color: #F0EDE8;
+    background-color: #1C1C1C !important;
+    color: #F0EDE8 !important;
     border: 1px solid #262626;
     border-radius: 8px;
     font-family: inherit;
     outline: none;
     transition: border-color .15s;
+    color-scheme: dark;
 }
 input:focus, textarea:focus, select:focus {
     border-color: #E8470A;
+    background-color: #1C1C1C !important;
+    color: #F0EDE8 !important;
 }
 input::placeholder, textarea::placeholder {
     color: #4E4B48;
+    opacity: 1;
 }
 select option {
     background: #1C1C1C;
@@ -45,11 +49,17 @@ select option {
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus,
+input:-webkit-autofill:active,
 textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus,
 select:-webkit-autofill {
     -webkit-box-shadow: 0 0 0 1000px #1C1C1C inset !important;
     -webkit-text-fill-color: #F0EDE8 !important;
-    caret-color: #F0EDE8;
+    caret-color: #F0EDE8 !important;
+    background-color: #1C1C1C !important;
+    color: #F0EDE8 !important;
+    transition: background-color 5000s ease-in-out 0s;
 }
 
 /* ── Keyframes ─────────────────────────────────────── */

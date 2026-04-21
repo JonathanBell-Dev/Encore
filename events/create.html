@@ -89,7 +89,7 @@
     .form-group input:focus,
     .form-group select:focus,
     .form-group textarea:focus {
-      border-color: var(--orange); box-shadow: 0 0 0 3px rgba(232,71,10,.1); background: #fff;
+      border-color: var(--orange); box-shadow: 0 0 0 3px rgba(232,71,10,.1); background: #1C1C1C;
     }
     .form-group textarea { min-height: 100px; }
     .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; }
@@ -196,21 +196,28 @@
       letter-spacing: .08em; color: var(--muted); padding: .75rem 1rem .25rem;
       border-top: 1px solid var(--border); margin-top: .25rem; display: block;
     }
-  
     input, textarea, select {
-      background-color: #1C1C1C;
-      color: #F0EDE8;
+      background-color: #1C1C1C !important;
+      color: #F0EDE8 !important;
+      color-scheme: dark;
+    }
+    input:focus, textarea:focus, select:focus {
+      background-color: #1C1C1C !important;
+      color: #F0EDE8 !important;
     }
     input:-webkit-autofill,
     input:-webkit-autofill:hover,
     input:-webkit-autofill:focus,
+    input:-webkit-autofill:active,
     textarea:-webkit-autofill,
     select:-webkit-autofill {
       -webkit-box-shadow: 0 0 0 1000px #1C1C1C inset !important;
       -webkit-text-fill-color: #F0EDE8 !important;
-      caret-color: #F0EDE8;
+      caret-color: #F0EDE8 !important;
+      transition: background-color 5000s ease-in-out 0s;
     }
-    input::placeholder, textarea::placeholder { color: #4E4B48; }
+    input::placeholder, textarea::placeholder { color: #4E4B48; opacity: 1; }
+
 
   </style>
     <link rel="manifest" href="/manifest.json">

@@ -158,7 +158,7 @@
     .form-group input:focus {
       border-color: var(--orange);
       box-shadow: 0 0 0 3px rgba(232,71,10,.12);
-      background: #fff;
+      background: #1C1C1C;
     }
     .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; }
 
@@ -234,21 +234,28 @@
       .panel-left { display: none; }
       .panel-right { padding: 1.5rem; align-items: flex-start; padding-top: 2.5rem; }
     }
-  
     input, textarea, select {
-      background-color: #1C1C1C;
-      color: #F0EDE8;
+      background-color: #1C1C1C !important;
+      color: #F0EDE8 !important;
+      color-scheme: dark;
+    }
+    input:focus, textarea:focus, select:focus {
+      background-color: #1C1C1C !important;
+      color: #F0EDE8 !important;
     }
     input:-webkit-autofill,
     input:-webkit-autofill:hover,
     input:-webkit-autofill:focus,
+    input:-webkit-autofill:active,
     textarea:-webkit-autofill,
     select:-webkit-autofill {
       -webkit-box-shadow: 0 0 0 1000px #1C1C1C inset !important;
       -webkit-text-fill-color: #F0EDE8 !important;
-      caret-color: #F0EDE8;
+      caret-color: #F0EDE8 !important;
+      transition: background-color 5000s ease-in-out 0s;
     }
-    input::placeholder, textarea::placeholder { color: #4E4B48; }
+    input::placeholder, textarea::placeholder { color: #4E4B48; opacity: 1; }
+
 
   </style>
     <link rel="manifest" href="/manifest.json">

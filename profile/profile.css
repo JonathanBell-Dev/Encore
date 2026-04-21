@@ -505,7 +505,7 @@ select option { background: var(--light); color: var(--text); }
   top: 2px; left: 2px; transition: transform .2s, background .2s;
 }
 .toggle input:checked + .toggle-slider { background: var(--orange); border-color: var(--orange); }
-.toggle input:checked + .toggle-slider::before { transform: translateX(18px); background: #fff; }
+.toggle input:checked + .toggle-slider::before { transform: translateX(18px); background: #1C1C1C; }
 
 .form-actions {
   display: flex; gap: .75rem; justify-content: flex-end;

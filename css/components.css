@@ -159,7 +159,7 @@ body {
 .form-group select:focus {
   border-color: var(--orange);
   box-shadow: 0 0 0 3px rgba(232,71,10,.1);
-  background: #fff;
+  background: #1C1C1C;
 }
 
 .form-group textarea { resize: vertical; }
