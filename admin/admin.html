@@ -356,7 +356,7 @@
   // ── Events ────────────────────────────────────────────────────────────────
   async function loadEvents() {
     const { data } = await sb.from('events')
-      .select('id,title,category,starts_at,account_id,accounts!events_account_id_fkey(first_name,last_name)')
+      .select('id,title,category,starts_at,organizer_id,accounts!events_organizer_id_fkey(first_name,last_name)')
       .order('created_at', { ascending: false })
       .limit(300);
     allEvents = data || [];

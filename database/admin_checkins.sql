@@ -12,7 +12,7 @@ create table if not exists public.event_checkins (
 
 alter table public.event_checkins enable row level security;
 create policy "organizer can view checkins" on public.event_checkins for select
-  using (exists (select 1 from public.events e where e.id = event_id and e.account_id = auth.uid()));
+  using (exists (select 1 from public.events e where e.id = event_id and e.organizer_id = auth.uid()));
 create policy "attendee can check in" on public.event_checkins for insert
   with check (account_id = auth.uid());
 

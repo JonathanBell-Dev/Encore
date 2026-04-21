@@ -614,7 +614,7 @@
         mountNotifBell(sb, currentUser.id);
         if (window.mountReportBlock) mountReportBlock(sb, currentUser.id);
         // Show report button only for non-organizers
-        if (ev.account_id !== currentUser.id) {
+        if (ev.organizer_id !== currentUser.id) {
           const rb = document.getElementById('btn-report-event');
           if (rb) rb.style.display = '';
         }

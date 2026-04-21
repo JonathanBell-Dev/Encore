@@ -126,7 +126,7 @@
     // Load organizer's events
     const { data: events } = await sb.from('events')
       .select('id,title,starts_at,status')
-      .eq('account_id', currentUser.id)
+      .eq('organizer_id', currentUser.id)
       .order('starts_at', { ascending: false })
       .limit(50);
 
