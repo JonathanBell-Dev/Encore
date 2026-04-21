@@ -520,6 +520,17 @@
       updateConnectionUI();
       document.getElementById('connect-btn').disabled = false;
       showToast('Connection request sent!');
+
+      // Notify recipient via email (fire-and-forget)
+      try {
+        const { data: myAcct } = await sb.from('accounts').select('first_name,last_name,user_name').eq('id', currentUser.id).maybeSingle();
+        const fromName = myAcct ? `${myAcct.first_name||''} ${myAcct.last_name||''}`.trim() || myAcct.user_name || 'Someone' : 'Someone';
+        fetch(`${SUPABASE_URL}/functions/v1/notify-email`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SUPABASE_ANON}` },
+          body: JSON.stringify({ type: 'connection_request', recipientId: targetUserId, fromName, fromId: currentUser.id }),
+        }).catch(() => {});
+      } catch (_) {}
     }
 
     async function handleCancelRequest() {

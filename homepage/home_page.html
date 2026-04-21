@@ -146,6 +146,18 @@
         </div>
     </div>
 
+    <!-- Friend Activity Feed (logged-in only) -->
+    <section class="trending-section" id="activity-section" style="display:none">
+      <div class="trending-header">
+        <div>
+          <div class="section-eyebrow">Your network</div>
+          <h2 class="section-title">Friends are <em>going</em></h2>
+        </div>
+        <a href="#" class="link-all" id="activity-see-all" style="display:none">See all →</a>
+      </div>
+      <div class="activity-feed" id="activity-feed"></div>
+    </section>
+
     <!-- You might like (personalized, logged-in only) -->
     <section class="trending-section" id="foryou-section" style="display:none">
       <div class="trending-header">
@@ -1085,10 +1097,72 @@
       document.getElementById('foryou-section').style.display = 'block';
     }
 
+    // Friend activity feed
+    async function loadActivityFeed(userId) {
+      if (!userId) return;
+      // Get accepted connections
+      const { data: conns } = await sb.from('connections')
+        .select('requester_id, recipient_id')
+        .eq('status', 'accepted')
+        .or(`requester_id.eq.${userId},recipient_id.eq.${userId}`)
+        .limit(100);
+      if (!conns || !conns.length) return;
+      const friendIds = conns.map(c => c.requester_id === userId ? c.recipient_id : c.requester_id);
+
+      const now = new Date().toISOString();
+      const { data: rows } = await sb.from('event_attendance')
+        .select('account_id, status, events(id,title,starts_at,category,cover_url), accounts!event_attendance_account_id_fkey(first_name,last_name,user_name,avatar_url)')
+        .in('account_id', friendIds)
+        .eq('status', 'going')
+        .gte('events.starts_at', now)
+        .order('events.starts_at', { ascending: true })
+        .limit(12);
+
+      const valid = (rows || []).filter(r => r.events && r.accounts);
+      if (!valid.length) return;
+
+      const GRAD = {
+        'Music': 'linear-gradient(135deg,#1a1a2e,#7b2ff7)',
+        'Food & Drink': 'linear-gradient(135deg,#7b3f00,#e8470a)',
+        'Art': 'linear-gradient(135deg,#0d2137,#1976d2)',
+        'Sports': 'linear-gradient(135deg,#003300,#2e7d32)',
+        'Comedy': 'linear-gradient(135deg,#4a0000,#c62828)',
+        'Networking': 'linear-gradient(135deg,#1a1a1a,#424242)',
+      };
+
+      document.getElementById('activity-feed').innerHTML = valid.map(r => {
+        const acc = r.accounts;
+        const ev = r.events;
+        const name = `${acc.first_name||''} ${acc.last_name||''}`.trim() || acc.user_name || 'Someone';
+        const initials = name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+        const av = acc.avatar_url ? `<img src="${escapeHtml(acc.avatar_url)}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">` : initials;
+        const grad = GRAD[ev.category] || 'linear-gradient(135deg,#1a1a1a,#333)';
+        const bg = ev.cover_url ? `url('${escapeHtml(ev.cover_url)}') center/cover` : grad;
+        const dateStr = ev.starts_at ? new Date(ev.starts_at).toLocaleDateString('en-US',{month:'short',day:'numeric'}) : '';
+        return `<a href="../events/detail.html?id=${escapeHtml(ev.id)}" class="activity-card">
+          <div class="activity-card-img" style="background:${bg}"></div>
+          <div class="activity-card-body">
+            <div class="activity-friend">
+              <div class="activity-av">${av}</div>
+              <span class="activity-name">${escapeHtml(name)}</span>
+              <span class="activity-verb">is going</span>
+            </div>
+            <div class="activity-event-title">${escapeHtml(ev.title||'Event')}</div>
+            <div class="activity-date">${dateStr}</div>
+          </div>
+        </a>`;
+      }).join('');
+
+      document.getElementById('activity-section').style.display = 'block';
+    }
+
     // Load events and neighborhoods on page load (after auth init)
     initAuth().then(() => {
       loadEvents(); loadNeighborhoods(); loadFeaturedEvent(); loadTrending();
-      if (window._currentUserId) loadForYou(window._currentUserId);
+      if (window._currentUserId) {
+        loadForYou(window._currentUserId);
+        loadActivityFeed(window._currentUserId);
+      }
     });
 
     // ── Nav scroll shadow ─────────────────────────────────────────────────────
