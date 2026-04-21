@@ -145,27 +145,14 @@
       .conn-profile-content { grid-template-columns: 1fr; }
       .conn-profile-hero { flex-direction: column; align-items: flex-start; padding: 2rem 1.5rem; }
     }
-    input, textarea, select {
-      background-color: #1C1C1C !important;
-      color: #F0EDE8 !important;
-      color-scheme: dark;
+    input, textarea, select { color: #111 !important; }
+    input:focus, textarea:focus, select:focus { color: #111 !important; }
+    input:-webkit-autofill, input:-webkit-autofill:focus,
+    textarea:-webkit-autofill, select:-webkit-autofill {
+      -webkit-text-fill-color: #111 !important;
     }
-    input:focus, textarea:focus, select:focus {
-      background-color: #1C1C1C !important;
-      color: #F0EDE8 !important;
-    }
-    input:-webkit-autofill,
-    input:-webkit-autofill:hover,
-    input:-webkit-autofill:focus,
-    input:-webkit-autofill:active,
-    textarea:-webkit-autofill,
-    select:-webkit-autofill {
-      -webkit-box-shadow: 0 0 0 1000px #1C1C1C inset !important;
-      -webkit-text-fill-color: #F0EDE8 !important;
-      caret-color: #F0EDE8 !important;
-      transition: background-color 5000s ease-in-out 0s;
-    }
-    input::placeholder, textarea::placeholder { color: #4E4B48; opacity: 1; }
+    input::placeholder, textarea::placeholder { color: #888; opacity: 1; }
+
 
 
   </style>
