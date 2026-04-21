@@ -1,3 +1,4 @@
+// @ts-nocheck — Deno runtime; VS Code TS checker does not apply here
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
@@ -5,7 +6,8 @@ const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY') ?? 're_LJhRRbWs_P1zhdfbTAY
 const FROM = 'Encore ATL <no-reply@encore-atl.com>';
 const BASE_URL = 'https://encore-atl.vercel.app';
 
-const SUPABASE_URL = Deno.env.get('SUPABASE_URL') ?? '';
+const SUPABASE_URL = Deno.env.get('SUPABASE_URL') ?? 'https://qgvoznhldglucpsaisfs.supabase.co';
+// SUPABASE_SERVICE_ROLE_KEY is injected automatically by Supabase at runtime — do not hardcode
 const SERVICE_ROLE = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
 
 async function getUserEmail(userId: string): Promise<string | null> {
