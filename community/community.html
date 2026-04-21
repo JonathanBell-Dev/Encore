@@ -738,6 +738,22 @@
     .action-btn.liked i { color: #e8470a; }
     #load-more-wrap { display: none; }
     #feed-empty { display: none; }
+  
+    input, textarea, select {
+      background-color: #1C1C1C;
+      color: #F0EDE8;
+    }
+    input:-webkit-autofill,
+    input:-webkit-autofill:hover,
+    input:-webkit-autofill:focus,
+    textarea:-webkit-autofill,
+    select:-webkit-autofill {
+      -webkit-box-shadow: 0 0 0 1000px #1C1C1C inset !important;
+      -webkit-text-fill-color: #F0EDE8 !important;
+      caret-color: #F0EDE8;
+    }
+    input::placeholder, textarea::placeholder { color: #4E4B48; }
+
   </style>
 <script>
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');

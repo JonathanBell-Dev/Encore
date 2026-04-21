@@ -203,6 +203,22 @@
     .btn-manage-delete { background: #fff0f0; color: var(--danger); border: 1px solid #ffd0d0; }
     .btn-manage-delete:hover { background: var(--danger); color: #fff; border-color: var(--danger); }
     .btn-manage:disabled { opacity:.6; cursor:not-allowed; }
+  
+    input, textarea, select {
+      background-color: #1C1C1C;
+      color: #F0EDE8;
+    }
+    input:-webkit-autofill,
+    input:-webkit-autofill:hover,
+    input:-webkit-autofill:focus,
+    textarea:-webkit-autofill,
+    select:-webkit-autofill {
+      -webkit-box-shadow: 0 0 0 1000px #1C1C1C inset !important;
+      -webkit-text-fill-color: #F0EDE8 !important;
+      caret-color: #F0EDE8;
+    }
+    input::placeholder, textarea::placeholder { color: #4E4B48; }
+
   </style>
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#e8470a">

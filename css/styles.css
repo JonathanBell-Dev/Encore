@@ -21,6 +21,37 @@
     --radius-pill:4px;
 }
 
+/* ── Global input / textarea / select dark theme ───── */
+input, textarea, select {
+    background-color: #1C1C1C;
+    color: #F0EDE8;
+    border: 1px solid #262626;
+    border-radius: 8px;
+    font-family: inherit;
+    outline: none;
+    transition: border-color .15s;
+}
+input:focus, textarea:focus, select:focus {
+    border-color: #E8470A;
+}
+input::placeholder, textarea::placeholder {
+    color: #4E4B48;
+}
+select option {
+    background: #1C1C1C;
+    color: #F0EDE8;
+}
+/* Override browser autofill yellow/white background */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+select:-webkit-autofill {
+    -webkit-box-shadow: 0 0 0 1000px #1C1C1C inset !important;
+    -webkit-text-fill-color: #F0EDE8 !important;
+    caret-color: #F0EDE8;
+}
+
 /* ── Keyframes ─────────────────────────────────────── */
 @keyframes ticker {
     from { transform: translateX(0); }
