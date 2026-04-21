@@ -3,6 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta property="og:site_name" content="Encore ATL">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Encore Community — ATL">
+  <meta property="og:description" content="Join the conversation. Share, post, and connect with Atlanta's event community.">
+  <meta property="og:url" content="https://encore-atl.vercel.app/community/community.html">
+  <meta property="og:image" content="https://qgvoznhldglucpsaisfs.supabase.co/storage/v1/object/public/encore-assets/og-default.jpg">
+  <meta name="description" content="Join the conversation. Share, post, and connect with Atlanta's event community.">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Encore Community — ATL">
+  <meta name="twitter:description" content="Join the conversation. Share, post, and connect with Atlanta's event community.">
+  <meta name="twitter:image" content="https://qgvoznhldglucpsaisfs.supabase.co/storage/v1/object/public/encore-assets/og-default.jpg">
     <title>Encore - Community</title>
     <link rel="stylesheet" href="community.css">
     <link rel="stylesheet" href="../css/toast.css">
@@ -11,6 +22,8 @@
       import { guardPage } from '../src/utils/guard.js';
       guardPage();
     </script>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#e8470a">
 </head>
 <body>
 
@@ -95,6 +108,7 @@
   <!-- Supabase CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="../src/utils/notifications.js"></script>
+  <script src="../src/utils/report.js"></script>
   <script>
     // ── Config ────────────────────────────────────────────────────────────────
     const SUPABASE_URL  = 'https://qgvoznhldglucpsaisfs.supabase.co';
@@ -122,6 +136,7 @@
           updateAuthNav(profile);
         }
         mountNotifBell(sb, currentUser.id);
+        if (window.mountReportBlock) mountReportBlock(sb, currentUser.id);
       }
     }
 
@@ -366,6 +381,13 @@
         deleteBtn.innerHTML = '<i class="fa-regular fa-trash-can"></i>';
         deleteBtn.addEventListener('click', () => deletePost(post.id, article));
         header.appendChild(deleteBtn);
+      } else if (currentUser) {
+        const reportBtn = document.createElement('button');
+        reportBtn.className = 'post-delete-btn';
+        reportBtn.title = 'Report post';
+        reportBtn.innerHTML = '<i class="fa-regular fa-flag"></i>';
+        reportBtn.addEventListener('click', () => window.openReport && window.openReport('post', post.id));
+        header.appendChild(reportBtn);
       }
 
       // Content
@@ -717,5 +739,8 @@
     #load-more-wrap { display: none; }
     #feed-empty { display: none; }
   </style>
+<script>
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');
+</script>
 </body>
 </html>

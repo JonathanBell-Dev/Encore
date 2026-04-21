@@ -3,6 +3,17 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta property="og:site_name" content="Encore ATL">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Host an Event — Encore ATL">
+  <meta property="og:description" content="Share your event with Atlanta. Create a listing and connect with your audience.">
+  <meta property="og:url" content="https://encore-atl.vercel.app/events/create.html">
+  <meta property="og:image" content="https://qgvoznhldglucpsaisfs.supabase.co/storage/v1/object/public/encore-assets/og-default.jpg">
+  <meta name="description" content="Share your event with Atlanta. Create a listing and connect with your audience.">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Host an Event — Encore ATL">
+  <meta name="twitter:description" content="Share your event with Atlanta. Create a listing and connect with your audience.">
+  <meta name="twitter:image" content="https://qgvoznhldglucpsaisfs.supabase.co/storage/v1/object/public/encore-assets/og-default.jpg">
   <title>Host an Event — Encore</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -186,6 +197,8 @@
       border-top: 1px solid var(--border); margin-top: .25rem; display: block;
     }
   </style>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#e8470a">
 </head>
 <body>
 
@@ -626,5 +639,8 @@
 
     init();
   </script>
+<script>
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');
+</script>
 </body>
 </html>

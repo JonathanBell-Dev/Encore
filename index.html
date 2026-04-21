@@ -4,6 +4,11 @@
   <meta charset="UTF-8">
   <meta http-equiv="refresh" content="0; url=homepage/home_page.html">
   <title>Encore</title>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#e8470a">
 </head>
-<body></body>
+<body><script>
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');
+</script>
+</body>
 </html>

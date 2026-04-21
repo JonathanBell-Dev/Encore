@@ -83,6 +83,8 @@
     }
     .btn-ghost:hover { border-color: var(--muted); color: var(--text); }
   </style>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#e8470a">
 </head>
 <body>
   <div class="card">
@@ -202,5 +204,8 @@
 
     handleConfirmation();
   </script>
+<script>
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');
+</script>
 </body>
 </html>

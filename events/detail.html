@@ -3,6 +3,17 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta property="og:site_name" content="Encore ATL">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Event — Encore ATL" id="og-title">
+  <meta property="og:description" content="Discover ATL's best events on Encore." id="og-desc">
+  <meta property="og:url" content="" id="og-url">
+  <meta property="og:image" content="https://qgvoznhldglucpsaisfs.supabase.co/storage/v1/object/public/encore-assets/og-default.jpg" id="og-img">
+  <meta name="description" content="Discover ATL's best events on Encore." id="meta-desc">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Event — Encore ATL" id="tw-title">
+  <meta name="twitter:description" content="Discover ATL's best events on Encore." id="tw-desc">
+  <meta name="twitter:image" content="https://qgvoznhldglucpsaisfs.supabase.co/storage/v1/object/public/encore-assets/og-default.jpg" id="tw-img">
   <title>Event Detail — Encore</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -10,6 +21,7 @@
   <link rel="stylesheet" href="../css/toast.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="../src/utils/notifications.js"></script>
+  <script src="../src/utils/report.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
@@ -192,6 +204,8 @@
     .btn-manage-delete:hover { background: var(--danger); color: #fff; border-color: var(--danger); }
     .btn-manage:disabled { opacity:.6; cursor:not-allowed; }
   </style>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#e8470a">
 </head>
 <body>
 
@@ -293,6 +307,10 @@
         <button class="btn-share" onclick="handleShare()">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
           Share Event
+        </button>
+        <button class="btn-share" id="btn-report-event" style="display:none" onclick="window.openReport && window.openReport('event', currentEventId)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
+          Report Event
         </button>
       </div>
       <div class="share-toast" id="share-toast">Link copied!</div>
@@ -486,12 +504,29 @@
           status,
         }, { onConflict: 'event_id,account_id' });
         attendanceStatus = status;
-        showToast(status === 'going' ? "You're going!" : "Marked as interested!");
+        showToast(status === 'going' ? "You're going! Check your email for confirmation." : "Marked as interested!");
+        if (status === 'going') sendRsvpEmail();
       }
       updateAttendanceUI();
       // Refresh attendee count
       const { count } = await sb.from('event_attendance').select('*', { count: 'exact', head: true }).eq('event_id', currentEventId);
       setText('ev-attendee-count', count ?? 0);
+    }
+
+    // ── RSVP email ────────────────────────────────────────────────────────────
+    async function sendRsvpEmail() {
+      try {
+        const { data: acct } = await sb.from('accounts').select('first_name,last_name').eq('id', currentUser.id).maybeSingle();
+        const evTitle = document.getElementById('ev-title')?.textContent || 'Event';
+        const evDate  = document.getElementById('ev-date')?.textContent || '';
+        const evVenue = document.getElementById('ev-venue')?.textContent || 'Atlanta, GA';
+        const name = acct ? (acct.first_name || acct.last_name || 'there') : 'there';
+        await fetch(`${SUPABASE_URL}/functions/v1/rsvp-email`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SUPABASE_ANON}` },
+          body: JSON.stringify({ to: currentUser.email, name, eventTitle: evTitle, eventDate: evDate, eventVenue: evVenue, eventId: currentEventId }),
+        });
+      } catch (_) { /* silently fail — email is non-critical */ }
     }
 
     // ── Favorite ──────────────────────────────────────────────────────────────
@@ -553,6 +588,12 @@
         sb.from('accounts').select('first_name,last_name,user_name').eq('id', currentUser.id).maybeSingle()
           .then(({ data }) => { if (data) updateAuthNav(data); });
         mountNotifBell(sb, currentUser.id);
+        if (window.mountReportBlock) mountReportBlock(sb, currentUser.id);
+        // Show report button only for non-organizers
+        if (ev.account_id !== currentUser.id) {
+          const rb = document.getElementById('btn-report-event');
+          if (rb) rb.style.display = '';
+        }
       }
 
       // Hero image
@@ -574,7 +615,15 @@
       });
 
       // Title & meta
-      document.title = (ev.title || 'Event') + ' — Encore';
+      const _ogTitle = (ev.title || 'Event') + ' — Encore ATL';
+      const _ogDesc = ev.description ? ev.description.slice(0, 160) : `${ev.category || 'Event'} in Atlanta — ${ev.venue_name || 'ATL'}`;
+      const _ogImg = ev.cover_image_url || 'https://qgvoznhldglucpsaisfs.supabase.co/storage/v1/object/public/encore-assets/og-default.jpg';
+      const _setMeta = (id, val) => { const el = document.getElementById(id); if (el) el.setAttribute('content', val); };
+      document.title = _ogTitle;
+      _setMeta('og-title', _ogTitle); _setMeta('og-desc', _ogDesc);
+      _setMeta('og-url', window.location.href); _setMeta('og-img', _ogImg);
+      _setMeta('meta-desc', _ogDesc); _setMeta('tw-title', _ogTitle);
+      _setMeta('tw-desc', _ogDesc); _setMeta('tw-img', _ogImg);
       setText('ev-title', ev.title || 'Untitled Event');
       setText('ev-date', formatDateTime(ev.starts_at));
 
@@ -759,5 +808,8 @@
       loadEvent(currentEventId);
     }
   </script>
+<script>
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');
+</script>
 </body>
 </html>

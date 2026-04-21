@@ -3,6 +3,8 @@
 <head>
     <title> Encore - Atlanta's Event Community</title>
     <link rel='stylesheet' href = '/css/styles.css'>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#e8470a">
 </head>
 <body>
     <nav>
@@ -357,6 +359,16 @@
         </div>
     </section>
 
+    <!-- Map Section -->
+    <section class="map-section" id="map-section">
+        <div class="map-header" data-reveal>
+            <div>
+                <div class="section-eyebrow">Events near you</div>
+                <h2 class="section-title">Find events on the <em>map</em></h2>
+            </div>
+        </div>
+        <div id="atl-map" style="width:100%;height:420px;border-radius:16px;overflow:hidden;"></div>
+    </section>
 
     <div class="community-section">
         <div class="community-inner">
@@ -459,6 +471,8 @@
 </footer>
 
 <link rel="stylesheet" href="/css/toast.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="../src/utils/notifications.js"></script>
 <script>
@@ -981,6 +995,40 @@
         section.style.display = 'block';
     }
 
+    // Map view with ATL neighborhood pins
+    function initMap() {
+      const ATL_NEIGHBORHOODS = [
+        { name: 'Old Fourth Ward', lat: 33.7573, lng: -84.3593, color: '#52B788' },
+        { name: 'Little Five Points', lat: 33.7617, lng: -84.3497, color: '#C084FC' },
+        { name: 'Midtown', lat: 33.7838, lng: -84.3838, color: '#0f85fa' },
+        { name: 'Buckhead', lat: 33.8460, lng: -84.3633, color: '#fa0f0f' },
+        { name: 'Grant Park', lat: 33.7282, lng: -84.3648, color: '#52fa0f' },
+        { name: 'Ponce City Market', lat: 33.7715, lng: -84.3661, color: '#e8470a' },
+        { name: 'Inman Park', lat: 33.7558, lng: -84.3534, color: '#f59e0b' },
+        { name: 'West End', lat: 33.7337, lng: -84.4155, color: '#06b6d4' },
+      ];
+      const map = L.map('atl-map', { zoomControl: true, scrollWheelZoom: false }).setView([33.7890, -84.3880], 12);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+        maxZoom: 18
+      }).addTo(map);
+      ATL_NEIGHBORHOODS.forEach(n => {
+        const icon = L.divIcon({
+          className: '',
+          html: `<div style="background:${n.color};color:#fff;padding:5px 10px;border-radius:20px;font-size:12px;font-weight:700;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.25)">${n.name}</div>`,
+          iconAnchor: [0, 0]
+        });
+        L.marker([n.lat, n.lng], { icon })
+          .addTo(map)
+          .on('click', () => {
+            const input = document.getElementById('search-input');
+            if (input) { input.value = n.name; input.dispatchEvent(new Event('input')); }
+            document.querySelector('.events-section').scrollIntoView({ behavior: 'smooth' });
+          });
+      });
+    }
+    initMap();
+
     // Load events and neighborhoods on page load (after auth init)
     initAuth().then(() => { loadEvents(); loadNeighborhoods(); loadFeaturedEvent(); loadTrending(); });
 
@@ -1020,6 +1068,9 @@
     }, { threshold: 0.5 });
     const heroStats = document.querySelector('.hero-stats');
     if (heroStats) statsObserver.observe(heroStats);
+</script>
+<script>
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');
 </script>
 </body>
 </html>

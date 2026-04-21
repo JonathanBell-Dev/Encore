@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="../css/toast.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="../src/utils/notifications.js"></script>
+  <script src="../src/utils/report.js"></script>
   <script type="module">
     import { guardPage } from '../src/utils/guard.js';
     guardPage();
@@ -145,6 +146,8 @@
       .conn-profile-hero { flex-direction: column; align-items: flex-start; padding: 2rem 1.5rem; }
     }
   </style>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#e8470a">
 </head>
 <body>
 
@@ -195,6 +198,16 @@
         <li><strong id="stat-shared">0</strong><span>Shared Events</span></li>
         <li><strong id="stat-connections">0</strong><span>Connections</span></li>
       </ul>
+      <div style="display:flex;gap:.6rem;margin-top:.75rem;" id="profile-action-btns">
+        <button id="btn-report-user" style="background:none;border:1px solid #333;border-radius:8px;padding:.4rem .9rem;color:#9A9590;font-size:.8rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:.4rem;" onclick="window.openReport && window.openReport('user', targetUserId)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
+          Report
+        </button>
+        <button id="btn-block-user" style="background:none;border:1px solid #333;border-radius:8px;padding:.4rem .9rem;color:#9A9590;font-size:.8rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:.4rem;" onclick="blockCurrentUser()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+          Block
+        </button>
+      </div>
     </div>
   </section>
 
@@ -263,6 +276,11 @@
     let connectionStatus = null; // null | 'pending_sent' | 'pending_received' | 'accepted'
     let connectionId = null;
 
+    function blockCurrentUser() {
+      const name = document.getElementById('hero-name')?.textContent || 'this user';
+      if (window.blockUser) blockUser(targetUserId, name);
+    }
+
     const calendarIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/></svg>`;
 
     function showToast(msg, type = 'success') {
@@ -281,7 +299,10 @@
 
       const { data: { session } } = await sb.auth.getSession();
       currentUser = session?.user || null;
-      if (currentUser) mountNotifBell(sb, currentUser.id);
+      if (currentUser) {
+        mountNotifBell(sb, currentUser.id);
+        if (window.mountReportBlock) mountReportBlock(sb, currentUser.id);
+      }
 
       await Promise.all([
         loadProfile(),
@@ -528,5 +549,8 @@
     init();
   </script>
 
+<script>
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');
+</script>
 </body>
 </html>

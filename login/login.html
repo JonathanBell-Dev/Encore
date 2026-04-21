@@ -235,6 +235,8 @@
       .panel-right { padding: 1.5rem; align-items: flex-start; padding-top: 2.5rem; }
     }
   </style>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#e8470a">
 </head>
 <body>
 
@@ -506,5 +508,8 @@
       if (loginVisible) handleLogin(); else handleSignup();
     });
   </script>
+<script>
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');
+</script>
 </body>
 </html>
