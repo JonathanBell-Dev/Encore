@@ -3,11 +3,305 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<<<<<<< HEAD
   <title>ATL Events – Favorites</title>
+=======
+  <title>Encore – Favorites</title>
+>>>>>>> ddb62376644de61bb4c73ca407ebedbadf59bc0b
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="profile.css">
+<<<<<<< HEAD
+=======
+  <link rel="stylesheet" href="../css/toast.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="../src/utils/notifications.js"></script>
+  <script type="module">
+    import { guardPage } from '../src/utils/guard.js';
+    guardPage();
+
+    const SUPABASE_URL  = 'https://qgvoznhldglucpsaisfs.supabase.co';
+    const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFndm96bmhsZGdsdWNwc2Fpc2ZzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxOTU4MjUsImV4cCI6MjA5MTc3MTgyNX0.e-5X1Lh4Tg8cP-FL-3eorV5pAZCDe4CR6i2AFeDKHWQ';
+    const { createClient } = supabase;
+    const sb = createClient(SUPABASE_URL, SUPABASE_ANON);
+
+    // ── Helpers ───────────────────────────────────────────────────────────────
+    function setText(el, text) { if (el) el.textContent = text; }
+
+    function showToast(msg, type = 'success') {
+      const t = document.createElement('div');
+      t.className = 'toast toast-' + type;
+      t.textContent = msg;
+      document.body.appendChild(t);
+      requestAnimationFrame(() => t.classList.add('toast-visible'));
+      setTimeout(() => {
+        t.classList.remove('toast-visible');
+        setTimeout(() => t.remove(), 300);
+      }, 3000);
+    }
+
+    function formatDate(dateStr) {
+      if (!dateStr) return '';
+      const d = new Date(dateStr);
+      return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+    }
+
+    function formatPrice(price) {
+      if (!price || price === 0) return 'Free';
+      return '$' + Number(price).toFixed(0);
+    }
+
+    // ── Load sidebar profile ──────────────────────────────────────────────────
+    async function loadProfile(userId) {
+      const { data } = await sb.from('accounts').select('first_name,last_name,user_name,location,bio,avatar_url').eq('id', userId).single();
+      if (!data) return;
+
+      const name = [data.first_name, data.last_name].filter(Boolean).join(' ') || data.user_name || 'User';
+      setText(document.getElementById('hero-name'), name);
+      const locText = document.getElementById('hero-location-text');
+      if (locText) locText.textContent = data.location || 'Atlanta, GA';
+      setText(document.getElementById('hero-bio'), data.bio || '');
+
+      // Avatar
+      const avatarEl = document.querySelector('.avatar-placeholder');
+      if (data.avatar_url) {
+        avatarEl.style.backgroundImage = `url(${data.avatar_url})`;
+        avatarEl.style.backgroundSize = 'cover';
+        avatarEl.style.backgroundPosition = 'center';
+        avatarEl.textContent = '';
+      } else {
+        avatarEl.textContent = name.charAt(0).toUpperCase();
+      }
+
+      // Interests
+      loadInterests(userId);
+    }
+
+    // ── Load interests ────────────────────────────────────────────────────────
+    async function loadInterests(userId) {
+      const { data } = await sb.from('account_interests').select('interests(name)').eq('account_id', userId);
+      const list = document.getElementById('interests-list');
+      if (!data || !data.length) { list.innerHTML = '<li>None listed</li>'; return; }
+      list.innerHTML = '';
+      data.forEach(row => {
+        const name = row.interests && row.interests.name;
+        if (!name) return;
+        const li = document.createElement('li');
+        li.textContent = name;
+        list.appendChild(li);
+      });
+    }
+
+    // ── Load stats ────────────────────────────────────────────────────────────
+    async function loadStats(userId) {
+      const [{ count: attending }, { count: favs }, { count: conns }] = await Promise.all([
+        sb.from('event_attendance').select('*', { count: 'exact', head: true }).eq('account_id', userId),
+        sb.from('event_favorites').select('*', { count: 'exact', head: true }).eq('account_id', userId),
+        sb.from('connections').select('*', { count: 'exact', head: true }).eq('status', 'accepted').or(`requester_id.eq.${userId},addressee_id.eq.${userId}`)
+      ]);
+      setText(document.getElementById('stat-tickets'), attending ?? 0);
+      setText(document.getElementById('stat-favorites'), favs ?? 0);
+      setText(document.getElementById('stat-connections'), conns ?? 0);
+      setText(document.getElementById('act-tickets'), attending ?? 0);
+      setText(document.getElementById('act-favorites'), favs ?? 0);
+      setText(document.getElementById('act-connections'), conns ?? 0);
+      // Update tabs count
+      setText(document.getElementById('tab-favorites-count'), favs ?? 0);
+    }
+
+    // ── Load recent connections for sidebar ───────────────────────────────────
+    async function loadRecentConnections(userId) {
+      const { data } = await sb
+        .from('connections')
+        .select('requester_id, addressee_id, accounts!connections_addressee_id_fkey(id,first_name,last_name,user_name)')
+        .eq('status', 'accepted')
+        .or(`requester_id.eq.${userId},addressee_id.eq.${userId}`)
+        .limit(3);
+
+      if (!data || !data.length) return;
+
+      const list = document.getElementById('recent-connections-list');
+      list.innerHTML = '';
+      data.forEach(row => {
+        const friend = row.requester_id === userId
+          ? row.accounts
+          : { id: row.requester_id, ...row.accounts };
+        if (!friend) return;
+        const name = [friend.first_name, friend.last_name].filter(Boolean).join(' ') || friend.user_name || 'User';
+        const initials = name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+
+        const li = document.createElement('li');
+        const avatar = document.createElement('div');
+        avatar.className = 'conn-avatar';
+        avatar.textContent = initials;
+
+        const span = document.createElement('span');
+        span.className = 'conn-name';
+        span.textContent = name;
+
+        const a = document.createElement('a');
+        a.className = 'btn-view';
+        a.href = `connection-profile.html?id=${friend.id}`;
+        a.textContent = 'View';
+
+        li.appendChild(avatar);
+        li.appendChild(span);
+        li.appendChild(a);
+        list.appendChild(li);
+      });
+    }
+
+    // ── Unfavorite ────────────────────────────────────────────────────────────
+    async function unfavorite(eventId, cardEl) {
+      const { error } = await sb.from('event_favorites').delete()
+        .eq('event_id', eventId).eq('account_id', (await sb.auth.getUser()).data.user.id);
+      if (error) { showToast('Failed to remove favorite', 'error'); return; }
+      cardEl.style.transition = 'opacity .25s';
+      cardEl.style.opacity = '0';
+      setTimeout(() => {
+        cardEl.remove();
+        // Show empty state if no cards left
+        if (!document.querySelector('.event-card')) {
+          document.getElementById('empty-state').style.display = 'flex';
+        }
+        // Update count
+        const countEl = document.getElementById('tab-favorites-count');
+        const cur = parseInt(countEl.textContent) || 0;
+        countEl.textContent = Math.max(0, cur - 1);
+        const statEl = document.getElementById('stat-favorites');
+        statEl.textContent = Math.max(0, (parseInt(statEl.textContent) || 0) - 1);
+      }, 250);
+      showToast('Removed from favorites');
+    }
+
+    // ── Render event card ─────────────────────────────────────────────────────
+    function renderCard(fav) {
+      const ev = fav.events;
+      if (!ev) return null;
+
+      const card = document.createElement('div');
+      card.className = 'event-card';
+      card.dataset.eventId = ev.id;
+
+      // Image
+      const img = document.createElement('div');
+      img.className = 'event-img';
+      if (ev.cover_image_url) {
+        img.style.backgroundImage = `url(${ev.cover_image_url})`;
+        img.style.backgroundSize = 'cover';
+        img.style.backgroundPosition = 'center';
+      } else {
+        img.style.background = 'linear-gradient(135deg, #e8470a22, #e8470a44)';
+      }
+
+      // Unfavorite button overlay
+      const unfavBtn = document.createElement('button');
+      unfavBtn.className = 'btn-unfav';
+      unfavBtn.title = 'Remove from favorites';
+      unfavBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>';
+      unfavBtn.addEventListener('click', e => { e.stopPropagation(); unfavorite(ev.id, card); });
+      img.appendChild(unfavBtn);
+
+      // Price badge
+      const badge = document.createElement('div');
+      badge.className = 'event-badge';
+      badge.textContent = formatPrice(ev.ticket_price);
+      img.appendChild(badge);
+
+      card.appendChild(img);
+
+      // Body
+      const body = document.createElement('div');
+      body.className = 'event-body';
+
+      const title = document.createElement('h3');
+      title.className = 'event-title';
+      title.textContent = ev.title || 'Untitled Event';
+
+      const meta = document.createElement('div');
+      meta.className = 'event-meta';
+
+      const dateSpan = document.createElement('span');
+      dateSpan.className = 'event-date';
+      dateSpan.textContent = formatDate(ev.starts_at);
+
+      const locSpan = document.createElement('span');
+      locSpan.className = 'event-location';
+      locSpan.textContent = ev.venue_name || ev.address || '';
+
+      meta.appendChild(dateSpan);
+      meta.appendChild(locSpan);
+
+      const detailLink = document.createElement('a');
+      detailLink.className = 'btn-view-event';
+      detailLink.href = `../events/detail.html?id=${ev.id}`;
+      detailLink.textContent = 'View Event';
+
+      body.appendChild(title);
+      body.appendChild(meta);
+      body.appendChild(detailLink);
+      card.appendChild(body);
+
+      return card;
+    }
+
+    // ── Load favorites ────────────────────────────────────────────────────────
+    async function loadFavorites(userId) {
+      const grid = document.getElementById('favorites-grid');
+      const empty = document.getElementById('empty-state');
+
+      // Loading skeleton
+      grid.innerHTML = '';
+      for (let i = 0; i < 3; i++) {
+        const sk = document.createElement('div');
+        sk.className = 'event-card skeleton-card';
+        sk.style.cssText = 'height:220px;background:#f0f0f3;border-radius:12px;animation:pulse 1.4s ease-in-out infinite';
+        grid.appendChild(sk);
+      }
+
+      const { data, error } = await sb
+        .from('event_favorites')
+        .select('event_id, events(*)')
+        .eq('account_id', userId)
+        .order('created_at', { ascending: false });
+
+      grid.innerHTML = '';
+
+      if (error || !data || !data.length) {
+        empty.style.display = 'flex';
+        return;
+      }
+
+      empty.style.display = 'none';
+      data.forEach(fav => {
+        const card = renderCard(fav);
+        if (card) grid.appendChild(card);
+      });
+    }
+
+    // ── Boot ──────────────────────────────────────────────────────────────────
+    document.getElementById('nav-logout').addEventListener('click', async e => {
+      e.preventDefault();
+      await sb.auth.signOut();
+      window.location.href = '../login/login.html';
+    });
+
+    sb.auth.getSession().then(async ({ data: { session } }) => {
+      if (!session) return;
+      const uid = session.user.id;
+      mountNotifBell(sb, uid);
+      await Promise.all([
+        loadProfile(uid),
+        loadStats(uid),
+        loadRecentConnections(uid),
+        loadFavorites(uid),
+      ]).catch(err => console.error('Profile load error:', err));
+    });
+  </script>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#e8470a">
+>>>>>>> ddb62376644de61bb4c73ca407ebedbadf59bc0b
 </head>
 <body>
 
@@ -15,6 +309,7 @@
   <nav class="site-nav">
     <a href="profile.html" class="nav-brand">
       <div class="nav-brand-icon">
+<<<<<<< HEAD
         <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
           <rect x="3" y="4" width="18" height="18" rx="3" fill="none" stroke="#fff" stroke-width="2"/>
           <line x1="3" y1="9" x2="21" y2="9" stroke="#fff" stroke-width="2"/>
@@ -23,6 +318,11 @@
         </svg>
       </div>
       <span class="nav-brand-name">ATL Events</span>
+=======
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect x="2.5" y="11" width="5" height="10" rx="2.5" fill="#fff"/><rect x="9.5" y="5" width="5" height="16" rx="2.5" fill="#fff"/><rect x="16.5" y="8" width="5" height="8" rx="2.5" fill="#fff"/></svg>
+      </div>
+      <span class="nav-brand-name">Encore</span>
+>>>>>>> ddb62376644de61bb4c73ca407ebedbadf59bc0b
     </a>
     <div class="nav-links">
       <a href="../homepage/home_page.html">
@@ -33,7 +333,11 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
         Profile
       </a>
+<<<<<<< HEAD
       <a href="../../login/signup/login.html" id="nav-logout">
+=======
+      <a href="#" id="nav-logout">
+>>>>>>> ddb62376644de61bb4c73ca407ebedbadf59bc0b
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
         Logout
       </a>
@@ -43,16 +347,25 @@
   <!-- HERO -->
   <section class="hero">
     <div class="hero-avatar">
+<<<<<<< HEAD
       <div class="avatar-placeholder">C</div>
     </div>
     <div class="hero-info">
       <div class="hero-name-row">
         <h1 class="hero-name">Current User</h1>
+=======
+      <div class="avatar-placeholder" id="hero-avatar">U</div>
+    </div>
+    <div class="hero-info">
+      <div class="hero-name-row">
+        <h1 class="hero-name" id="hero-name">…</h1>
+>>>>>>> ddb62376644de61bb4c73ca407ebedbadf59bc0b
         <a href="edit-profile.html" class="btn-edit">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
           Edit Profile
         </a>
       </div>
+<<<<<<< HEAD
       <p class="hero-location">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s-8-5.8-8-12a8 8 0 0 1 16 0c0 6.2-8 12-8 12z"/><circle cx="12" cy="10" r="3"/></svg>
         Atlanta, GA
@@ -62,6 +375,17 @@
         <li><strong>3</strong><span>Events Attending</span></li>
         <li><strong>24</strong><span>Connections</span></li>
         <li><strong>8</strong><span>Events Hosted</span></li>
+=======
+      <p class="hero-location" id="hero-location">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s-8-5.8-8-12a8 8 0 0 1 16 0c0 6.2-8 12-8 12z"/><circle cx="12" cy="10" r="3"/></svg>
+        <span id="hero-location-text">Atlanta, GA</span>
+      </p>
+      <p class="hero-bio" id="hero-bio">…</p>
+      <ul class="stats">
+        <li><strong id="stat-tickets">–</strong><span>Events Attending</span></li>
+        <li><strong id="stat-connections">–</strong><span>Connections</span></li>
+        <li><strong id="stat-favorites">–</strong><span>Favorites</span></li>
+>>>>>>> ddb62376644de61bb4c73ca407ebedbadf59bc0b
       </ul>
     </div>
   </section>
@@ -72,10 +396,15 @@
     <aside>
       <div class="card">
         <h2 class="card-title">Interests</h2>
+<<<<<<< HEAD
         <ul class="interests-list">
           <li>Music</li>
           <li>Food &amp; Drink</li>
           <li>Arts &amp; Culture</li>
+=======
+        <ul class="interests-list" id="interests-list">
+          <li>Loading…</li>
+>>>>>>> ddb62376644de61bb4c73ca407ebedbadf59bc0b
         </ul>
       </div>
 
@@ -84,6 +413,7 @@
         <ul class="activity-list">
           <li>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+<<<<<<< HEAD
             <span class="act-label">Tickets Purchased</span><strong>12</strong>
           </li>
           <li>
@@ -93,6 +423,17 @@
           <li>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
             <span class="act-label">Connections Made</span><strong>24</strong>
+=======
+            <span class="act-label">Tickets Purchased</span><strong id="act-tickets">–</strong>
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            <span class="act-label">Favorites</span><strong id="act-favorites">–</strong>
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            <span class="act-label">Connections Made</span><strong id="act-connections">–</strong>
+>>>>>>> ddb62376644de61bb4c73ca407ebedbadf59bc0b
           </li>
         </ul>
       </div>
@@ -102,6 +443,7 @@
           <h2 class="card-title">Recent Connections</h2>
           <a href="connections.html" class="view-all">View All</a>
         </div>
+<<<<<<< HEAD
         <ul class="connections-list">
           <li>
             <div class="conn-avatar">SJ</div>
@@ -118,6 +460,10 @@
             <span class="conn-name">Emily Chen</span>
             <a href="connection-profile.html?id=emily-chen" class="btn-view">View</a>
           </li>
+=======
+        <ul class="connections-list" id="recent-connections-list">
+          <li style="color:#6b6b7b;font-size:.85rem">Loading…</li>
+>>>>>>> ddb62376644de61bb4c73ca407ebedbadf59bc0b
         </ul>
       </div>
     </aside>
@@ -125,6 +471,7 @@
     <!-- EVENTS -->
     <section class="events-section">
       <nav class="tabs">
+<<<<<<< HEAD
         <a href="profile.html">Upcoming (2)</a>
         <a href="past.html">Past (3)</a>
         <a href="favorites.html" class="active">Favorites</a>
@@ -132,6 +479,18 @@
 
       <!-- Empty State -->
       <div class="empty-state">
+=======
+        <a href="profile.html">Upcoming</a>
+        <a href="past.html">Past</a>
+        <a href="favorites.html" class="active">Favorites (<span id="tab-favorites-count">…</span>)</a>
+      </nav>
+
+      <!-- Event cards grid -->
+      <div id="favorites-grid" class="events-grid"></div>
+
+      <!-- Empty State -->
+      <div class="empty-state" id="empty-state" style="display:none">
+>>>>>>> ddb62376644de61bb4c73ca407ebedbadf59bc0b
         <svg class="empty-state-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
           <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
         </svg>
@@ -142,5 +501,61 @@
     </section>
   </main>
 
+<<<<<<< HEAD
+=======
+  <style>
+    .event-card { background:#fff; border:1px solid var(--border,#e8e8ec); border-radius:12px; overflow:hidden; margin-bottom:1rem; }
+    .event-img  { height:140px; background:#f0f0f3; position:relative; }
+    .event-badge { position:absolute; top:.6rem; left:.6rem; background:rgba(232,71,10,.9); color:#fff; font-size:.72rem; font-weight:700; padding:.2rem .5rem; border-radius:5px; }
+    .btn-unfav  { position:absolute; top:.6rem; right:.6rem; background:rgba(255,255,255,.9); border:none; border-radius:50%; width:30px; height:30px; display:flex; align-items:center; justify-content:center; cursor:pointer; color:#e8470a; transition:background .18s; }
+    .btn-unfav:hover { background:#fff; }
+    .event-body { padding:1rem; }
+    .event-title { font-size:.95rem; font-weight:700; margin-bottom:.4rem; }
+    .event-meta  { font-size:.78rem; color:var(--muted,#6b6b7b); display:flex; flex-direction:column; gap:.2rem; margin-bottom:.75rem; }
+    .btn-view-event { display:inline-block; padding:.45rem .9rem; background:var(--orange,#e8470a); color:#fff; border-radius:7px; font-size:.8rem; font-weight:700; text-decoration:none; transition:background .18s; }
+    .btn-view-event:hover { background:var(--orange-dark,#c43a06); }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.5} }
+    input, textarea, select { color: #F0EDE8 !important; }
+    input:focus, textarea:focus, select:focus { color: #F0EDE8 !important; }
+    input:-webkit-autofill, input:-webkit-autofill:focus,
+    textarea:-webkit-autofill, select:-webkit-autofill {
+      -webkit-text-fill-color: #F0EDE8 !important;
+    }
+    input::placeholder, textarea::placeholder { color: #888; opacity: 1; }
+
+
+
+  </style>
+
+  <!-- Mobile bottom tab bar -->
+  <nav class="mobile-tab-bar">
+    <a href="../homepage/home_page.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12L12 3l9 9"/><path d="M9 21V12h6v9"/></svg>
+      Explore
+    </a>
+    <a href="profile.html" class="active">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+      Profile
+    </a>
+    <a href="messages.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      Messages
+    </a>
+    <a href="../community/community.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Community
+    </a>
+  </nav>
+  <style>
+    .mobile-tab-bar{display:none;position:fixed;bottom:0;left:0;right:0;height:60px;background:#fff;border-top:1px solid #e8e8ec;z-index:100;align-items:stretch;justify-content:space-around;padding:0 .25rem;padding-bottom:env(safe-area-inset-bottom)}
+    .mobile-tab-bar a{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.2rem;text-decoration:none;color:#6b6b7b;font-size:.65rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;transition:color .18s;padding:.5rem 0}
+    .mobile-tab-bar a.active,.mobile-tab-bar a:hover{color:#e8470a}
+    .mobile-tab-bar a svg{width:22px;height:22px}
+    @media(max-width:768px){.mobile-tab-bar{display:flex}body{padding-bottom:calc(60px + env(safe-area-inset-bottom))}}
+  </style>
+<script>
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');
+</script>
+>>>>>>> ddb62376644de61bb4c73ca407ebedbadf59bc0b
 </body>
 </html>

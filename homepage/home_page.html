@@ -3,6 +3,1239 @@
 <head>
     <title> Encore - Atlanta's Event Community</title>
     <link rel='stylesheet' href = '/css/styles.css'>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#e8470a">
+</head>
+<body>
+    <nav>
+        <div class="nav-inner">
+            <a href="home_page.html" class="nav-logo" style="display:flex;align-items:center;gap:.55rem;text-decoration:none;color:inherit;">
+                <div style="width:32px;height:32px;background:#e8470a;border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="18" height="18"><rect x="2.5" y="11" width="5" height="10" rx="2.5" fill="#fff"/><rect x="9.5" y="5" width="5" height="16" rx="2.5" fill="#fff"/><rect x="16.5" y="8" width="5" height="8" rx="2.5" fill="#fff"/></svg>
+                </div>
+                Encore
+            </a>
+            <ul class="nav-links">
+                <li><a href="home_page.html">Explore</a></li>
+                <li><a href="#explore-neighborhoods">Neighborhood</a></li>
+                <li><a href="../community/community.html">Community</a></li>
+                <li><a href="../profile/profile.html">Profile</a></li>
+            </ul>
+            <div class="nav-actions" id="nav-auth-actions">
+                <a href="../login/login.html" class="btn-ghost" style="text-decoration:none">Log in</a>
+                <a href="../login/login.html" class="btn-primary" style="text-decoration:none">Join Free</a>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="ticker-wrap">
+        <div class="ticker-track">
+            <span class="ticker-item">🍺 SweetWater 420 Fest · Apr 17–18 · Westside Park</span>
+            <span class="ticker-item">🎬 Atlanta Film Festival 50th · Apr 23–May 3 · Plaza Theatre</span>
+            <span class="ticker-item">🎤 Florence + The Machine · May 1 · State Farm Arena</span>
+            <span class="ticker-item">🎵 Atlanta Jazz Festival · May 23–25 · Piedmont Park · FREE</span>
+            <span class="ticker-item">🎮 MomoCon 2026 · May 20–24 · Georgia World Congress Center</span>
+            <span class="ticker-item">🎶 Cardi B Little Miss Drama Tour · May 2 · State Farm Arena</span>
+            <span class="ticker-item">💃 Shakira · Jun 26 · State Farm Arena</span>
+            <span class="ticker-item">🎷 Hot 107.9 Birthday Bash · May 24 · State Farm Arena</span>
+
+            <span class="ticker-item">🍺 SweetWater 420 Fest · Apr 17–18 · Westside Park</span>
+            <span class="ticker-item">🎬 Atlanta Film Festival 50th · Apr 23–May 3 · Plaza Theatre</span>
+            <span class="ticker-item">🎤 Florence + The Machine · May 1 · State Farm Arena</span>
+            <span class="ticker-item">🎵 Atlanta Jazz Festival · May 23–25 · Piedmont Park · FREE</span>
+            <span class="ticker-item">🎮 MomoCon 2026 · May 20–24 · Georgia World Congress Center</span>
+            <span class="ticker-item">🎶 Cardi B Little Miss Drama Tour · May 2 · State Farm Arena</span>
+            <span class="ticker-item">💃 Shakira · Jun 26 · State Farm Arena</span>
+            <span class="ticker-item">🎷 Hot 107.9 Birthday Bash · May 24 · State Farm Arena</span>
+        </div>
+    </div>
+    <section>
+        <div class="hero">
+            <div class="hero-left">
+                <p class="hero-eyebrow">Atlanta's event community</p>
+                <h1 class="hero-title">Find your<br><em>next ATL</em><br>night out</h1>
+                <p class="hero-description">Discover concerts, events, and experiences across Atlanta's neighborhoods - then connect with the people who make the city move.</p>
+                <div class="hero-actions">
+                    <button class="hero-btn" onclick="document.querySelector('.events-section').scrollIntoView({behavior:'smooth'})">Explore Events</button>
+                    <button class="hero-btn-ghost" onclick="window.location.href='../community/community.html'">Browse Community</button>
+                </div>
+                <div class="hero-stats">
+                    <div>
+                        <div class="hero-stat-num">1,200+</div>
+                        <div class="hero-stat-label">Events this week</div>
+                    </div>
+                    <div>
+                        <div class="hero-stat-num">40+</div>
+                        <div class="hero-stat-label">Neighborhoods</div>
+                    </div>
+                    <div>
+                        <div class="hero-stat-num">8,400</div>
+                        <div class="hero-stat-label">Community Members</div>
+                    </div>
+                </div>
+            </div>
+            <div class="hero-card" id="hero-featured-card" style="cursor:pointer;">
+                <div class="hero-card-image" id="hero-card-image" style="background:linear-gradient(135deg,#0D47A1,#1976D2,#42A5F5);display:flex;align-items:center;justify-content:center;">
+                    <svg viewBox="0 0 80 80" width="72" height="72" xmlns="http://www.w3.org/2000/svg" style="opacity:.55"><circle cx="40" cy="40" r="38" fill="none" stroke="#fff" stroke-width="2"/><path d="M28 52 L28 28 L56 40 Z" fill="#fff"/></svg>
+                </div>
+                <div class="hero-card-content">
+                    <div class="hero-card-tag" id="hero-card-tag">Loading…</div>
+                    <div class="hero-card-title" id="hero-card-title"></div>
+                    <div class="hero-card-venue" id="hero-card-venue"></div>
+                    <div class="hero-card-footer">
+                        <div class="hero-card-price" id="hero-card-price"></div>
+                        <div id="hero-card-going" style="font-size:.78rem;color:rgba(255,255,255,.65);font-weight:500;"></div>
+                        <button class="hero-card-btn" id="hero-card-btn">Learn more</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="search-section">
+        <div class="search-inner">
+            <div class="search-bar">
+                <div class="search-field">
+                    <div>
+                        <span class="search-field-label">Search</span>
+                        <input type="text" placeholder="Event, artist, venue..."/>
+                    </div>
+                </div>
+
+                <div class="search-field">
+                    <div>
+                        <span class="search-field-label">Neighborhood</span>
+                        <select id="neighborhood-select">
+                            <option value="">All neighborhoods</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="search-field">
+                    <div>
+                        <span class="search-field-label">When</span>
+                        <select id="when-select">
+                            <option value="">Any time</option>
+                            <option value="tonight">Tonight</option>
+                            <option value="weekend">This weekend</option>
+                            <option value="week">This week</option>
+                            <option value="month">This month</option>
+                        </select>
+                    </div>
+                </div>
+                <button class="search-btn">Search Event</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="filter-bar">
+
+        <div class="filter-inner">
+            <span class="filter-label">Filter:</span>
+            <button class="filter-pill active" data-type="all">All Events</button>
+            <button class="filter-pill" data-type="category" data-value="Music">Music</button>
+            <button class="filter-pill" data-type="category" data-value="Arts & Culture">Arts & Culture</button>
+            <button class="filter-pill" data-type="category" data-value="Food & Drink">Food & Drink</button>
+            <button class="filter-pill" data-type="category" data-value="Nightlife">Nightlife</button>
+            <button class="filter-pill" data-type="vibe" data-value="Live Music">Live Music</button>
+            <button class="filter-pill" data-type="vibe" data-value="Outdoor">Outdoor</button>
+            <button class="filter-pill" data-type="vibe" data-value="Free Entry">Free Entry</button>
+            <button class="filter-pill" data-type="vibe" data-value="DJ Set">DJ Set</button>
+            <button class="filter-pill" data-type="vibe" data-value="Rooftop">Rooftop</button>
+            <button class="filter-pill" data-type="vibe" data-value="Black-Owned">Black-Owned</button>
+            <button class="filter-pill" data-type="vibe" data-value="LGBTQ+">LGBTQ+</button>
+        </div>
+    </div>
+
+    <!-- Friend Activity Feed (logged-in only) -->
+    <section class="trending-section" id="activity-section" style="display:none">
+      <div class="trending-header">
+        <div>
+          <div class="section-eyebrow">Your network</div>
+          <h2 class="section-title">Friends are <em>going</em></h2>
+        </div>
+        <a href="#" class="link-all" id="activity-see-all" style="display:none">See all →</a>
+      </div>
+      <div class="activity-feed" id="activity-feed"></div>
+    </section>
+
+    <!-- You might like (personalized, logged-in only) -->
+    <section class="trending-section" id="foryou-section" style="display:none">
+      <div class="trending-header">
+        <div>
+          <div class="section-eyebrow">Personalized picks</div>
+          <h2 class="section-title">You might <em>like</em></h2>
+        </div>
+      </div>
+      <div class="trending-reel" id="foryou-reel"></div>
+    </section>
+
+    <!-- Trending events horizontal reel -->
+    <section class="trending-section" id="trending-section" style="display:none">
+      <div class="trending-header">
+        <div>
+          <div class="section-eyebrow">Popular right now</div>
+          <h2 class="section-title">Trending in <em>Atlanta</em></h2>
+        </div>
+      </div>
+      <div class="trending-reel" id="trending-reel"></div>
+    </section>
+
+    <section class="events-section">
+
+        <div class="events-header" data-reveal>
+            <div>
+                <div class="section-eyebrow">Coming up in Atlanta</div>
+                <h2 class="section-title">Events you'll <em>love</em></h2>
+            </div>
+            <a href="home_page.html" class="link-all">View all events →</a>
+        </div>
+
+        <div class="events-grid">
+
+            <!-- SweetWater 420 Fest -->
+            <div class="event-card">
+                <div class="event-card-top" style="background: linear-gradient(135deg, #1B5E20, #66BB6A);">
+                    <div class="event-date-badge">
+                        <div class="event-date-month">Apr</div>
+                        <div class="event-date-day">17</div>
+                    </div>
+                    <button class="event-save-btn">☆</button>
+                </div>
+                <div class="event-card-body">
+                    <div class="event-caption">Music · Beer · Outdoor</div>
+                    <div class="event-title">SweetWater 420 Fest</div>
+                    <div class="event-venue">Westside Park · Apr 17–18 · 12:00 PM</div>
+                    <div class="event-footer">
+                        <div class="event-price">$40+</div>
+                        <div class="event-going">2,800 going</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Atlanta Film Festival 50th -->
+            <div class="event-card">
+                <div class="event-card-top" style="background: linear-gradient(135deg, #1A1A2E, #E94560);">
+                    <div class="event-date-badge">
+                        <div class="event-date-month">Apr</div>
+                        <div class="event-date-day">23</div>
+                    </div>
+                    <button class="event-save-btn">☆</button>
+                </div>
+                <div class="event-card-body">
+                    <div class="event-caption">Film & Media · 50th Anniversary</div>
+                    <div class="event-title">Atlanta Film Festival</div>
+                    <div class="event-venue">Plaza Theatre · Apr 23–May 3 · Various</div>
+                    <div class="event-footer">
+                        <div class="event-price">$15+</div>
+                        <div class="event-going">940 going</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Florence + The Machine -->
+            <div class="event-card">
+                <div class="event-card-top" style="background: linear-gradient(135deg, #4A148C, #CE93D8);">
+                    <div class="event-date-badge">
+                        <div class="event-date-month">May</div>
+                        <div class="event-date-day">1</div>
+                    </div>
+                    <button class="event-save-btn">☆</button>
+                </div>
+                <div class="event-card-body">
+                    <div class="event-caption">Concert · Indie Rock</div>
+                    <div class="event-title">Florence + The Machine</div>
+                    <div class="event-venue">State Farm Arena · May 1 · 7:30 PM</div>
+                    <div class="event-footer">
+                        <div class="event-price">$75+</div>
+                        <div class="event-going">1,650 going</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cardi B -->
+            <div class="event-card">
+                <div class="event-card-top" style="background: linear-gradient(135deg, #B71C1C, #FF8A65);">
+                    <div class="event-date-badge">
+                        <div class="event-date-month">May</div>
+                        <div class="event-date-day">2</div>
+                    </div>
+                    <button class="event-save-btn">☆</button>
+                </div>
+                <div class="event-card-body">
+                    <div class="event-caption">Concert · Hip-Hop</div>
+                    <div class="event-title">Cardi B – Little Miss Drama Tour</div>
+                    <div class="event-venue">State Farm Arena · May 2 · 7:30 PM</div>
+                    <div class="event-footer">
+                        <div class="event-price">$85+</div>
+                        <div class="event-going">3,200 going</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MomoCon -->
+            <div class="event-card">
+                <div class="event-card-top" style="background: linear-gradient(135deg, #311B92, #7C4DFF);">
+                    <div class="event-date-badge">
+                        <div class="event-date-month">May</div>
+                        <div class="event-date-day">20</div>
+                    </div>
+                    <button class="event-save-btn">☆</button>
+                </div>
+                <div class="event-card-body">
+                    <div class="event-caption">Gaming · Anime · Cosplay</div>
+                    <div class="event-title">MomoCon 2026</div>
+                    <div class="event-venue">Georgia World Congress Center · May 20–24</div>
+                    <div class="event-footer">
+                        <div class="event-price">$50+</div>
+                        <div class="event-going">12,400 going</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Atlanta Jazz Festival -->
+            <div class="event-card">
+                <div class="event-card-top" style="background: linear-gradient(135deg, #0D47A1, #42A5F5);">
+                    <div class="event-date-badge">
+                        <div class="event-date-month">May</div>
+                        <div class="event-date-day">23</div>
+                    </div>
+                    <button class="event-save-btn">☆</button>
+                </div>
+                <div class="event-card-body">
+                    <div class="event-caption">Jazz · Live Music · FREE</div>
+                    <div class="event-title">Atlanta Jazz Festival 2026</div>
+                    <div class="event-venue">Piedmont Park · May 23–25 · 1:00 PM</div>
+                    <div class="event-footer">
+                        <div class="event-price">Free</div>
+                        <div class="event-going">5,700 going</div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination" id="events-pagination" style="display:none;"></div>
+    </section>
+
+    <section class="explore-section" id="explore-neighborhoods">
+        <div class="explore-header" data-reveal>
+            <div>
+                <div class="section-eyebrow">Explore by area</div>
+                <h2 class="section-title">Atlanta's <em>neighborhoods</em></h2>
+            </div>
+            <a href="home_page.html" class="link-all">View all neighborhoods →</a>
+        </div>
+        
+        <div class="explore-grid">
+
+            <div class="explore-card" data-reveal data-delay="1">
+                <div class="explore-bg" style="background: linear-gradient(160deg, #1A3A2A, #52B788);">
+                    <div class="explore-overlay"></div>
+                    <div class="explore-info">
+                        <div class="explore-name">Old Fourth Ward</div>
+                        <div class="explore-count">48 events this week</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="explore-card" data-reveal data-delay="2">
+                <div class="explore-bg" style="background: linear-gradient(160deg, #7B2D8B, #C084FC);">
+                    <div class="explore-overlay"></div>
+                    <div class="explore-info">
+                        <div class="explore-name">Little Five Points</div>
+                        <div class="explore-count">22 events this week</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="explore-card" data-reveal data-delay="3">
+                <div class="explore-bg" style="background: linear-gradient(160deg, #0f85fa, #bccefe);">
+                    <div class="explore-overlay"></div>
+                    <div class="explore-info">
+                        <div class="explore-name">Midtown</div>
+                        <div class="explore-count">61 events this week</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="explore-card" data-reveal data-delay="4">
+                <div class="explore-bg" style="background: linear-gradient(160deg, #fa0f0f, #ffb69f);">
+                    <div class="explore-overlay"></div>
+                    <div class="explore-info">
+                        <div class="explore-name">Buckhead</div>
+                        <div class="explore-count">34 events this week</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="explore-card" data-reveal data-delay="5">
+                <div class="explore-bg" style="background: linear-gradient(160deg, #52fa0f, #d6ffc3);">
+                    <div class="explore-overlay"></div>
+                    <div class="explore-info">
+                        <div class="explore-name">Grant Park</div>
+                        <div class="explore-count">19 events this week</div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Map Section -->
+    <section class="map-section" id="map-section">
+        <div class="map-header" data-reveal>
+            <div>
+                <div class="section-eyebrow">Events near you</div>
+                <h2 class="section-title">Find events on the <em>map</em></h2>
+            </div>
+        </div>
+        <div id="atl-map" style="width:100%;height:420px;border-radius:16px;overflow:hidden;"></div>
+    </section>
+
+    <div class="community-section">
+        <div class="community-inner">
+
+            <div>
+                <div class="comm-eyebrow">More than a ticket platform</div>
+                <h2 class="comm-title">Where ATL comes<br /> to <em>connect</em></h2>
+                <p class="comm-body"> 
+                    Post about events, find your crew, and stay plugged into
+                    Atlanta's culture — before, during, and after the show.
+                </p>
+                <button class="btn-white">Join the Community</button>
+            </div>
+
+            <div class="comm-posts">
+
+                <div class="comm-post">
+                    <div class="comm-post-header">
+                        <div class="comm-avatar" style="background: #1B5E20;">K</div>
+                        <div>
+                            <div class="comm-username">keem_atl</div>
+                            <div class="comm-timestamp">1h ago</div>
+                        </div>
+                        <span class="comm-tag">420 Fest</span>
+                    </div>
+                    <p class="comm-text">SweetWater 420 Fest is THIS weekend at Westside Park — new venue, same energy. Who's pulling up Friday?</p>
+                </div>
+
+                <div class="comm-post">
+                    <div class="comm-post-header">
+                        <div class="comm-avatar" style="background: #0D47A1;">J</div>
+                        <div>
+                            <div class="comm-username">jazzhead_404</div>
+                            <div class="comm-timestamp">3h ago</div>
+                        </div>
+                        <span class="comm-tag">ATL Jazz Fest</span>
+                    </div>
+                    <p class="comm-text">Kamasi Washington AND The Roots at a FREE festival in Piedmont Park?? Atlanta stays winning. May 23 is locked in.</p>
+                </div>
+
+                <div class="comm-post">
+                    <div class="comm-post-header">
+                        <div class="comm-avatar" style="background: #4A148C;">M</div>
+                        <div>
+                            <div class="comm-username">midtown_maya</div>
+                            <div class="comm-timestamp">5h ago</div>
+                        </div>
+                        <span class="comm-tag">ATL Film Fest</span>
+                    </div>
+                    <p class="comm-text">50th Atlanta Film Festival kicks off April 23 at the Plaza Theatre. Keke Palmer in the closing night film — do NOT sleep on this one.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <section class="promoter-section">
+        <div class="promoter-banner">
+            <div>
+                <div class="promoter-eyebrow">For promoters & organizers</div>
+                <h2 class="promoter-title">List your event. <br  /> <em>Reach all of Atlanta</em></h2>
+            </div>
+
+        <div class="promoter-actions">
+            <button class="btn-cta" onclick="window.location.href='../events/create.html'">List an Event →</button>
+        </div>
+        </div>
+    </section>
+
+
+<footer>
+    <div class="footer-inner">
+        <div class="footer-top">
+            <div>
+                <div class="footer-logo">Encore</div>
+                <div class="footer-tagline">Atlanta's home for events, concerts, and community. Find your next great night out, connect with your city, and share the experience with people who make Atlanta move.</div>
+            </div>
+
+            <div>
+                <div class="footer-col-title">Explore</div>
+                <ul class="footer-links">
+                    <li><a href="home_page.html">Browse Events</a></li>
+                    <li><a href="#explore-neighborhoods">Neighborhoods</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <div class="footer-col-title">Community</div>
+                <ul class="footer-links">
+                    <li><a href="../community/community.html">Feed</a></li>
+                    <li><a href="../events/create.html">Host an Event</a></li>
+                    <li><a href="../profile/profile.html">My Profile</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <span>© 2026 Encore. Made with love in Atlanta, GA.</span>
+        </div>
+    </div>
+</footer>
+
+<link rel="stylesheet" href="/css/toast.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="../src/utils/notifications.js"></script>
+<script>
+    
+    const filterPills = document.querySelectorAll('.filter-pill');
+    filterPills.forEach(function(pill) {
+        pill.addEventListener('click', function() {
+            filterPills.forEach(function(p) { p.classList.remove('active'); });
+            pill.classList.add('active');
+            currentFilterType  = pill.dataset.type  || 'all';
+            currentFilterValue = pill.dataset.value || '';
+            currentPage = 0;
+            loadEvents();
+        });
+    });
+
+    // ── When filter ───────────────────────────────────────────────────────────
+    const whenSelect = document.getElementById('when-select');
+    if (whenSelect) {
+        whenSelect.addEventListener('change', function() {
+            currentWhen = this.value;
+            currentPage = 0;
+            loadEvents();
+            const evSection = document.querySelector('.events-section');
+            if (evSection) evSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+    }
+
+    // ── Supabase paginated event loader ───────────────────────────────────────
+    const SUPABASE_URL  = 'https://qgvoznhldglucpsaisfs.supabase.co';
+    const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFndm96bmhsZGdsdWNwc2Fpc2ZzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxOTU4MjUsImV4cCI6MjA5MTc3MTgyNX0.e-5X1Lh4Tg8cP-FL-3eorV5pAZCDe4CR6i2AFeDKHWQ';
+    const { createClient } = supabase;
+    const sb = createClient(SUPABASE_URL, SUPABASE_ANON);
+
+    const PAGE_SIZE        = 6;
+    let   currentPage      = 0;
+    let   totalCount       = 0;
+    let   currentFilterType  = 'all';   // 'all' | 'category' | 'vibe'
+    let   currentFilterValue = '';       // the value to filter by
+    let   searchQuery      = '';
+    let   currentWhen = '';              // '' | 'tonight' | 'weekend' | 'week' | 'month'
+    let   currentUser           = null;
+    let   userFavs              = new Set(); // event IDs the current user has favorited
+    let   currentNeighborhoodId = null;      // neighborhood id filter (null = all)
+    let   neighborhoodMap       = {};        // name → id
+
+    // ── Auth init + load favorites ─────────────────────────────────────────────
+    async function initAuth() {
+        const { data: { session } } = await sb.auth.getSession();
+        if (!session) return;
+        currentUser = session.user;
+        const [{ data: favs }, { data: profile }] = await Promise.all([
+            sb.from('event_favorites').select('event_id').eq('account_id', currentUser.id),
+            sb.from('accounts').select('first_name,last_name,user_name').eq('id', currentUser.id).maybeSingle()
+        ]);
+        if (favs) favs.forEach(r => userFavs.add(r.event_id));
+        updateAuthNav(profile);
+        mountNotifBell(sb, currentUser.id);
+        window._currentUserId = currentUser.id;
+    }
+
+    function updateAuthNav(profile) {
+        const container = document.getElementById('nav-auth-actions');
+        if (!container) return;
+        const name = profile
+            ? ([profile.first_name, profile.last_name].filter(Boolean).join(' ') || profile.user_name || 'Account')
+            : 'Account';
+        const initials = name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) || '?';
+        container.innerHTML = '';
+
+        const avatarLink = document.createElement('a');
+        avatarLink.href = '../profile/profile.html';
+        avatarLink.style.cssText = 'display:flex;align-items:center;gap:.5rem;text-decoration:none;color:inherit;font-size:.875rem;font-weight:600;';
+        const av = document.createElement('div');
+        av.style.cssText = 'width:32px;height:32px;border-radius:50%;background:#e8470a;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;color:#fff;flex-shrink:0;';
+        av.textContent = initials;
+        avatarLink.appendChild(av);
+        avatarLink.appendChild(document.createTextNode(name.split(' ')[0]));
+
+        const logoutBtn = document.createElement('button');
+        logoutBtn.textContent = 'Log out';
+        logoutBtn.style.cssText = 'background:none;border:1px solid #e8e8ec;border-radius:8px;padding:.35rem .9rem;font-size:.8rem;font-weight:600;cursor:pointer;color:#6b6b7b;';
+        logoutBtn.addEventListener('click', async () => {
+            await sb.auth.signOut();
+            window.location.href = '../login/login.html';
+        });
+
+        container.appendChild(avatarLink);
+        container.appendChild(logoutBtn);
+    }
+
+    // ── Neighborhood filter ───────────────────────────────────────────────────
+    async function loadNeighborhoods() {
+        const nbhdSelect = document.getElementById('neighborhood-select');
+        const { data } = await sb.from('neighborhoods').select('id, name').order('name');
+        if (!data) return;
+
+        // Build name → id map
+        data.forEach(n => { neighborhoodMap[n.name] = n.id; });
+
+        // Populate dropdown
+        if (nbhdSelect) {
+            nbhdSelect.innerHTML = '<option value="">All neighborhoods</option>';
+            data.forEach(n => {
+                const opt = document.createElement('option');
+                opt.value = n.id;
+                opt.textContent = n.name;
+                nbhdSelect.appendChild(opt);
+            });
+            nbhdSelect.addEventListener('change', function() {
+                currentNeighborhoodId = this.value || null;
+                currentPage = 0;
+                loadEvents();
+            });
+        }
+
+        // Wire explore cards — clicking scrolls to events + filters by neighborhood
+        document.querySelectorAll('.explore-card').forEach(card => {
+            const nameEl = card.querySelector('.explore-name');
+            if (!nameEl) return;
+            const name = nameEl.textContent.trim();
+            card.style.cursor = 'pointer';
+            card.addEventListener('click', () => {
+                const id = neighborhoodMap[name];
+                currentNeighborhoodId = id || null;
+                if (nbhdSelect) nbhdSelect.value = id || '';
+                currentPage = 0;
+                loadEvents();
+                const evSection = document.querySelector('.events-section');
+                if (evSection) evSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
+        });
+    }
+
+    // ── Toggle favorite ────────────────────────────────────────────────────────
+    async function toggleFav(eventId, btn) {
+        if (!currentUser) {
+            window.location.href = '../login/login.html';
+            return;
+        }
+        const isFav = userFavs.has(eventId);
+        if (isFav) {
+            await sb.from('event_favorites').delete().eq('event_id', eventId).eq('account_id', currentUser.id);
+            userFavs.delete(eventId);
+            btn.textContent = '☆';
+            btn.style.color = '';
+        } else {
+            await sb.from('event_favorites').upsert({ event_id: eventId, account_id: currentUser.id }, { onConflict: 'event_id,account_id' });
+            userFavs.add(eventId);
+            btn.textContent = '★';
+            btn.style.color = '#E8542A';
+        }
+    }
+
+    async function loadEvents() {
+        const grid       = document.getElementById('events-grid');
+        const pagination = document.getElementById('events-pagination');
+        if (!grid) return; // static page without the id yet
+
+        grid.innerHTML = Array(6).fill(`
+            <div class="skeleton-card">
+                <div class="skeleton-top"></div>
+                <div class="skeleton-body">
+                    <div class="skeleton-line" style="height:10px;width:40%;"></div>
+                    <div class="skeleton-line" style="height:18px;width:80%;"></div>
+                    <div class="skeleton-line" style="height:13px;width:60%;"></div>
+                    <div class="skeleton-line" style="height:13px;width:30%;margin-top:6px;"></div>
+                </div>
+            </div>`).join('');
+
+        const from = currentPage * PAGE_SIZE;
+        const to   = from + PAGE_SIZE - 1;
+
+        // Build date range from "When" filter
+        const now = new Date();
+        let rangeStart = now;
+        let rangeEnd   = null;
+        if (currentWhen === 'tonight') {
+            rangeEnd = new Date(now); rangeEnd.setHours(23, 59, 59, 999);
+        } else if (currentWhen === 'weekend') {
+            const day = now.getDay(); // 0=Sun,6=Sat
+            const fri = new Date(now); fri.setDate(now.getDate() + ((5 - day + 7) % 7));
+            fri.setHours(0, 0, 0, 0);
+            rangeStart = day === 6 || day === 0 ? now : fri;
+            rangeEnd   = new Date(now); rangeEnd.setDate(now.getDate() + ((7 - day) % 7 || 7));
+            rangeEnd.setHours(23, 59, 59, 999);
+        } else if (currentWhen === 'week') {
+            rangeEnd = new Date(now); rangeEnd.setDate(now.getDate() + 7); rangeEnd.setHours(23, 59, 59, 999);
+        } else if (currentWhen === 'month') {
+            rangeEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
+        }
+
+        let query = sb
+            .from('events')
+            .select('id, title, category, vibe_tags, venue_name, starts_at, ticket_price, is_free', { count: 'exact' })
+            .eq('status', 'published')
+            .gte('starts_at', rangeStart.toISOString())
+            .order('starts_at', { ascending: true })
+            .range(from, to);
+
+        if (rangeEnd) {
+            query = query.lte('starts_at', rangeEnd.toISOString());
+        }
+        if (currentFilterType === 'category') {
+            query = query.eq('category', currentFilterValue);
+        } else if (currentFilterType === 'vibe') {
+            query = query.contains('vibe_tags', [currentFilterValue]);
+        }
+        if (currentNeighborhoodId) {
+            query = query.eq('neighborhood_id', currentNeighborhoodId);
+        }
+        if (searchQuery) {
+            query = query.or(`title.ilike.%${searchQuery}%,venue_name.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%`);
+        }
+
+        const { data, count, error } = await query;
+
+        if (error) {
+            grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:3rem;color:#c0392b;">Failed to load events. Please refresh.</div>';
+            return;
+        }
+
+        totalCount = count || 0;
+
+        if (!data || !data.length) {
+            grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:3rem;color:#9a948c;">No events found. Try a different filter.</div>';
+            pagination.style.display = 'none';
+            return;
+        }
+
+        // Render event cards using DOM APIs (XSS-safe)
+        grid.innerHTML = '';
+        const CAT_GRAD = {
+            'Music':          'linear-gradient(135deg, #4A148C, #CE93D8)',
+            'Arts & Culture': 'linear-gradient(135deg, #1A1A2E, #E94560)',
+            'Food & Drink':   'linear-gradient(135deg, #BF360C, #FF8A65)',
+            'Nightlife':      'linear-gradient(135deg, #0D0D2B, #3949AB)',
+            'Sports':         'linear-gradient(135deg, #1A3A2A, #52B788)',
+            'Comedy':         'linear-gradient(135deg, #F57F17, #FFD54F)',
+            'Fitness':        'linear-gradient(135deg, #006064, #4DD0E1)',
+            'Community':      'linear-gradient(135deg, #880E4F, #F48FB1)',
+        };
+        const fallbackGrads = [
+            'linear-gradient(135deg, #1A3A2A, #52B788)',
+            'linear-gradient(135deg, #7B2D8B, #C084FC)',
+            'linear-gradient(135deg, #0f85fa, #bccefe)',
+        ];
+
+        data.forEach((event, i) => {
+            const d     = new Date(event.starts_at);
+            const month = d.toLocaleDateString('en-US', { month: 'short' });
+            const day   = d.getDate();
+            const time  = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+            const price = (event.is_free || !event.ticket_price || event.ticket_price <= 0)
+                ? 'Free'
+                : '$' + parseFloat(event.ticket_price).toFixed(0);
+
+            const card = document.createElement('div');
+            card.className = 'event-card';
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            card.style.transition = `opacity 0.4s ease ${i * 0.07}s, transform 0.4s ease ${i * 0.07}s, box-shadow 0.28s ease`;
+            setTimeout(() => { card.style.opacity = '1'; card.style.transform = 'none'; }, 20);
+
+            const top = document.createElement('div');
+            top.className = 'event-card-top';
+            top.style.background = CAT_GRAD[event.category] || fallbackGrads[i % fallbackGrads.length];
+
+            const badge = document.createElement('div');
+            badge.className = 'event-date-badge';
+
+            const monthEl = document.createElement('div');
+            monthEl.className = 'event-date-month';
+            monthEl.textContent = month;
+
+            const dayEl = document.createElement('div');
+            dayEl.className = 'event-date-day';
+            dayEl.textContent = day;
+
+            badge.appendChild(monthEl);
+            badge.appendChild(dayEl);
+
+            const saveBtn = document.createElement('button');
+            saveBtn.className = 'event-save-btn';
+            saveBtn.textContent = userFavs.has(event.id) ? '★' : '☆';
+            saveBtn.style.color = userFavs.has(event.id) ? '#E8542A' : '';
+            saveBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                toggleFav(event.id, saveBtn);
+            });
+
+            top.appendChild(badge);
+            top.appendChild(saveBtn);
+
+            const body = document.createElement('div');
+            body.className = 'event-card-body';
+
+            const caption = document.createElement('div');
+            caption.className = 'event-caption';
+            caption.textContent = event.category || '';
+
+            const title = document.createElement('div');
+            title.className = 'event-title';
+            title.textContent = event.title;
+
+            const venue = document.createElement('div');
+            venue.className = 'event-venue';
+            venue.textContent = (event.venue_name || '') + ' · ' + month + ' ' + day + ' · ' + time;
+
+            const footer = document.createElement('div');
+            footer.className = 'event-footer';
+
+            const priceEl = document.createElement('div');
+            priceEl.className = 'event-price';
+            priceEl.textContent = price;
+
+            footer.appendChild(priceEl);
+            body.appendChild(caption);
+            body.appendChild(title);
+            body.appendChild(venue);
+            body.appendChild(footer);
+            card.style.cursor = 'pointer';
+            card.addEventListener('click', () => {
+                window.location.href = '../events/detail.html?id=' + event.id;
+            });
+            card.appendChild(top);
+            card.appendChild(body);
+            grid.appendChild(card);
+        });
+
+        renderPagination(pagination, totalCount);
+    }
+
+    function renderPagination(container, total) {
+        const totalPages = Math.ceil(total / PAGE_SIZE);
+        if (totalPages <= 1) { container.style.display = 'none'; return; }
+
+        container.style.display = 'flex';
+        container.innerHTML = '';
+
+        // Prev button
+        const prev = document.createElement('button');
+        prev.className = 'pagination-btn';
+        prev.textContent = '←';
+        prev.disabled = currentPage === 0;
+        prev.addEventListener('click', () => { currentPage--; loadEvents(); window.scrollTo({ top: document.getElementById('events-grid').offsetTop - 80, behavior: 'smooth' }); });
+        container.appendChild(prev);
+
+        // Page numbers
+        for (let i = 0; i < totalPages; i++) {
+            if (totalPages > 7 && Math.abs(i - currentPage) > 2 && i !== 0 && i !== totalPages - 1) {
+                if (i === 1 || i === totalPages - 2) {
+                    const dots = document.createElement('span');
+                    dots.className = 'pagination-ellipsis';
+                    dots.textContent = '…';
+                    container.appendChild(dots);
+                }
+                continue;
+            }
+            const btn = document.createElement('button');
+            btn.className = 'pagination-btn' + (i === currentPage ? ' active' : '');
+            btn.textContent = i + 1;
+            const page = i;
+            btn.addEventListener('click', () => { currentPage = page; loadEvents(); window.scrollTo({ top: document.getElementById('events-grid').offsetTop - 80, behavior: 'smooth' }); });
+            container.appendChild(btn);
+        }
+
+        // Next button
+        const next = document.createElement('button');
+        next.className = 'pagination-btn';
+        next.textContent = '→';
+        next.disabled = currentPage >= totalPages - 1;
+        next.addEventListener('click', () => { currentPage++; loadEvents(); window.scrollTo({ top: document.getElementById('events-grid').offsetTop - 80, behavior: 'smooth' }); });
+        container.appendChild(next);
+    }
+
+    // ── Search bar ────────────────────────────────────────────────────────────
+    let searchTimer = null;
+    const searchInput = document.querySelector('.search-field input');
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            clearTimeout(searchTimer);
+            searchTimer = setTimeout(() => {
+                searchQuery = this.value.trim();
+                currentPage = 0;
+                loadEvents();
+            }, 350);
+        });
+        searchInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                clearTimeout(searchTimer);
+                searchQuery = this.value.trim();
+                currentPage = 0;
+                loadEvents();
+                document.querySelector('.events-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        });
+    }
+    const searchBtn = document.querySelector('.search-btn');
+    if (searchBtn) {
+        searchBtn.addEventListener('click', function() {
+            clearTimeout(searchTimer);
+            searchQuery = searchInput ? searchInput.value.trim() : '';
+            currentPage = 0;
+            loadEvents();
+            document.querySelector('.events-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+    }
+
+    // ── Add id to events grid if not present ─────────────────────────────────
+    const grid = document.querySelector('.events-grid');
+    if (grid && !grid.id) grid.id = 'events-grid';
+
+    // ── Featured hero event ───────────────────────────────────────────────────
+    const CATEGORY_GRADIENTS = {
+        'Music':         'linear-gradient(135deg,#4A148C,#CE93D8)',
+        'Arts & Culture':'linear-gradient(135deg,#1A1A2E,#E94560)',
+        'Food & Drink':  'linear-gradient(135deg,#BF360C,#FF8A65)',
+        'Nightlife':     'linear-gradient(135deg,#0D0D2B,#3949AB)',
+    };
+
+    async function loadFeaturedEvent() {
+        const { data } = await sb
+            .from('events')
+            .select('id, title, category, vibe_tags, venue_name, starts_at, ticket_price, is_free, event_attendance(account_id)')
+            .eq('status', 'published')
+            .gte('starts_at', new Date().toISOString())
+            .order('starts_at', { ascending: true })
+            .limit(20);
+
+        if (!data || !data.length) return;
+
+        // Sort by attendance count descending
+        data.sort((a, b) => (b.event_attendance?.length || 0) - (a.event_attendance?.length || 0));
+
+        const maxCount = data[0].event_attendance?.length || 0;
+        const topTied  = data.filter(e => (e.event_attendance?.length || 0) === maxCount);
+        // If all tied (including 0-0), pick randomly from the tied group
+        const featured = topTied[Math.floor(Math.random() * topTied.length)];
+
+        const d       = new Date(featured.starts_at);
+        const dateStr = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        const timeStr = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+        const price   = (featured.is_free || !featured.ticket_price || featured.ticket_price <= 0)
+            ? 'FREE entry' : '$' + parseFloat(featured.ticket_price).toFixed(0) + '+';
+        const tags    = (featured.vibe_tags || []).slice(0, 3).join(' · ') || featured.category || '';
+        const going   = featured.event_attendance?.length || 0;
+
+        document.getElementById('hero-card-tag').textContent   = tags;
+        document.getElementById('hero-card-title').textContent = featured.title;
+        document.getElementById('hero-card-venue').textContent = (featured.venue_name || '') + ' · ' + dateStr + ' · ' + timeStr;
+        document.getElementById('hero-card-price').textContent = price;
+        document.getElementById('hero-card-going').textContent = going > 0 ? going + ' going' : '';
+
+        const img = document.getElementById('hero-card-image');
+        if (img) img.style.background = CATEGORY_GRADIENTS[featured.category] || 'linear-gradient(135deg,#1A3A2A,#52B788)';
+
+        const card = document.getElementById('hero-featured-card');
+        if (card) {
+            card.onclick = () => { window.location.href = '../events/detail.html?id=' + featured.id; };
+        }
+        const btn = document.getElementById('hero-card-btn');
+        if (btn) {
+            btn.onclick = (e) => { e.stopPropagation(); window.location.href = '../events/detail.html?id=' + featured.id; };
+        }
+    }
+
+    // ── Trending events ───────────────────────────────────────────────────────
+    const TREND_GRADS = {
+        'Music':          'linear-gradient(135deg,#4A148C,#CE93D8)',
+        'Arts & Culture': 'linear-gradient(135deg,#1A1A2E,#E94560)',
+        'Food & Drink':   'linear-gradient(135deg,#BF360C,#FF8A65)',
+        'Nightlife':      'linear-gradient(135deg,#0D0D2B,#3949AB)',
+        'Sports':         'linear-gradient(135deg,#1A3A2A,#52B788)',
+        'Comedy':         'linear-gradient(135deg,#F57F17,#FFD54F)',
+        'Fitness':        'linear-gradient(135deg,#006064,#4DD0E1)',
+        'Community':      'linear-gradient(135deg,#880E4F,#F48FB1)',
+    };
+    async function loadTrending() {
+        const now = new Date().toISOString();
+        const monthOut = new Date(Date.now() + 30 * 86400000).toISOString();
+        const [{ data: events }, { data: attendance }] = await Promise.all([
+            sb.from('events')
+              .select('id,title,category,venue_name,starts_at,is_free,ticket_price')
+              .eq('status', 'published').gte('starts_at', now).lte('starts_at', monthOut).limit(40),
+            sb.from('event_attendance').select('event_id').eq('status', 'going')
+        ]);
+        if (!events || !events.length) return;
+        const countMap = {};
+        (attendance || []).forEach(a => { countMap[a.event_id] = (countMap[a.event_id] || 0) + 1; });
+        const sorted = [...events]
+            .filter(e => (countMap[e.id] || 0) > 0)
+            .sort((a, b) => (countMap[b.id] || 0) - (countMap[a.id] || 0))
+            .slice(0, 8);
+        if (!sorted.length) return;
+        const section = document.getElementById('trending-section');
+        const reel    = document.getElementById('trending-reel');
+        reel.innerHTML = '';
+        sorted.forEach((ev, i) => {
+            const grad = TREND_GRADS[ev.category] || 'linear-gradient(135deg,#1a1a1a,#3a3a3a)';
+            const d    = new Date(ev.starts_at);
+            const mon  = d.toLocaleDateString('en-US', { month: 'short' });
+            const day  = d.getDate();
+            const going = countMap[ev.id] || 0;
+            const price = ev.is_free ? 'Free' : (ev.ticket_price ? '$' + Math.floor(ev.ticket_price) : 'Free');
+            const a = document.createElement('a');
+            a.className = 'trending-card';
+            a.href = `../events/detail.html?id=${ev.id}`;
+            a.innerHTML = `
+              <div class="trending-card-top" style="background:${grad}">
+                <span class="trending-badge">#${i+1} Trending</span>
+              </div>
+              <div class="trending-card-body">
+                <div class="trending-card-cat">${ev.category || 'Event'}</div>
+                <div class="trending-card-title">${ev.title || 'Untitled'}</div>
+                <div class="trending-card-meta">${mon} ${day} · ${ev.venue_name || 'ATL'}</div>
+                <div class="trending-card-going">${going} going · ${price}</div>
+              </div>`;
+            reel.appendChild(a);
+        });
+        section.style.display = 'block';
+    }
+
+    // Map view with ATL neighborhood pins
+    function initMap() {
+      const ATL_NEIGHBORHOODS = [
+        { name: 'Old Fourth Ward', lat: 33.7573, lng: -84.3593, color: '#52B788' },
+        { name: 'Little Five Points', lat: 33.7617, lng: -84.3497, color: '#C084FC' },
+        { name: 'Midtown', lat: 33.7838, lng: -84.3838, color: '#0f85fa' },
+        { name: 'Buckhead', lat: 33.8460, lng: -84.3633, color: '#fa0f0f' },
+        { name: 'Grant Park', lat: 33.7282, lng: -84.3648, color: '#52fa0f' },
+        { name: 'Ponce City Market', lat: 33.7715, lng: -84.3661, color: '#e8470a' },
+        { name: 'Inman Park', lat: 33.7558, lng: -84.3534, color: '#f59e0b' },
+        { name: 'West End', lat: 33.7337, lng: -84.4155, color: '#06b6d4' },
+      ];
+      const map = L.map('atl-map', { zoomControl: true, scrollWheelZoom: false }).setView([33.7890, -84.3880], 12);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+        maxZoom: 18
+      }).addTo(map);
+      ATL_NEIGHBORHOODS.forEach(n => {
+        const icon = L.divIcon({
+          className: '',
+          html: `<div style="background:${n.color};color:#fff;padding:5px 10px;border-radius:20px;font-size:12px;font-weight:700;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.25)">${n.name}</div>`,
+          iconAnchor: [0, 0]
+        });
+        L.marker([n.lat, n.lng], { icon })
+          .addTo(map)
+          .on('click', () => {
+            const input = document.getElementById('search-input');
+            if (input) { input.value = n.name; input.dispatchEvent(new Event('input')); }
+            document.querySelector('.events-section').scrollIntoView({ behavior: 'smooth' });
+          });
+      });
+    }
+    initMap();
+
+    function escapeHtml(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+    // Personalized "You might like" recommendations
+    async function loadForYou(userId) {
+      if (!userId) return;
+      const now = new Date().toISOString();
+      // Get categories from user's past RSVPs
+      const { data: past } = await sb.from('event_attendance')
+        .select('events!event_attendance_event_id_fkey(category)')
+        .eq('account_id', userId).eq('status', 'going').limit(20);
+      const attended = (past || []).map(r => r.events?.category).filter(Boolean);
+      const topCats = [...new Set(attended)].slice(0, 3);
+      if (!topCats.length) return; // no history — skip section
+
+      // Also get event IDs they already RSVP'd to avoid duplicates
+      const { data: rsvpd } = await sb.from('event_attendance').select('event_id').eq('account_id', userId);
+      const rsvpdIds = new Set((rsvpd || []).map(r => r.event_id));
+
+      const { data: recs } = await sb.from('events')
+        .select('id,title,category,venue_name,starts_at,is_free,ticket_price,cover_image_url')
+        .eq('status', 'published').gte('starts_at', now)
+        .in('category', topCats).limit(16);
+      const filtered = (recs || []).filter(e => !rsvpdIds.has(e.id)).slice(0, 8);
+      if (!filtered.length) return;
+
+      const reel = document.getElementById('foryou-reel');
+      reel.innerHTML = filtered.map(ev => {
+        const grad = TREND_GRADS[ev.category] || 'linear-gradient(135deg,#1a1a1a,#3a3a3a)';
+        const dateStr = ev.starts_at ? new Date(ev.starts_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '';
+        const price = ev.is_free ? 'Free' : (ev.ticket_price ? `$${ev.ticket_price}` : 'Free');
+        return `<a href="../events/detail.html?id=${ev.id}" class="trending-card" style="text-decoration:none">
+          <div class="trending-card-top" style="${ev.cover_image_url ? `background:url(${ev.cover_image_url}) center/cover no-repeat` : `background:${grad}`}">
+            <span class="trending-badge">${escapeHtml(ev.category||'Event')}</span>
+          </div>
+          <div class="trending-card-body">
+            <div class="trending-card-title">${escapeHtml(ev.title||'Event')}</div>
+            <div class="trending-card-meta">${dateStr}${ev.venue_name ? ' · ' + escapeHtml(ev.venue_name) : ''}</div>
+            <div class="trending-card-going">${price}</div>
+          </div>
+        </a>`;
+      }).join('');
+      document.getElementById('foryou-section').style.display = 'block';
+    }
+
+    // Friend activity feed
+    async function loadActivityFeed(userId) {
+      if (!userId) return;
+      // Get accepted connections
+      const { data: conns } = await sb.from('connections')
+        .select('requester_id, recipient_id')
+        .eq('status', 'accepted')
+        .or(`requester_id.eq.${userId},recipient_id.eq.${userId}`)
+        .limit(100);
+      if (!conns || !conns.length) return;
+      const friendIds = conns.map(c => c.requester_id === userId ? c.recipient_id : c.requester_id);
+
+      const now = new Date().toISOString();
+      const { data: rows } = await sb.from('event_attendance')
+        .select('account_id, status, events(id,title,starts_at,category,cover_url), accounts!event_attendance_account_id_fkey(first_name,last_name,user_name,avatar_url)')
+        .in('account_id', friendIds)
+        .eq('status', 'going')
+        .gte('events.starts_at', now)
+        .order('events.starts_at', { ascending: true })
+        .limit(12);
+
+      const valid = (rows || []).filter(r => r.events && r.accounts);
+      if (!valid.length) return;
+
+      const GRAD = {
+        'Music': 'linear-gradient(135deg,#1a1a2e,#7b2ff7)',
+        'Food & Drink': 'linear-gradient(135deg,#7b3f00,#e8470a)',
+        'Art': 'linear-gradient(135deg,#0d2137,#1976d2)',
+        'Sports': 'linear-gradient(135deg,#003300,#2e7d32)',
+        'Comedy': 'linear-gradient(135deg,#4a0000,#c62828)',
+        'Networking': 'linear-gradient(135deg,#1a1a1a,#424242)',
+      };
+
+      document.getElementById('activity-feed').innerHTML = valid.map(r => {
+        const acc = r.accounts;
+        const ev = r.events;
+        const name = `${acc.first_name||''} ${acc.last_name||''}`.trim() || acc.user_name || 'Someone';
+        const initials = name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+        const av = acc.avatar_url ? `<img src="${escapeHtml(acc.avatar_url)}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">` : initials;
+        const grad = GRAD[ev.category] || 'linear-gradient(135deg,#1a1a1a,#333)';
+        const bg = ev.cover_url ? `url('${escapeHtml(ev.cover_url)}') center/cover` : grad;
+        const dateStr = ev.starts_at ? new Date(ev.starts_at).toLocaleDateString('en-US',{month:'short',day:'numeric'}) : '';
+        return `<a href="../events/detail.html?id=${escapeHtml(ev.id)}" class="activity-card">
+          <div class="activity-card-img" style="background:${bg}"></div>
+          <div class="activity-card-body">
+            <div class="activity-friend">
+              <div class="activity-av">${av}</div>
+              <span class="activity-name">${escapeHtml(name)}</span>
+              <span class="activity-verb">is going</span>
+            </div>
+            <div class="activity-event-title">${escapeHtml(ev.title||'Event')}</div>
+            <div class="activity-date">${dateStr}</div>
+          </div>
+        </a>`;
+      }).join('');
+
+      document.getElementById('activity-section').style.display = 'block';
+    }
+
+    // Pre-apply ?vibe= or ?category= param from hashtag links
+    (function applyUrlFilter() {
+      const p = new URLSearchParams(location.search);
+      if (p.get('vibe')) {
+        currentFilterType  = 'vibe';
+        currentFilterValue = p.get('vibe');
+        // Highlight matching pill if present, otherwise leave none active
+        pills.forEach(function(pill) {
+          const match = pill.dataset.type === 'vibe' && pill.dataset.value === currentFilterValue;
+          pill.classList.toggle('active', match);
+        });
+      } else if (p.get('category')) {
+        currentFilterType  = 'category';
+        currentFilterValue = p.get('category');
+        pills.forEach(function(pill) {
+          const match = pill.dataset.type === 'category' && pill.dataset.value === currentFilterValue;
+          pill.classList.toggle('active', match);
+        });
+      }
+    })();
+
+    // Load events and neighborhoods on page load (after auth init)
+    initAuth().then(() => {
+      loadEvents(); loadNeighborhoods(); loadFeaturedEvent(); loadTrending();
+      if (new URLSearchParams(location.search).get('vibe') || new URLSearchParams(location.search).get('category')) {
+        setTimeout(() => { const s = document.querySelector('.events-section'); if (s) s.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 400);
+      }
+      if (window._currentUserId) {
+        loadForYou(window._currentUserId);
+        loadActivityFeed(window._currentUserId);
+      }
+    });
+
+    // ── Nav scroll shadow ─────────────────────────────────────────────────────
+    const nav = document.querySelector('nav');
+    window.addEventListener('scroll', () => {
+        nav && nav.classList.toggle('scrolled', window.scrollY > 10);
+    }, { passive: true });
+
+    // ── Scroll reveal ─────────────────────────────────────────────────────────
+    const revealObserver = new IntersectionObserver((entries) => {
+        entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('revealed'); revealObserver.unobserve(e.target); } });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('[data-reveal]').forEach(el => revealObserver.observe(el));
+
+    // ── Stat counter animation ────────────────────────────────────────────────
+    function animateCount(el, target, suffix) {
+        const duration = 1400;
+        const start = performance.now();
+        const update = (now) => {
+            const p = Math.min((now - start) / duration, 1);
+            const ease = 1 - Math.pow(1 - p, 3);
+            el.textContent = Math.floor(ease * target).toLocaleString() + suffix;
+            if (p < 1) requestAnimationFrame(update);
+        };
+        requestAnimationFrame(update);
+    }
+
+    const statsObserver = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+            if (!e.isIntersecting) return;
+            statsObserver.unobserve(e.target);
+            const nums = e.target.querySelectorAll('.hero-stat-num');
+            const targets = [[1200, '+'], [40, '+'], [8400, '']];
+            nums.forEach((el, i) => animateCount(el, targets[i][0], targets[i][1]));
+        });
+    }, { threshold: 0.5 });
+    const heroStats = document.querySelector('.hero-stats');
+    if (heroStats) statsObserver.observe(heroStats);
+</script>
+<script>
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');
+</script>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title> Encore - Atlanta's Event Community</title>
+    <link rel='stylesheet' href = '/css/styles.css'>
 </head>
 <body>
     <nav>

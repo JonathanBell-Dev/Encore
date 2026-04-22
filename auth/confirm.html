@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Confirming Email — Encore</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --orange: #e8470a; --orange-dark: #c43a06;
+      --bg: #0C0C0C; --card: #141414; --border: #262626;
+      --text: #F0EDE8; --muted: #9A9590; --light: #1C1C1C;
+    }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      -webkit-font-smoothing: antialiased;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 2.5rem 2rem;
+      max-width: 420px;
+      width: 100%;
+      text-align: center;
+    }
+    .brand { display: flex; align-items: center; justify-content: center; gap: .6rem; margin-bottom: 2rem; text-decoration: none; }
+    .brand-icon {
+      width: 36px; height: 36px; background: var(--orange); border-radius: 9px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .brand-icon svg { width: 18px; height: 18px; }
+    .brand-name { font-size: 1.1rem; font-weight: 800; color: var(--text); }
+
+    .icon-wrap {
+      width: 64px; height: 64px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 1.25rem;
+    }
+    .icon-wrap.loading { background: var(--light); }
+    .icon-wrap.success { background: rgba(52,199,89,.12); }
+    .icon-wrap.error   { background: rgba(255,59,48,.12); }
+    .icon-wrap svg { width: 30px; height: 30px; }
+
+    h1 { font-size: 1.25rem; font-weight: 800; color: var(--text); margin-bottom: .5rem; letter-spacing: -.02em; }
+    p  { font-size: .875rem; color: var(--muted); line-height: 1.6; }
+
+    .spinner {
+      width: 30px; height: 30px;
+      border: 3px solid var(--border);
+      border-top-color: var(--orange);
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .btn {
+      display: inline-block; margin-top: 1.5rem;
+      padding: .75rem 2rem; background: var(--orange); color: #fff;
+      border-radius: 9px; font-size: .875rem; font-weight: 700;
+      text-decoration: none; border: none; cursor: pointer;
+      font-family: 'Inter', sans-serif; transition: background .18s;
+    }
+    .btn:hover { background: var(--orange-dark); }
+    .btn-ghost {
+      display: inline-block; margin-top: .75rem;
+      padding: .6rem 1.5rem; background: none;
+      border: 1px solid var(--border); color: var(--muted);
+      border-radius: 9px; font-size: .875rem; font-weight: 600;
+      text-decoration: none; cursor: pointer; font-family: 'Inter', sans-serif;
+      transition: border-color .18s;
+    }
+    .btn-ghost:hover { border-color: var(--muted); color: var(--text); }
+    input, textarea, select { color: #F0EDE8 !important; }
+    input:focus, textarea:focus, select:focus { color: #F0EDE8 !important; }
+    input:-webkit-autofill, input:-webkit-autofill:focus,
+    textarea:-webkit-autofill, select:-webkit-autofill {
+      -webkit-text-fill-color: #F0EDE8 !important;
+    }
+    input::placeholder, textarea::placeholder { color: #888; opacity: 1; }
+
+
+
+  </style>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#e8470a">
+</head>
+<body>
+  <div class="card">
+    <a href="../homepage/home_page.html" class="brand">
+      <div class="brand-icon">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect x="2.5" y="11" width="5" height="10" rx="2.5" fill="#fff"/><rect x="9.5" y="5" width="5" height="16" rx="2.5" fill="#fff"/><rect x="16.5" y="8" width="5" height="8" rx="2.5" fill="#fff"/></svg>
+      </div>
+      <span class="brand-name">Encore</span>
+    </a>
+
+    <!-- Loading state (default) -->
+    <div id="state-loading">
+      <div class="icon-wrap loading">
+        <div class="spinner"></div>
+      </div>
+      <h1>Confirming your email…</h1>
+      <p>Just a moment while we verify your account.</p>
+    </div>
+
+    <!-- Success state -->
+    <div id="state-success" style="display:none">
+      <div class="icon-wrap success">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+      </div>
+      <h1>Email confirmed!</h1>
+      <p id="success-msg">Your account is verified. Taking you to set up your profile…</p>
+    </div>
+
+    <!-- Error state -->
+    <div id="state-error" style="display:none">
+      <div class="icon-wrap error">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8" x2="12" y2="12"/>
+          <line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+      </div>
+      <h1>Confirmation failed</h1>
+      <p id="error-msg">This link may have expired or already been used.</p>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:.5rem;margin-top:1rem">
+        <a href="../login/login.html" class="btn">Back to Login</a>
+        <a href="../homepage/home_page.html" class="btn-ghost">Browse Events</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const SUPABASE_URL  = 'https://qgvoznhldglucpsaisfs.supabase.co';
+    const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFndm96bmhsZGdsdWNwc2Fpc2ZzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxOTU4MjUsImV4cCI6MjA5MTc3MTgyNX0.e-5X1Lh4Tg8cP-FL-3eorV5pAZCDe4CR6i2AFeDKHWQ';
+    const { createClient } = supabase;
+    const sb = createClient(SUPABASE_URL, SUPABASE_ANON);
+
+    function show(id) {
+      ['state-loading', 'state-success', 'state-error'].forEach(s => {
+        document.getElementById(s).style.display = s === id ? '' : 'none';
+      });
+    }
+
+    async function handleConfirmation() {
+      // Supabase V2 puts token_hash + type in the URL query params (PKCE flow)
+      // or access_token + type in the hash (implicit flow)
+      const hash   = new URLSearchParams(location.hash.slice(1));
+      const query  = new URLSearchParams(location.search);
+
+      const type       = hash.get('type') || query.get('type');
+      const tokenHash  = query.get('token_hash');
+      const accessToken = hash.get('access_token');
+      const errorDesc  = hash.get('error_description') || query.get('error_description');
+
+      if (errorDesc) {
+        document.getElementById('error-msg').textContent = decodeURIComponent(errorDesc);
+        show('state-error');
+        return;
+      }
+
+      // PKCE flow: verify via token_hash
+      if (tokenHash && type) {
+        const { error } = await sb.auth.verifyOtp({ token_hash: tokenHash, type });
+        if (error) {
+          document.getElementById('error-msg').textContent = error.message;
+          show('state-error');
+          return;
+        }
+      } else if (accessToken) {
+        // Implicit flow: SDK already set session from hash — nothing extra to do
+        const { data: { session }, error } = await sb.auth.getSession();
+        if (error || !session) {
+          document.getElementById('error-msg').textContent = error?.message || 'Could not establish session.';
+          show('state-error');
+          return;
+        }
+      } else {
+        // Check if user already has an active session (e.g. link clicked twice)
+        const { data: { session } } = await sb.auth.getSession();
+        if (!session) {
+          document.getElementById('error-msg').textContent = 'No confirmation token found in this link.';
+          show('state-error');
+          return;
+        }
+      }
+
+      // Success — determine where to redirect
+      const redirectType = type || 'signup';
+      if (redirectType === 'recovery') {
+        document.getElementById('success-msg').textContent = 'Verified! Taking you to reset your password…';
+        show('state-success');
+        setTimeout(() => { window.location.href = './reset-password.html'; }, 1500);
+      } else {
+        // signup or email_change — go to onboarding
+        document.getElementById('success-msg').textContent = 'Your account is verified. Taking you to set up your profile…';
+        show('state-success');
+        setTimeout(() => { window.location.href = './onboarding.html'; }, 1500);
+      }
+    }
+
+    handleConfirmation();
+  </script>
+<script>
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');
+</script>
+</body>
+</html>

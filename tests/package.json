@@ -9,6 +9,12 @@
     "test:watch":   "jest --watch",
     "test:coverage":"jest --coverage"
   },
+<<<<<<< HEAD
+=======
+  "jest": {
+    "testPathIgnorePatterns": ["/node_modules/", "/e2e/"]
+  },
+>>>>>>> ddb62376644de61bb4c73ca407ebedbadf59bc0b
   "devDependencies": {
     "jest": "^29.0.0"
   }

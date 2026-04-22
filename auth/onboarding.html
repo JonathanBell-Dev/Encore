@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Welcome to Encore — Set Up Your Profile</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/toast.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --orange: #e8470a; --orange-dark: #c43a06;
+      --bg: #0C0C0C; --card: #141414; --border: #262626;
+      --text: #F0EDE8; --muted: #9A9590; --light: #1C1C1C;
+      --success: #34c759;
+    }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; -webkit-font-smoothing: antialiased; }
+
+    /* Nav */
+    nav { display: flex; align-items: center; padding: 0 2rem; height: 60px; background: rgba(12,12,12,0.9); border-bottom: 1px solid var(--border); backdrop-filter: blur(12px); }
+    .nav-brand { display: flex; align-items: center; gap: .6rem; text-decoration: none; }
+    .nav-brand-icon { width: 32px; height: 32px; background: var(--orange); border-radius: 7px; display: flex; align-items: center; justify-content: center; }
+    .nav-brand-icon svg { width: 16px; height: 16px; }
+    .nav-brand-name { font-size: 1rem; font-weight: 700; color: var(--text); }
+
+    /* Progress bar */
+    .progress-wrap { padding: 1rem 2rem 0; max-width: 600px; margin: 0 auto; width: 100%; }
+    .progress-labels { display: flex; justify-content: space-between; margin-bottom: .4rem; }
+    .progress-label { font-size: .72rem; font-weight: 600; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); }
+    .progress-label.active { color: var(--orange); }
+    .progress-track { height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }
+    .progress-fill { height: 100%; background: var(--orange); border-radius: 2px; transition: width .4s ease; }
+
+    /* Page layout */
+    .page { flex: 1; display: flex; align-items: flex-start; justify-content: center; padding: 2rem 1rem 4rem; }
+    .card { width: 100%; max-width: 560px; background: var(--card); border: 1px solid var(--border); border-radius: 18px; padding: 2.5rem; box-shadow: 0 4px 24px rgba(0,0,0,.06); }
+
+    /* Step header */
+    .step-icon { width: 54px; height: 54px; border-radius: 13px; display: flex; align-items: center; justify-content: center; margin-bottom: 1.25rem; background: rgba(232,71,10,.1); }
+    .step-icon svg { width: 26px; height: 26px; color: var(--orange); }
+    .step-num { font-size: .75rem; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--orange); margin-bottom: .3rem; }
+    h1 { font-size: 1.4rem; font-weight: 800; letter-spacing: -.025em; margin-bottom: .4rem; }
+    .subtitle { font-size: .875rem; color: var(--muted); line-height: 1.6; margin-bottom: 1.75rem; }
+
+    /* Form fields */
+    .form-group { margin-bottom: 1.1rem; }
+    .form-group label { display: block; font-size: .78rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .07em; margin-bottom: .4rem; }
+    .form-group input, .form-group select, .form-group textarea {
+      width: 100%; padding: .75rem 1rem; border: 1.5px solid var(--border); border-radius: 9px;
+      background: var(--light); font-family: 'Inter', sans-serif; font-size: .925rem; color: var(--text);
+      outline: none; transition: border-color .18s, box-shadow .18s;
+    }
+    .form-group textarea { resize: vertical; min-height: 90px; }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+      border-color: var(--orange); box-shadow: 0 0 0 3px rgba(232,71,10,.12); background: #1C1C1C;
+    }
+    .char-count { font-size: .72rem; color: var(--muted); text-align: right; margin-top: .25rem; }
+    .char-count.over { color: var(--danger, #ff3b30); }
+
+    /* Interest chips */
+    .interest-grid { display: flex; flex-wrap: wrap; gap: .5rem; }
+    .interest-chip {
+      padding: .45rem .9rem; border-radius: 999px; border: 1.5px solid var(--border);
+      background: var(--light); font-size: .82rem; font-weight: 600; cursor: pointer;
+      transition: all .18s; user-select: none;
+    }
+    .interest-chip:hover { border-color: var(--orange); color: var(--orange); }
+    .interest-chip.selected { background: rgba(232,71,10,.1); border-color: var(--orange); color: var(--orange); }
+    .interest-hint { font-size: .75rem; color: var(--muted); margin-top: .5rem; }
+
+    /* Suggested users */
+    .suggest-card { display: flex; align-items: center; gap: .85rem; background: var(--light); border: 1px solid var(--border); border-radius: 12px; padding: .85rem 1rem; }
+    .suggest-av { width: 44px; height: 44px; border-radius: 50%; background: var(--orange); display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; color: #fff; flex-shrink: 0; overflow: hidden; }
+    .suggest-av img { width: 100%; height: 100%; object-fit: cover; }
+    .suggest-info { flex: 1; min-width: 0; }
+    .suggest-name { font-weight: 700; font-size: .9rem; }
+    .suggest-meta { font-size: .78rem; color: var(--muted); margin-top: .1rem; }
+    .suggest-btn { background: var(--orange); border: none; border-radius: 8px; padding: .4rem .95rem; color: #fff; font-size: .8rem; font-weight: 700; cursor: pointer; font-family: 'Inter', sans-serif; white-space: nowrap; flex-shrink: 0; }
+    .suggest-btn.following { background: var(--light); border: 1px solid var(--border); color: var(--muted); }
+
+    /* Buttons */
+    .btn-row { display: flex; gap: .75rem; margin-top: 1.75rem; }
+    .btn-primary {
+      flex: 1; padding: .875rem; background: var(--orange); color: #fff; border: none;
+      border-radius: 9px; font-family: 'Inter', sans-serif; font-size: .95rem; font-weight: 700;
+      cursor: pointer; transition: background .18s; display: flex; align-items: center; justify-content: center; gap: .4rem;
+    }
+    .btn-primary:hover { background: var(--orange-dark); }
+    .btn-primary:disabled { opacity: .6; cursor: not-allowed; }
+    .btn-skip {
+      padding: .875rem 1.25rem; background: var(--light); color: var(--muted); border: 1.5px solid var(--border);
+      border-radius: 9px; font-family: 'Inter', sans-serif; font-size: .875rem; font-weight: 600;
+      cursor: pointer; transition: all .18s;
+    }
+    .btn-skip:hover { border-color: var(--orange); color: var(--orange); }
+    .spinner { width: 16px; height: 16px; border: 2px solid rgba(255,255,255,.4); border-top-color: #fff; border-radius: 50%; animation: spin .6s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Success state */
+    .success-view { text-align: center; padding: 1rem 0; }
+    .success-view .check { width: 72px; height: 72px; border-radius: 50%; background: rgba(52,199,89,.12); display: flex; align-items: center; justify-content: center; margin: 0 auto 1.25rem; }
+    .success-view .check svg { width: 36px; height: 36px; color: var(--success); }
+    .success-view h2 { font-size: 1.4rem; font-weight: 800; margin-bottom: .5rem; }
+    .success-view p { font-size: .875rem; color: var(--muted); line-height: 1.6; margin-bottom: 1.75rem; }
+
+    /* Responsive */
+    @media (max-width: 560px) {
+      .card { padding: 1.75rem 1.25rem; border-radius: 0; border: none; box-shadow: none; }
+      .page { padding: 1rem 0 3rem; }
+    }
+    input, textarea, select { color: #F0EDE8 !important; }
+    input:focus, textarea:focus, select:focus { color: #F0EDE8 !important; }
+    input:-webkit-autofill, input:-webkit-autofill:focus,
+    textarea:-webkit-autofill, select:-webkit-autofill {
+      -webkit-text-fill-color: #F0EDE8 !important;
+    }
+    input::placeholder, textarea::placeholder { color: #888; opacity: 1; }
+
+
+
+  </style>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#e8470a">
+</head>
+<body>
+
+  <nav>
+    <a href="../homepage/home_page.html" class="nav-brand">
+      <div class="nav-brand-icon">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect x="2.5" y="11" width="5" height="10" rx="2.5" fill="#fff"/><rect x="9.5" y="5" width="5" height="16" rx="2.5" fill="#fff"/><rect x="16.5" y="8" width="5" height="8" rx="2.5" fill="#fff"/></svg>
+      </div>
+      <span class="nav-brand-name">Encore</span>
+    </a>
+  </nav>
+
+  <!-- Progress bar -->
+  <div class="progress-wrap">
+    <div class="progress-labels">
+      <span class="progress-label active" id="lbl-1">About You</span>
+      <span class="progress-label" id="lbl-2">Location</span>
+      <span class="progress-label" id="lbl-3">Interests</span>
+      <span class="progress-label" id="lbl-4">Connect</span>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" id="progress-fill" style="width:33%"></div>
+    </div>
+  </div>
+
+  <div class="page">
+    <div class="card">
+
+      <!-- ── Step 1: Name + Bio ───────────────────────────────────────────── -->
+      <div id="step-1">
+        <div class="step-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+        </div>
+        <div class="step-num">Step 1 of 3</div>
+        <h1>Tell us about yourself</h1>
+        <p class="subtitle">This helps people in Atlanta find and connect with you at events.</p>
+
+        <div class="form-group">
+          <label for="first-name">First Name</label>
+          <input type="text" id="first-name" placeholder="Your first name" maxlength="50">
+        </div>
+        <div class="form-group">
+          <label for="last-name">Last Name</label>
+          <input type="text" id="last-name" placeholder="Your last name" maxlength="50">
+        </div>
+        <div class="form-group">
+          <label for="username">Username</label>
+          <input type="text" id="username" placeholder="@yourhandle" maxlength="30">
+        </div>
+        <div class="form-group">
+          <label for="bio">Bio <span style="font-weight:400;text-transform:none">(optional)</span></label>
+          <textarea id="bio" placeholder="What brings you to Encore? What kind of events are you into?" maxlength="200" oninput="updateCharCount(this, 'bio-count', 200)"></textarea>
+          <div class="char-count" id="bio-count">0 / 200</div>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn-primary" onclick="nextStep(2)">
+            Continue
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+          <button class="btn-skip" onclick="skipAll()">Skip setup</button>
+        </div>
+      </div>
+
+      <!-- ── Step 2: Location ────────────────────────────────────────────── -->
+      <div id="step-2" style="display:none">
+        <div class="step-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s-8-5.8-8-12a8 8 0 0 1 16 0c0 6.2-8 12-8 12z"/><circle cx="12" cy="10" r="3"/></svg>
+        </div>
+        <div class="step-num">Step 2 of 3</div>
+        <h1>Where are you in Atlanta?</h1>
+        <p class="subtitle">We'll show you events happening near your neighborhood.</p>
+
+        <div class="form-group">
+          <label for="location">Neighborhood / City</label>
+          <input type="text" id="location" placeholder="e.g. Midtown, Decatur, Buckhead…" maxlength="80">
+        </div>
+        <div class="form-group">
+          <label for="neighborhood">Neighborhood (select)</label>
+          <select id="neighborhood">
+            <option value="">Choose a neighborhood…</option>
+            <option>Midtown</option>
+            <option>Downtown</option>
+            <option>Buckhead</option>
+            <option>Little Five Points</option>
+            <option>Decatur</option>
+            <option>East Atlanta Village</option>
+            <option>Grant Park</option>
+            <option>Old Fourth Ward</option>
+            <option>Poncey-Highland</option>
+            <option>Sandy Springs</option>
+            <option>Marietta</option>
+            <option>Alpharetta</option>
+            <option>Other</option>
+          </select>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn-skip" onclick="nextStep(1)" style="flex:0">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg>
+            Back
+          </button>
+          <button class="btn-primary" onclick="nextStep(3)">
+            Continue
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+          <button class="btn-skip" onclick="nextStep(3)">Skip</button>
+        </div>
+      </div>
+
+      <!-- ── Step 3: Interests ───────────────────────────────────────────── -->
+      <div id="step-3" style="display:none">
+        <div class="step-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        </div>
+        <div class="step-num">Step 3 of 3</div>
+        <h1>What are you into?</h1>
+        <p class="subtitle">Select the types of events you love. We'll personalize your feed.</p>
+
+        <div class="interest-grid" id="interest-grid">
+          <!-- chips rendered by JS -->
+        </div>
+        <p class="interest-hint" id="interest-hint">Select at least 1 interest</p>
+
+        <div class="btn-row">
+          <button class="btn-skip" onclick="nextStep(2)" style="flex:0">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg>
+            Back
+          </button>
+          <button class="btn-primary" onclick="nextStep(4)">
+            Next
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+          <button class="btn-skip" onclick="skipAll()">Skip</button>
+        </div>
+      </div>
+
+      <!-- ── Step 4: Follow People ─────────────────────────────────────── -->
+      <div id="step-4" style="display:none">
+        <div class="step-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <div class="step-num">Step 4 of 4</div>
+        <h1>Find your people</h1>
+        <p class="subtitle">Connect with others in Atlanta's event community. You can always find more later.</p>
+        <div id="suggest-list" style="display:flex;flex-direction:column;gap:.75rem;margin-bottom:1.5rem;">
+          <div style="color:var(--muted);font-size:.85rem;">Loading suggestions…</div>
+        </div>
+        <div class="btn-row">
+          <button class="btn-skip" onclick="nextStep(3)" style="flex:0">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg>
+            Back
+          </button>
+          <button class="btn-primary" id="btn-finish" onclick="finish()">
+            <span id="finish-label">Finish Setup</span>
+            <div class="spinner" id="finish-spinner" style="display:none"></div>
+          </button>
+          <button class="btn-skip" onclick="skipAll()">Skip</button>
+        </div>
+      </div>
+
+      <!-- ── Success ─────────────────────────────────────────────────────── -->
+      <div id="step-success" style="display:none" class="success-view">
+        <div class="check">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <h2>You're all set!</h2>
+        <p>Your Encore profile is ready. Start exploring what's happening in Atlanta.</p>
+        <button class="btn-primary" style="width:100%;justify-content:center" onclick="window.location.href='../homepage/home_page.html'">
+          Explore Events
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <p style="margin-top:1rem;font-size:.82rem">
+          <a href="../profile/profile.html" style="color:var(--orange);font-weight:600;text-decoration:none">Go to my profile →</a>
+        </p>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    const SUPABASE_URL  = 'https://qgvoznhldglucpsaisfs.supabase.co';
+    const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFndm96bmhsZGdsdWNwc2Fpc2ZzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxOTU4MjUsImV4cCI6MjA5MTc3MTgyNX0.e-5X1Lh4Tg8cP-FL-3eorV5pAZCDe4CR6i2AFeDKHWQ';
+    const { createClient } = supabase;
+    const sb = createClient(SUPABASE_URL, SUPABASE_ANON);
+
+    const INTERESTS = [
+      'Music', 'Food & Drink', 'Arts & Culture', 'Sports', 'Comedy',
+      'Nightlife', 'Outdoor & Adventure', 'Film & Media', 'Tech & Innovation',
+      'Health & Wellness', 'Family', 'Business & Networking'
+    ];
+
+    let selectedInterests = new Set();
+    let currentStep = 1;
+
+    // ── Render interest chips ──────────────────────────────────────────────
+    function renderInterests() {
+      const grid = document.getElementById('interest-grid');
+      grid.innerHTML = '';
+      INTERESTS.forEach(tag => {
+        const chip = document.createElement('button');
+        chip.className = 'interest-chip' + (selectedInterests.has(tag) ? ' selected' : '');
+        chip.textContent = tag;
+        chip.type = 'button';
+        chip.addEventListener('click', () => {
+          if (selectedInterests.has(tag)) {
+            selectedInterests.delete(tag);
+            chip.classList.remove('selected');
+          } else {
+            selectedInterests.add(tag);
+            chip.classList.add('selected');
+          }
+          document.getElementById('interest-hint').textContent =
+            selectedInterests.size === 0 ? 'Select at least 1 interest' : `${selectedInterests.size} selected`;
+        });
+        grid.appendChild(chip);
+      });
+    }
+
+    // ── Progress ───────────────────────────────────────────────────────────
+    function showStep(n) {
+      [1, 2, 3, 4].forEach(i => {
+        document.getElementById('step-' + i).style.display = i === n ? 'block' : 'none';
+        const lbl = document.getElementById('lbl-' + i);
+        if (lbl) lbl.classList.toggle('active', i === n);
+      });
+      document.getElementById('progress-fill').style.width = (n / 4 * 100) + '%';
+      currentStep = n;
+      if (n === 4) loadSuggestedUsers();
+    }
+
+    window.nextStep = function(n) { showStep(n); };
+
+    // ── Char count ────────────────────────────────────────────────────────
+    window.updateCharCount = function(el, countId, max) {
+      const len = el.value.length;
+      const c = document.getElementById(countId);
+      c.textContent = `${len} / ${max}`;
+      c.classList.toggle('over', len > max);
+    };
+
+    // ── Skip all ──────────────────────────────────────────────────────────
+    window.skipAll = function() { window.location.href = '../homepage/home_page.html'; };
+
+    // ── Finish ────────────────────────────────────────────────────────────
+    window.finish = async function() {
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session) {
+        window.location.href = '../login/login.html';
+        return;
+      }
+
+      const btn = document.getElementById('btn-finish');
+      btn.disabled = true;
+      document.getElementById('finish-label').style.display = 'none';
+      document.getElementById('finish-spinner').style.display = 'block';
+
+      const firstName = document.getElementById('first-name').value.trim();
+      const lastName  = document.getElementById('last-name').value.trim();
+      const username  = document.getElementById('username').value.trim().replace(/^@/, '');
+      const bio       = document.getElementById('bio').value.trim();
+
+      // Location: prefer text input, fall back to select
+      const locText = document.getElementById('location').value.trim();
+      const locSel  = document.getElementById('neighborhood').value;
+      const location = locText || locSel || '';
+
+      const payload = {
+        id: session.user.id,
+      };
+      if (firstName)  payload.first_name = firstName;
+      if (lastName)   payload.last_name  = lastName;
+      if (username)   payload.user_name  = username;
+      if (bio)        payload.bio        = bio;
+      if (location)   payload.location   = location;
+      const { error } = await sb.from('accounts').upsert(payload, { onConflict: 'id' });
+
+      // Save interests via account_interests join table
+      if (!error && selectedInterests.size) {
+        // Look up interest IDs by name
+        const { data: interestRows } = await sb
+          .from('interests')
+          .select('id, name')
+          .in('name', [...selectedInterests]);
+
+        if (interestRows && interestRows.length) {
+          const rows = interestRows.map(r => ({ account_id: session.user.id, interest_id: r.id }));
+          // Remove old interests first, then insert selected
+          await sb.from('account_interests').delete().eq('account_id', session.user.id);
+          await sb.from('account_interests').upsert(rows, { onConflict: 'account_id,interest_id' });
+        }
+      }
+
+      btn.disabled = false;
+      document.getElementById('finish-label').style.display = '';
+      document.getElementById('finish-spinner').style.display = 'none';
+
+      if (error) {
+        // Non-fatal: DB might already have the row — proceed to success
+      }
+
+      // Hide all steps, show success
+      [1, 2, 3, 4].forEach(i => document.getElementById('step-' + i).style.display = 'none');
+      document.getElementById('step-success').style.display = 'block';
+      document.querySelector('.progress-wrap').style.display = 'none';
+    };
+
+    // ── Suggested users ───────────────────────────────────────────────────
+    const followedIds = new Set();
+    async function loadSuggestedUsers() {
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session) return;
+      const el = document.getElementById('suggest-list');
+      // Get users who share interests + have bio/avatar (active accounts)
+      const { data: users } = await sb.from('accounts')
+        .select('id,first_name,last_name,user_name,avatar_url,bio,location')
+        .neq('id', session.user.id)
+        .not('first_name', 'is', null)
+        .not('avatar_url', 'is', null)
+        .order('created_at', { ascending: false })
+        .limit(6);
+      if (!users || !users.length) {
+        el.innerHTML = '<div style="color:var(--muted);font-size:.85rem;">No suggestions yet — Atlanta is just getting started!</div>';
+        return;
+      }
+      el.innerHTML = users.map(u => {
+        const name = `${u.first_name||''} ${u.last_name||''}`.trim() || u.user_name || 'Encore Member';
+        const initials = name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+        const av = u.avatar_url ? `<img src="${u.avatar_url}" onerror="this.parentNode.textContent='${initials}'">` : initials;
+        const meta = [u.location, u.bio ? u.bio.slice(0,40)+(u.bio.length>40?'…':'') : null].filter(Boolean).join(' · ');
+        return `<div class="suggest-card" id="suggest-${u.id}">
+          <div class="suggest-av">${av}</div>
+          <div class="suggest-info">
+            <div class="suggest-name">${name}</div>
+            <div class="suggest-meta">${meta || 'Atlanta, GA'}</div>
+          </div>
+          <button class="suggest-btn" id="follow-btn-${u.id}" onclick="toggleFollow('${u.id}','${session.user.id}')">Follow</button>
+        </div>`;
+      }).join('');
+    }
+
+    window.toggleFollow = async function(targetId, myId) {
+      const btn = document.getElementById('follow-btn-' + targetId);
+      if (followedIds.has(targetId)) {
+        await sb.from('connections').delete().eq('requester_id', myId).eq('addressee_id', targetId);
+        followedIds.delete(targetId);
+        btn.textContent = 'Follow';
+        btn.className = 'suggest-btn';
+      } else {
+        await sb.from('connections').upsert({ requester_id: myId, addressee_id: targetId, status: 'pending' }, { onConflict: 'requester_id,addressee_id' });
+        followedIds.add(targetId);
+        btn.textContent = 'Requested ✓';
+        btn.className = 'suggest-btn following';
+      }
+    };
+
+    // ── Boot ──────────────────────────────────────────────────────────────
+    (async () => {
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session) {
+        window.location.href = '../login/login.html';
+        return;
+      }
+
+      // Pre-fill if accounts row already exists
+      const [{ data: profile }, { data: existingInterests }] = await Promise.all([
+        sb.from('accounts').select('first_name,last_name,user_name,bio,location').eq('id', session.user.id).single(),
+        sb.from('account_interests').select('interests(name)').eq('account_id', session.user.id)
+      ]);
+
+      if (profile) {
+        // If user already has a first_name set, they've completed onboarding
+        if (profile.first_name && profile.last_name) {
+          window.location.href = '../profile/profile.html';
+          return;
+        }
+        if (profile.first_name) document.getElementById('first-name').value = profile.first_name;
+        if (profile.last_name)  document.getElementById('last-name').value  = profile.last_name;
+        if (profile.user_name)  document.getElementById('username').value   = profile.user_name;
+        if (profile.bio)        document.getElementById('bio').value        = profile.bio;
+        if (profile.location)   document.getElementById('location').value   = profile.location;
+      }
+      if (existingInterests) {
+        existingInterests.forEach(r => { if (r.interests) selectedInterests.add(r.interests.name); });
+      }
+
+      renderInterests();
+      showStep(1);
+    })();
+  </script>
+<script>
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');
+</script>
+</body>
+</html>

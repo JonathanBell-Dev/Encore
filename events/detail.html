@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta property="og:site_name" content="Encore ATL">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Event — Encore ATL" id="og-title">
+  <meta property="og:description" content="Discover ATL's best events on Encore." id="og-desc">
+  <meta property="og:url" content="" id="og-url">
+  <meta property="og:image" content="https://qgvoznhldglucpsaisfs.supabase.co/storage/v1/object/public/encore-assets/og-default.jpg" id="og-img">
+  <meta name="description" content="Discover ATL's best events on Encore." id="meta-desc">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Event — Encore ATL" id="tw-title">
+  <meta name="twitter:description" content="Discover ATL's best events on Encore." id="tw-desc">
+  <meta name="twitter:image" content="https://qgvoznhldglucpsaisfs.supabase.co/storage/v1/object/public/encore-assets/og-default.jpg" id="tw-img">
+  <title>Event Detail — Encore</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/toast.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="../src/utils/notifications.js"></script>
+  <script src="../src/utils/report.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --orange: #e8470a; --orange-dark: #c43a06;
+      --bg: #0C0C0C; --card: #141414; --border: #262626;
+      --text: #F0EDE8; --muted: #9A9590; --light: #1C1C1C;
+      --success: #34c759; --danger: #ff3b30;
+    }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; -webkit-font-smoothing: antialiased; }
+
+    /* NAV */
+    nav { display: flex; align-items: center; padding: 0 2.5rem; height: 60px; background: rgba(12,12,12,0.9); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 10; backdrop-filter: blur(12px); }
+    .nav-brand { display: flex; align-items: center; gap: .6rem; text-decoration: none; }
+    .nav-brand-icon { width: 32px; height: 32px; background: var(--orange); border-radius: 7px; display: flex; align-items: center; justify-content: center; }
+    .nav-brand-icon svg { width: 16px; height: 16px; }
+    .nav-brand-name { font-size: 1rem; font-weight: 700; color: var(--text); }
+    .nav-right { margin-left: auto; display: flex; align-items: center; gap: .75rem; }
+    .nav-back { display: flex; align-items: center; gap: .4rem; font-size: .85rem; font-weight: 600; color: var(--muted); text-decoration: none; }
+    .nav-back:hover { color: var(--text); }
+    .nav-back svg { width: 16px; height: 16px; }
+    .nav-auth { display: flex; align-items: center; gap: .6rem; }
+    .nav-auth a { display: flex; align-items: center; gap: .4rem; text-decoration: none; color: var(--text); font-size: .875rem; font-weight: 600; }
+    .nav-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--orange); display: flex; align-items: center; justify-content: center; font-size: .7rem; font-weight: 700; color: #fff; flex-shrink: 0; }
+    .nav-logout { background: none; border: 1px solid var(--border); border-radius: 8px; padding: .3rem .8rem; font-size: .8rem; font-weight: 600; cursor: pointer; color: var(--muted); font-family: 'Inter', sans-serif; }
+    .nav-logout:hover { border-color: #aaa; color: var(--text); }
+
+    /* HERO IMAGE */
+    .event-hero {
+      width: 100%; height: 340px; background: linear-gradient(135deg, #e8470a22, #e8470a55);
+      display: flex; align-items: flex-end; overflow: hidden; position: relative;
+    }
+    .event-hero img { width: 100%; height: 100%; object-fit: cover; }
+    .event-hero-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,.55) 0%, transparent 60%);
+    }
+    .event-hero-tags {
+      position: absolute; top: 1rem; left: 1.5rem;
+      display: flex; gap: .5rem; flex-wrap: wrap;
+    }
+    .event-tag {
+      background: rgba(0,0,0,.5); color: #fff; font-size: .72rem;
+      font-weight: 700; padding: .2rem .6rem; border-radius: 5px;
+      backdrop-filter: blur(4px);
+    }
+
+    /* CONTENT */
+    .event-content { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem; display: grid; grid-template-columns: 1fr 300px; gap: 2rem; }
+    @media (max-width: 720px) { .event-content { grid-template-columns: 1fr; } }
+
+    /* Main column */
+    .event-main h1 { font-size: 1.75rem; font-weight: 800; letter-spacing: -.03em; margin-bottom: 1rem; }
+
+    .meta-row { display: flex; align-items: center; gap: .6rem; font-size: .875rem; color: var(--muted); margin-bottom: .6rem; }
+    .meta-row svg { width: 16px; height: 16px; flex-shrink: 0; color: var(--orange); }
+    .meta-row strong { color: var(--text); }
+
+    .description { margin-top: 1.5rem; }
+    .description h2 { font-size: 1rem; font-weight: 700; margin-bottom: .6rem; }
+    .description p { font-size: .9rem; line-height: 1.75; color: #333; white-space: pre-wrap; }
+
+    .attendee-section { margin-top: 1.75rem; }
+    .attendee-section h2 { font-size: 1rem; font-weight: 700; margin-bottom: .75rem; }
+    .attendee-list { display: flex; flex-wrap: wrap; gap: .5rem; }
+    .attendee-chip {
+      display: flex; align-items: center; gap: .4rem;
+      background: var(--card); border: 1px solid var(--border); border-radius: 999px;
+      padding: .3rem .75rem; font-size: .8rem; font-weight: 500;
+    }
+    .attendee-chip .chip-av {
+      width: 22px; height: 22px; border-radius: 50%; background: var(--orange);
+      display: flex; align-items: center; justify-content: center;
+      font-size: .65rem; font-weight: 700; color: #fff;
+    }
+    .attendee-more { font-size: .8rem; color: var(--muted); font-weight: 500; padding: .3rem 0; }
+
+    /* Sidebar */
+    .event-sidebar { display: flex; flex-direction: column; gap: 1rem; }
+
+    .sidebar-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 1.25rem; }
+    .price-tag { font-size: 2rem; font-weight: 800; letter-spacing: -.04em; color: var(--orange); margin-bottom: .25rem; }
+    .price-sub { font-size: .78rem; color: var(--muted); margin-bottom: 1rem; }
+
+    .btn-going, .btn-interested {
+      width: 100%; padding: .85rem; border: none; border-radius: 9px;
+      font-family: 'Inter', sans-serif; font-size: .9rem; font-weight: 700;
+      cursor: pointer; display: flex; align-items: center; justify-content: center; gap: .5rem;
+      transition: background .18s, opacity .18s; margin-bottom: .6rem;
+    }
+    .btn-going { background: var(--orange); color: #fff; }
+    .btn-going:hover { background: var(--orange-dark); }
+    .btn-going.active { background: var(--success); }
+    .btn-interested { background: var(--light); color: var(--text); border: 1px solid var(--border); }
+    .btn-interested:hover { border-color: var(--orange); color: var(--orange); }
+    .btn-interested.active { background: rgba(232,71,10,.08); border-color: var(--orange); color: var(--orange); }
+    .btn-going:disabled, .btn-interested:disabled, .btn-favorite:disabled { opacity: .6; cursor: not-allowed; }
+
+    .btn-favorite {
+      width: 100%; padding: .85rem; border: none; border-radius: 9px;
+      font-family: 'Inter', sans-serif; font-size: .9rem; font-weight: 700;
+      cursor: pointer; display: flex; align-items: center; justify-content: center; gap: .5rem;
+      transition: background .18s, opacity .18s; margin-bottom: .6rem;
+      background: var(--light); color: var(--text); border: 1px solid var(--border);
+    }
+    .btn-favorite:hover { border-color: var(--orange); color: var(--orange); }
+    .btn-favorite.active { background: rgba(232,71,10,.08); border-color: var(--orange); color: var(--orange); }
+
+    .btn-share {
+      width: 100%; padding: .65rem; border-radius: 9px;
+      font-family: 'Inter', sans-serif; font-size: .82rem; font-weight: 600;
+      cursor: pointer; display: flex; align-items: center; justify-content: center; gap: .5rem;
+      background: transparent; border: 1px solid var(--border); color: var(--muted);
+      transition: border-color .18s, color .18s;
+    }
+    .btn-share:hover { border-color: var(--text); color: var(--text); }
+    .share-toast {
+      position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%);
+      background: #1C1C1C; color: #F0EDE8; border: 1px solid #3a3a3a;
+      padding: .6rem 1.25rem; border-radius: 999px;
+      font-size: .85rem; font-weight: 600; font-family: 'Inter', sans-serif;
+      opacity: 0; transition: opacity .25s; pointer-events: none; z-index: 999;
+    }
+    .share-toast.show { opacity: 1; }
+
+    .organizer-row { display: flex; align-items: center; gap: .75rem; border-radius: 10px; transition: background .15s; }
+    .organizer-row.clickable { cursor: pointer; }
+    .organizer-row.clickable:hover { background: var(--light); margin: -.5rem; padding: .5rem; }
+    .organizer-av { width: 40px; height: 40px; border-radius: 50%; background: var(--orange); display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; color: #fff; }
+    .organizer-name { font-size: .875rem; font-weight: 600; }
+    .organizer-label { font-size: .72rem; color: var(--muted); }
+    .attendee-chip { cursor: pointer; text-decoration: none; color: var(--text); transition: border-color .15s, background .15s; }
+    .attendee-chip:hover { border-color: var(--orange); background: rgba(232,71,10,.06); }
+
+    /* Skeleton */
+    .skeleton { background: #e8e8ec; border-radius: 8px; animation: pulse 1.4s ease-in-out infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.5} }
+
+    /* Error/not found */
+    .not-found { text-align: center; padding: 4rem 2rem; }
+    .not-found h2 { font-size: 1.2rem; font-weight: 700; margin-bottom: .5rem; }
+    .not-found p { color: var(--muted); margin-bottom: 1.5rem; }
+    .btn-back { display: inline-block; padding: .7rem 1.5rem; background: var(--orange); color: #fff; border-radius: 9px; text-decoration: none; font-weight: 700; font-size: .875rem; }
+
+    /* Comments */
+    .event-comments { margin-top: 2rem; }
+    .event-comments h2 { font-size: 1rem; font-weight: 700; margin-bottom: 1rem; }
+    .event-comment-list { display: flex; flex-direction: column; gap: .75rem; margin-bottom: 1rem; }
+    .ev-comment { font-size: .875rem; line-height: 1.55; color: #444; }
+    .ev-comment-author { font-weight: 700; color: var(--text); margin-right: .4rem; }
+    .ev-comment-author:hover { color: var(--orange); }
+    .ev-comment-time { font-size: .72rem; color: var(--muted); margin-left: .5rem; }
+    .ev-comment-input-row { display: flex; gap: .6rem; }
+    .ev-comment-input {
+      flex: 1; border: 1.5px solid var(--border); border-radius: 20px;
+      padding: .6rem 1rem; font-size: .875rem; font-family: 'Inter', sans-serif;
+      color: var(--text); outline: none; background: var(--light);
+      transition: border-color .18s;
+    }
+    .ev-comment-input:focus { border-color: var(--orange); background: #1C1C1C; }
+    .ev-comment-submit {
+      background: var(--orange); color: #fff; border: none;
+      border-radius: 20px; padding: .6rem 1.1rem;
+      font-size: .875rem; font-weight: 700; cursor: pointer;
+      font-family: 'Inter', sans-serif; transition: opacity .18s; white-space: nowrap;
+    }
+    .ev-comment-submit:hover { opacity: .88; }
+    .ev-comment-submit:disabled { opacity: .45; cursor: default; }
+    .ev-comments-empty { font-size: .85rem; color: var(--muted); }
+
+    /* Organizer controls */
+    .btn-manage {
+      width: 100%; padding: .72rem; border-radius: 8px;
+      font-family: 'Inter', sans-serif; font-size: .85rem; font-weight: 700;
+      cursor: pointer; display: flex; align-items: center; justify-content: center; gap: .45rem;
+      transition: background .18s, border-color .18s; margin-bottom: .5rem;
+    }
+    .btn-manage-edit  { background: var(--light); color: var(--text); border: 1px solid var(--border); }
+    .btn-manage-edit:hover  { border-color: var(--orange); color: var(--orange); background: rgba(232,71,10,.05); }
+    .btn-manage-delete { background: #fff0f0; color: var(--danger); border: 1px solid #ffd0d0; }
+    .btn-manage-delete:hover { background: var(--danger); color: #fff; border-color: var(--danger); }
+    .btn-manage:disabled { opacity:.6; cursor:not-allowed; }
+    input, textarea, select { color: #F0EDE8 !important; }
+    input:focus, textarea:focus, select:focus { color: #F0EDE8 !important; }
+    input:-webkit-autofill, input:-webkit-autofill:focus,
+    textarea:-webkit-autofill, select:-webkit-autofill {
+      -webkit-text-fill-color: #F0EDE8 !important;
+    }
+    input::placeholder, textarea::placeholder { color: #888; opacity: 1; }
+
+
+
+  </style>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#e8470a">
+</head>
+<body>
+
+  <nav>
+    <a href="../homepage/home_page.html" class="nav-brand">
+      <div class="nav-brand-icon">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect x="2.5" y="11" width="5" height="10" rx="2.5" fill="#fff"/><rect x="9.5" y="5" width="5" height="16" rx="2.5" fill="#fff"/><rect x="16.5" y="8" width="5" height="8" rx="2.5" fill="#fff"/></svg>
+      </div>
+      <span class="nav-brand-name">Encore</span>
+    </a>
+    <div class="nav-right">
+      <a href="javascript:history.back()" class="nav-back">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        Back
+      </a>
+      <div class="nav-auth" id="nav-auth-actions">
+        <a href="../login/login.html" style="font-size:.8rem;font-weight:600;color:var(--muted);text-decoration:none;border:1px solid var(--border);border-radius:8px;padding:.3rem .8rem;">Log in</a>
+        <a href="../login/login.html" style="font-size:.8rem;font-weight:700;color:#fff;text-decoration:none;border-radius:8px;padding:.35rem .9rem;background:var(--orange);">Join Free</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <div class="event-hero" id="event-hero">
+    <div class="event-hero-overlay"></div>
+    <div class="event-hero-tags" id="hero-tags"></div>
+  </div>
+
+  <!-- Content skeleton shown until loaded -->
+  <div class="event-content" id="event-content" style="display:none">
+
+    <!-- Main -->
+    <div class="event-main">
+      <h1 id="ev-title">…</h1>
+
+      <div class="meta-row">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/></svg>
+        <span id="ev-date">–</span>
+      </div>
+      <div class="meta-row">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s-8-5.8-8-12a8 8 0 0 1 16 0c0 6.2-8 12-8 12z"/><circle cx="12" cy="10" r="3"/></svg>
+        <span id="ev-venue">–</span>
+      </div>
+      <div class="meta-row" id="ev-end-row" style="display:none">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        <span id="ev-end">–</span>
+      </div>
+      <div class="meta-row" id="ev-attendees-row">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        <span id="ev-attendee-count">–</span> attending
+      </div>
+
+      <div class="description" id="ev-description-wrap" style="display:none">
+        <h2>About this event</h2>
+        <p id="ev-description"></p>
+      </div>
+
+      <div class="attendee-section" id="attendee-section" style="display:none">
+        <h2>Who's going</h2>
+        <div class="attendee-list" id="attendee-list"></div>
+        <p class="attendee-more" id="attendee-more"></p>
+      </div>
+
+      <div class="event-comments">
+        <h2>Comments</h2>
+        <div class="event-comment-list" id="ev-comment-list">
+          <p class="ev-comments-empty">Loading comments…</p>
+        </div>
+        <div class="ev-comment-input-row" id="ev-comment-input-row">
+          <input type="text" class="ev-comment-input" id="ev-comment-input" placeholder="Add a comment…" maxlength="300">
+          <button class="ev-comment-submit" id="ev-comment-submit" onclick="submitEventComment()">Post</button>
+        </div>
+        <p id="ev-comment-login-prompt" style="display:none;font-size:.82rem;color:var(--muted);">
+          <a href="../login/login.html" style="color:var(--orange);font-weight:600;">Sign in</a> to leave a comment.
+        </p>
+      </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="event-sidebar">
+
+      <!-- Price + Actions -->
+      <div class="sidebar-card">
+        <div class="price-tag" id="ev-price">Free</div>
+        <div class="price-sub" id="ev-price-sub">per person</div>
+
+        <button class="btn-going" id="btn-going" onclick="handleGoing()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><polyline points="20 6 9 17 4 12"/></svg>
+          <span id="going-label">I'm Going</span>
+        </button>
+        <button class="btn-interested" id="btn-interested" onclick="handleInterested()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          <span id="interested-label">Interested</span>
+        </button>
+        <button class="btn-favorite" id="btn-favorite" onclick="handleFavorite()">
+          <span id="fav-star">☆</span>
+          <span id="fav-label">Save Event</span>
+        </button>
+        <button class="btn-share" onclick="handleShare()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+          Share Event
+        </button>
+        <a id="btn-chat" href="#" style="display:none;text-decoration:none" onclick="">
+          <button class="btn-share" style="width:100%">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            Event Chat
+          </button>
+        </a>
+        <button class="btn-share" id="btn-report-event" style="display:none" onclick="window.openReport && window.openReport('event', currentEventId)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
+          Report Event
+        </button>
+        <!-- Add to Calendar -->
+        <div id="cal-buttons" style="display:none;margin-top:.5rem">
+          <div style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:.4rem">Add to Calendar</div>
+          <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+            <button class="btn-share" onclick="addToGoogleCal()" style="flex:1">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              Google
+            </button>
+            <button class="btn-share" onclick="downloadIcal()" style="flex:1">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              iCal
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="share-toast" id="share-toast">Link copied!</div>
+
+      <!-- Organizer -->
+      <div class="sidebar-card" id="organizer-card" style="display:none">
+        <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:.75rem">Organizer</div>
+        <div class="organizer-row" id="org-row">
+          <div class="organizer-av" id="org-av">?</div>
+          <div>
+            <div class="organizer-name" id="org-name">–</div>
+            <div class="organizer-label">Event host</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Organizer controls (only visible to the event organizer) -->
+      <div class="sidebar-card" id="organizer-controls" style="display:none">
+        <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:.75rem">Manage Event</div>
+        <a href="analytics.html" id="btn-analytics" style="display:block;margin-bottom:.5rem;text-decoration:none"><button class="btn-manage" style="width:100%;background:rgba(232,71,10,.08);border-color:rgba(232,71,10,.3);color:var(--orange)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><rect x="2.5" y="11" width="5" height="10" rx="2.5"/><rect x="9.5" y="5" width="5" height="16" rx="2.5"/><rect x="16.5" y="8" width="5" height="8" rx="2.5"/></svg>
+          View Analytics
+        </button></a>
+        <button class="btn-manage" id="btn-show-qr" onclick="showQrModal()" style="margin-bottom:.5rem;background:rgba(232,71,10,.08);border-color:rgba(232,71,10,.3);color:var(--orange)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><path d="M14 14h3v3h-3zM17 17h3v3h-3zM14 20h3"/></svg>
+          Show Check-in QR
+        </button>
+        <button class="btn-manage btn-manage-delete" id="btn-delete-event" onclick="handleDeleteEvent()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
+          Delete Event
+        </button>
+      </div>
+
+      <!-- Check-in button for attendees (going status) -->
+      <div class="sidebar-card" id="checkin-card" style="display:none">
+        <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:.75rem">Check In</div>
+        <button class="btn-going" id="btn-checkin" onclick="handleCheckin()" style="margin-bottom:0">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><polyline points="20 6 9 17 4 12"/></svg>
+          <span id="checkin-label">Check In</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Not found state -->
+  <div class="not-found" id="not-found" style="display:none">
+    <h2>Event not found</h2>
+    <p>This event may have been removed or the link is invalid.</p>
+    <a href="../homepage/home_page.html" class="btn-back">Browse Events</a>
+  </div>
+
+  <script>
+    const SUPABASE_URL  = 'https://qgvoznhldglucpsaisfs.supabase.co';
+    const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFndm96bmhsZGdsdWNwc2Fpc2ZzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxOTU4MjUsImV4cCI6MjA5MTc3MTgyNX0.e-5X1Lh4Tg8cP-FL-3eorV5pAZCDe4CR6i2AFeDKHWQ';
+    const { createClient } = supabase;
+    const sb = createClient(SUPABASE_URL, SUPABASE_ANON);
+
+    let currentUser = null;
+    let currentEventId = null;
+    let currentEvent = null;
+    let attendanceStatus = null; // null | 'going' | 'interested'
+    let isFavorited = false;
+
+    function setText(id, text) { const el = document.getElementById(id); if (el) el.textContent = text; }
+
+    function updateAuthNav(profile) {
+      const container = document.getElementById('nav-auth-actions');
+      if (!container) return;
+      const name = profile
+        ? ([profile.first_name, profile.last_name].filter(Boolean).join(' ') || profile.user_name || 'Account')
+        : null;
+      if (!name) return;
+      const initials = name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) || '?';
+      container.innerHTML = '';
+      const avatarLink = document.createElement('a');
+      avatarLink.href = '../profile/profile.html';
+      const av = document.createElement('div');
+      av.className = 'nav-avatar';
+      av.textContent = initials;
+      avatarLink.appendChild(av);
+      avatarLink.appendChild(document.createTextNode(name.split(' ')[0]));
+      const logoutBtn = document.createElement('button');
+      logoutBtn.className = 'nav-logout';
+      logoutBtn.textContent = 'Log out';
+      logoutBtn.addEventListener('click', async () => {
+        await sb.auth.signOut();
+        window.location.href = '../login/login.html';
+      });
+      container.appendChild(avatarLink);
+      container.appendChild(logoutBtn);
+    }
+
+    function formatDateTime(dateStr) {
+      if (!dateStr) return '';
+      const d = new Date(dateStr);
+      return d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' }) +
+        ' at ' + d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+    }
+
+    function showToast(msg, type = 'success') {
+      const t = document.createElement('div');
+      t.className = 'toast toast-' + type;
+      t.textContent = msg;
+      document.body.appendChild(t);
+      requestAnimationFrame(() => t.classList.add('toast-visible'));
+      setTimeout(() => { t.classList.remove('toast-visible'); setTimeout(() => t.remove(), 300); }, 3000);
+    }
+
+    // ── Load attendees ────────────────────────────────────────────────────────
+    async function loadAttendees(eventId) {
+      const { data, count } = await sb
+        .from('event_attendance')
+        .select('account_id, accounts!event_attendance_account_id_fkey(id,first_name,last_name,user_name,avatar_url)', { count: 'exact' })
+        .eq('event_id', eventId)
+        .limit(8);
+
+      setText('ev-attendee-count', count ?? 0);
+      if (!data || !data.length) return;
+
+      document.getElementById('attendee-section').style.display = 'block';
+      const list = document.getElementById('attendee-list');
+      list.innerHTML = '';
+
+      data.slice(0, 6).forEach(a => {
+        const acc = a.accounts;
+        if (!acc) return;
+        const name = [acc.first_name, acc.last_name].filter(Boolean).join(' ') || acc.user_name || 'Member';
+        const initials = name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+
+        const chip = document.createElement('a');
+        chip.className = 'attendee-chip';
+        chip.href = `../profile/connection-profile.html?id=${acc.id}`;
+
+        const av = document.createElement('div');
+        av.className = 'chip-av';
+        if (acc.avatar_url) {
+          av.style.backgroundImage = `url(${acc.avatar_url})`;
+          av.style.backgroundSize = 'cover';
+        } else {
+          av.textContent = initials;
+        }
+
+        const nameSpan = document.createElement('span');
+        nameSpan.textContent = name.split(' ')[0];
+
+        chip.appendChild(av);
+        chip.appendChild(nameSpan);
+        list.appendChild(chip);
+      });
+
+      if (count > 6) {
+        setText('attendee-more', `+${count - 6} more going`);
+      }
+    }
+
+    // ── Load current user's attendance ────────────────────────────────────────
+    async function loadMyAttendance(eventId, userId) {
+      const { data } = await sb
+        .from('event_attendance')
+        .select('status')
+        .eq('event_id', eventId)
+        .eq('account_id', userId)
+        .maybeSingle();
+
+      attendanceStatus = data?.status || null;
+      updateAttendanceUI();
+    }
+
+    function updateAttendanceUI() {
+      const goingBtn = document.getElementById('btn-going');
+      const intBtn = document.getElementById('btn-interested');
+      goingBtn.classList.toggle('active', attendanceStatus === 'going');
+      intBtn.classList.toggle('active', attendanceStatus === 'interested');
+      setText('going-label', attendanceStatus === 'going' ? 'Going!' : "I'm Going");
+      setText('interested-label', attendanceStatus === 'interested' ? 'Interested!' : 'Interested');
+      // Show check-in card only if user is "going" and event is today or past
+      const checkinCard = document.getElementById('checkin-card');
+      if (checkinCard && attendanceStatus === 'going' && currentUser) {
+        checkinCard.style.display = 'block';
+      } else if (checkinCard) {
+        checkinCard.style.display = 'none';
+      }
+    }
+
+    // ── RSVP handlers ─────────────────────────────────────────────────────────
+    async function handleGoing() {
+      if (!currentUser) { showToast('Sign in to RSVP', 'info'); return; }
+      const btn = document.getElementById('btn-going');
+      btn.disabled = true;
+      const newStatus = attendanceStatus === 'going' ? null : 'going';
+      await upsertAttendance(newStatus);
+      btn.disabled = false;
+    }
+
+    async function handleInterested() {
+      if (!currentUser) { showToast('Sign in to mark interest', 'info'); return; }
+      const btn = document.getElementById('btn-interested');
+      btn.disabled = true;
+      const newStatus = attendanceStatus === 'interested' ? null : 'interested';
+      await upsertAttendance(newStatus);
+      btn.disabled = false;
+    }
+
+    async function upsertAttendance(status) {
+      if (!status) {
+        // Remove attendance
+        await sb.from('event_attendance').delete()
+          .eq('event_id', currentEventId).eq('account_id', currentUser.id);
+        attendanceStatus = null;
+        showToast('RSVP removed');
+      } else {
+        await sb.from('event_attendance').upsert({
+          event_id: currentEventId,
+          account_id: currentUser.id,
+          status,
+        }, { onConflict: 'event_id,account_id' });
+        attendanceStatus = status;
+        showToast(status === 'going' ? "You're going! Check your email for confirmation." : "Marked as interested!");
+        if (status === 'going') sendRsvpEmail();
+      }
+      updateAttendanceUI();
+      // Refresh attendee count
+      const { count } = await sb.from('event_attendance').select('*', { count: 'exact', head: true }).eq('event_id', currentEventId);
+      setText('ev-attendee-count', count ?? 0);
+    }
+
+    // ── RSVP email ────────────────────────────────────────────────────────────
+    async function sendRsvpEmail() {
+      try {
+        const evTitle = document.getElementById('ev-title')?.textContent || 'Event';
+        const evDate  = document.getElementById('ev-date')?.textContent || '';
+        const evVenue = document.getElementById('ev-venue')?.textContent || 'Atlanta, GA';
+
+        // Fetch attendee + organizer info in parallel
+        const [{ data: acct }, { data: orgAcct }] = await Promise.all([
+          sb.from('accounts').select('first_name,last_name').eq('id', currentUser.id).maybeSingle(),
+          currentEvent?.organizer_id
+            ? sb.from('accounts').select('first_name,last_name,email:id').eq('id', currentEvent.organizer_id).maybeSingle()
+            : Promise.resolve({ data: null }),
+        ]);
+
+        const attendeeName = acct ? `${acct.first_name||''} ${acct.last_name||''}`.trim() || 'Someone' : 'Someone';
+
+        // Confirmation email to the attendee
+        fetch(`${SUPABASE_URL}/functions/v1/rsvp-email`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SUPABASE_ANON}` },
+          body: JSON.stringify({ to: currentUser.email, name: acct?.first_name || 'there', eventTitle: evTitle, eventDate: evDate, eventVenue: evVenue, eventId: currentEventId }),
+        }).catch(() => {});
+
+        // Notify organizer (only if different person)
+        if (currentEvent?.organizer_id && currentEvent.organizer_id !== currentUser.id) {
+          const { count } = await sb.from('event_attendance').select('*', { count: 'exact', head: true }).eq('event_id', currentEventId).eq('status', 'going');
+          // Get organizer email via Supabase auth admin — use notify-email function with organizer_id
+          // We'll pass organizer_id and let the function look up their email via service role
+          fetch(`${SUPABASE_URL}/functions/v1/notify-email`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SUPABASE_ANON}` },
+            body: JSON.stringify({
+              type: 'new_rsvp',
+              organizerId: currentEvent.organizer_id,
+              attendeeName,
+              eventTitle: evTitle,
+              eventId: currentEventId,
+              count,
+            }),
+          }).catch(() => {});
+        }
+      } catch (_) { /* silently fail — email is non-critical */ }
+    }
+
+    // ── Favorite ──────────────────────────────────────────────────────────────
+    async function loadMyFavorite(eventId, userId) {
+      const { data } = await sb.from('event_favorites')
+        .select('event_id').eq('event_id', eventId).eq('account_id', userId).maybeSingle();
+      isFavorited = !!data;
+      updateFavoriteUI();
+    }
+
+    function updateFavoriteUI() {
+      document.getElementById('fav-star').textContent = isFavorited ? '★' : '☆';
+      const lbl = document.getElementById('fav-label');
+      if (lbl) lbl.textContent = isFavorited ? 'Saved!' : 'Save Event';
+      document.getElementById('btn-favorite').classList.toggle('active', isFavorited);
+    }
+
+    async function handleFavorite() {
+      if (!currentUser) { showToast('Sign in to save events', 'info'); return; }
+      const btn = document.getElementById('btn-favorite');
+      btn.disabled = true;
+      if (isFavorited) {
+        await sb.from('event_favorites').delete()
+          .eq('event_id', currentEventId).eq('account_id', currentUser.id);
+        isFavorited = false;
+        showToast('Removed from saved events');
+      } else {
+        await sb.from('event_favorites').upsert(
+          { event_id: currentEventId, account_id: currentUser.id },
+          { onConflict: 'event_id,account_id' }
+        );
+        isFavorited = true;
+        showToast('Event saved!');
+      }
+      updateFavoriteUI();
+      btn.disabled = false;
+    }
+
+    // ── Load event ────────────────────────────────────────────────────────────
+    async function loadEvent(id) {
+      const [evResult, { data: { session } }] = await Promise.all([
+        sb.from('events')
+          .select('*, accounts!events_organizer_id_fkey(id,first_name,last_name,user_name,avatar_url)')
+          .eq('id', id)
+          .maybeSingle(),
+        sb.auth.getSession()
+      ]);
+
+      const ev = evResult.data;
+      if (!ev) {
+        document.getElementById('not-found').style.display = 'block';
+        return;
+      }
+      currentEvent = ev;
+
+      currentUser = session?.user || null;
+
+      // Auth nav
+      if (currentUser) {
+        sb.from('accounts').select('first_name,last_name,user_name').eq('id', currentUser.id).maybeSingle()
+          .then(({ data }) => { if (data) updateAuthNav(data); });
+        mountNotifBell(sb, currentUser.id);
+        if (window.mountReportBlock) mountReportBlock(sb, currentUser.id);
+        // Show report button only for non-organizers
+        if (ev.organizer_id !== currentUser.id) {
+          const rb = document.getElementById('btn-report-event');
+          if (rb) rb.style.display = '';
+        }
+      }
+
+      // Hero image
+      const hero = document.getElementById('event-hero');
+      if (ev.cover_image_url) {
+        const img = document.createElement('img');
+        img.alt = ev.title || 'Event image';
+        img.src = ev.cover_image_url;
+        hero.insertBefore(img, hero.firstChild);
+      }
+
+      // Tags
+      const tagsEl = document.getElementById('hero-tags');
+      (ev.vibe_tags || []).forEach(tag => {
+        const sp = document.createElement('span');
+        sp.className = 'event-tag';
+        sp.textContent = tag;
+        tagsEl.appendChild(sp);
+      });
+
+      // Title & meta
+      const _ogTitle = (ev.title || 'Event') + ' — Encore ATL';
+      const _ogDesc = ev.description ? ev.description.slice(0, 160) : `${ev.category || 'Event'} in Atlanta — ${ev.venue_name || 'ATL'}`;
+      const _ogImg = ev.cover_image_url || 'https://qgvoznhldglucpsaisfs.supabase.co/storage/v1/object/public/encore-assets/og-default.jpg';
+      const _setMeta = (id, val) => { const el = document.getElementById(id); if (el) el.setAttribute('content', val); };
+      document.title = _ogTitle;
+      _setMeta('og-title', _ogTitle); _setMeta('og-desc', _ogDesc);
+      _setMeta('og-url', window.location.href); _setMeta('og-img', _ogImg);
+      _setMeta('meta-desc', _ogDesc); _setMeta('tw-title', _ogTitle);
+      _setMeta('tw-desc', _ogDesc); _setMeta('tw-img', _ogImg);
+      setText('ev-title', ev.title || 'Untitled Event');
+      setText('ev-date', formatDateTime(ev.starts_at));
+
+      const venueText = [ev.venue_name, ev.location, ev.city].filter(Boolean).join(' · ');
+      setText('ev-venue', venueText || 'Atlanta, GA');
+
+      if (ev.ends_at) {
+        document.getElementById('ev-end-row').style.display = 'flex';
+        setText('ev-end', 'Ends ' + formatDateTime(ev.ends_at));
+      }
+
+      // Price
+      if (!ev.ticket_price || ev.ticket_price === 0) {
+        setText('ev-price', 'Free');
+        document.getElementById('ev-price-sub').style.display = 'none';
+      } else {
+        setText('ev-price', '$' + Number(ev.ticket_price).toFixed(0));
+      }
+
+      // Description
+      if (ev.description) {
+        document.getElementById('ev-description-wrap').style.display = 'block';
+        setText('ev-description', ev.description);
+      }
+
+      // Organizer
+      const org = ev.accounts;
+      if (org) {
+        document.getElementById('organizer-card').style.display = 'block';
+        const orgName = [org.first_name, org.last_name].filter(Boolean).join(' ') || org.user_name || 'Organizer';
+        setText('org-name', orgName);
+        const initials = orgName.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+        const orgAv = document.getElementById('org-av');
+        if (org.avatar_url) {
+          orgAv.style.backgroundImage = `url(${org.avatar_url})`;
+          orgAv.style.backgroundSize = 'cover';
+          orgAv.textContent = '';
+        } else {
+          orgAv.textContent = initials;
+        }
+        // Make organizer row clickable to view their profile
+        if (!currentUser || currentUser.id !== org.id) {
+          const orgRow = document.getElementById('org-row');
+          orgRow.classList.add('clickable');
+          orgRow.onclick = () => { window.location.href = `../profile/connection-profile.html?id=${org.id}`; };
+        }
+      }
+
+      // Show organizer controls if the logged-in user is the organizer
+      if (currentUser && org && currentUser.id === org.id) {
+        document.getElementById('organizer-controls').style.display = 'block';
+        const analyticsLink = document.getElementById('btn-analytics');
+        if (analyticsLink) analyticsLink.href = `analytics.html?event=${currentEventId}`;
+        // Hide RSVP buttons for your own event
+        document.getElementById('btn-going').style.display = 'none';
+        document.getElementById('btn-interested').style.display = 'none';
+        document.getElementById('btn-favorite').style.display = 'none';
+      }
+
+      // Show calendar buttons (always visible)
+      if (ev.starts_at) document.getElementById('cal-buttons').style.display = 'block';
+
+      // Chat link (always show, chat.html handles auth/attendance check)
+      const chatBtn = document.getElementById('btn-chat');
+      if (chatBtn) { chatBtn.href = `chat.html?event=${currentEventId}`; chatBtn.style.display = 'block'; }
+
+      // Show content
+      document.getElementById('event-content').style.display = 'grid';
+
+      // Show/hide comment input based on auth
+      if (!currentUser) {
+        document.getElementById('ev-comment-input-row').style.display = 'none';
+        document.getElementById('ev-comment-login-prompt').style.display = 'block';
+      }
+
+      // Load attendees + my status + favorite + comments in parallel
+      await Promise.all([
+        loadAttendees(id),
+        loadEventComments(id),
+        currentUser ? loadMyAttendance(id, currentUser.id) : Promise.resolve(),
+        currentUser ? loadMyFavorite(id, currentUser.id) : Promise.resolve()
+      ]);
+    }
+
+    // ── Delete event (organizer only) ─────────────────────────────────────────
+    async function handleDeleteEvent() {
+      if (!confirm('Permanently delete this event? This cannot be undone.')) return;
+      const btn = document.getElementById('btn-delete-event');
+      btn.disabled = true;
+      btn.textContent = 'Deleting…';
+      const { error } = await sb.from('events').delete().eq('id', currentEventId);
+      if (error) {
+        showToast('Delete failed: ' + error.message, 'error');
+        btn.disabled = false;
+        btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg> Delete Event';
+        return;
+      }
+      showToast('Event deleted');
+      setTimeout(() => { window.location.href = '../homepage/home_page.html'; }, 1200);
+    }
+
+    // ── Add to Calendar ───────────────────────────────────────────────────────
+    function calDateStr(iso) { return iso ? iso.replace(/[-:]/g,'').replace(/\.\d{3}/,'').replace('Z','Z') : ''; }
+    function addToGoogleCal() {
+      if (!currentEvent) return;
+      const ev = currentEvent;
+      const title = encodeURIComponent(ev.title || 'Event');
+      const details = encodeURIComponent(ev.description || '');
+      const loc = encodeURIComponent([ev.venue_name, ev.location, ev.city].filter(Boolean).join(', ') || 'Atlanta, GA');
+      const start = calDateStr(ev.starts_at);
+      const end = calDateStr(ev.ends_at || ev.starts_at);
+      const url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${start}/${end}&details=${details}&location=${loc}`;
+      window.open(url, '_blank');
+    }
+    function downloadIcal() {
+      if (!currentEvent) return;
+      const ev = currentEvent;
+      const title = (ev.title || 'Event').replace(/[\\;,]/g, '\\$&');
+      const desc = (ev.description || '').replace(/\n/g,'\\n').replace(/[\\;,]/g,'\\$&');
+      const loc = [ev.venue_name, ev.location, ev.city].filter(Boolean).join(', ').replace(/[\\;,]/g,'\\$&') || 'Atlanta, GA';
+      const start = calDateStr(ev.starts_at);
+      const end = calDateStr(ev.ends_at || ev.starts_at);
+      const uid = `${currentEventId}@encoreatl`;
+      const ics = [
+        'BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Encore ATL//EN',
+        'BEGIN:VEVENT',
+        `UID:${uid}`,
+        `DTSTART:${start}`,
+        `DTEND:${end}`,
+        `SUMMARY:${title}`,
+        `DESCRIPTION:${desc}`,
+        `LOCATION:${loc}`,
+        'END:VEVENT','END:VCALENDAR'
+      ].join('\r\n');
+      const blob = new Blob([ics], { type: 'text/calendar' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = (ev.title || 'event').replace(/\s+/g,'-').toLowerCase() + '.ics';
+      a.click();
+    }
+
+    // ── Event comments ────────────────────────────────────────────────────────
+    async function loadEventComments(eventId) {
+      const listEl = document.getElementById('ev-comment-list');
+      const { data: comments } = await sb
+        .from('event_comments')
+        .select('id, content, created_at, account_id')
+        .eq('event_id', eventId)
+        .order('created_at', { ascending: true });
+
+      listEl.innerHTML = '';
+
+      if (!comments || !comments.length) {
+        listEl.innerHTML = '<p class="ev-comments-empty">No comments yet. Be the first!</p>';
+        return;
+      }
+
+      const authorIds = [...new Set(comments.map(c => c.account_id))];
+      const { data: accounts } = await sb
+        .from('accounts').select('id, user_name, first_name, last_name').in('id', authorIds);
+      const accountMap = Object.fromEntries((accounts || []).map(a => [a.id, a]));
+
+      comments.forEach(c => {
+        const acc = accountMap[c.account_id] || {};
+        const displayName = '@' + (acc.user_name || 'user');
+        const timeStr = new Date(c.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        const div = document.createElement('div');
+        div.className = 'ev-comment';
+        const profileHref = acc.id ? `../profile/connection-profile.html?id=${acc.id}` : '#';
+        div.innerHTML =
+          `<a class="ev-comment-author" href="${profileHref}" style="text-decoration:none;color:inherit;">${displayName}</a>` +
+          `<span>${escHtml(c.content)}</span>` +
+          `<span class="ev-comment-time">${timeStr}</span>`;
+        listEl.appendChild(div);
+      });
+    }
+
+    function escHtml(str) {
+      return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    async function submitEventComment() {
+      if (!currentUser) return;
+      const input = document.getElementById('ev-comment-input');
+      const content = input.value.trim();
+      if (!content) return;
+      const btn = document.getElementById('ev-comment-submit');
+      btn.disabled = true;
+      await sb.from('event_comments').insert({
+        event_id:   currentEventId,
+        account_id: currentUser.id,
+        content
+      });
+      input.value = '';
+      btn.disabled = false;
+      await loadEventComments(currentEventId);
+    }
+
+    // Allow Enter key to submit event comment
+    document.getElementById('ev-comment-input').addEventListener('keydown', e => {
+      if (e.key === 'Enter') { e.preventDefault(); submitEventComment(); }
+    });
+
+    // ── Share event ───────────────────────────────────────────────────────────
+    async function handleShare() {
+      const url = window.location.href;
+      const title = document.querySelector('.event-main h1')?.textContent || 'Check out this event';
+      if (navigator.share) {
+        try { await navigator.share({ title, url }); return; } catch (_) {}
+      }
+      try {
+        await navigator.clipboard.writeText(url);
+      } catch (_) {
+        const ta = document.createElement('textarea');
+        ta.value = url; ta.style.position = 'fixed'; ta.style.opacity = '0';
+        document.body.appendChild(ta); ta.select(); document.execCommand('copy');
+        document.body.removeChild(ta);
+      }
+      const toast = document.getElementById('share-toast');
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2000);
+    }
+
+    // ── Boot ──────────────────────────────────────────────────────────────────
+    const params = new URLSearchParams(location.search);
+    currentEventId = params.get('id');
+
+    if (!currentEventId) {
+      document.getElementById('not-found').style.display = 'block';
+    } else {
+      loadEvent(currentEventId);
+    }
+  </script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+
+<!-- QR Code Modal -->
+<div id="qr-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:9000;display:none;align-items:center;justify-content:center;padding:1rem;">
+  <div style="background:#141414;border:1px solid #262626;border-radius:16px;padding:2rem;max-width:360px;width:100%;text-align:center;">
+    <div style="font-size:1rem;font-weight:700;margin-bottom:.5rem;">Event Check-in QR</div>
+    <div style="font-size:.82rem;color:#9A9590;margin-bottom:1.25rem;">Attendees scan this to check in at the door.</div>
+    <canvas id="qr-canvas" style="border-radius:8px;"></canvas>
+    <div style="margin-top:1rem;font-size:.75rem;color:#555;word-break:break-all;" id="qr-url-text"></div>
+    <div style="display:flex;gap:.75rem;margin-top:1.25rem;">
+      <button onclick="document.getElementById('qr-overlay').style.display='none'" style="flex:1;background:none;border:1px solid #333;border-radius:8px;padding:.6rem;color:#9A9590;font-size:.85rem;font-weight:600;cursor:pointer;font-family:inherit;">Close</button>
+      <button onclick="downloadQr()" style="flex:1;background:#e8470a;border:none;border-radius:8px;padding:.6rem;color:#fff;font-size:.85rem;font-weight:700;cursor:pointer;font-family:inherit;">Download</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  function showQrModal() {
+    const checkinUrl = window.location.origin + `/events/checkin.html?event=${currentEventId}`;
+    document.getElementById('qr-url-text').textContent = checkinUrl;
+    QRCode.toCanvas(document.getElementById('qr-canvas'), checkinUrl, { width: 240, color: { dark: '#F0EDE8', light: '#141414' } });
+    document.getElementById('qr-overlay').style.display = 'flex';
+  }
+  function downloadQr() {
+    const a = document.createElement('a');
+    a.download = 'encore-checkin-qr.png';
+    a.href = document.getElementById('qr-canvas').toDataURL();
+    a.click();
+  }
+  async function handleCheckin() {
+    const btn = document.getElementById('btn-checkin');
+    btn.disabled = true;
+    document.getElementById('checkin-label').textContent = 'Checking in…';
+    const { error } = await sb.from('event_checkins').upsert({ event_id: currentEventId, account_id: currentUser.id }, { onConflict: 'event_id,account_id' });
+    if (error) { showToast('Check-in failed. Try again.', 'error'); btn.disabled = false; document.getElementById('checkin-label').textContent = 'Check In'; return; }
+    btn.className = 'btn-going active';
+    document.getElementById('checkin-label').textContent = 'Checked In ✓';
+    showToast('You\'re checked in! Enjoy the event 🎉');
+  }
+</script>
+<script>
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');
+</script>
+</body>
+</html>

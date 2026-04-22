@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Event Analytics — Encore ATL</title>
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#e8470a">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="../src/utils/notifications.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --orange: #e8470a; --bg: #0C0C0C; --card: #141414; --border: #262626;
+      --text: #F0EDE8; --muted: #9A9590; --light: #1C1C1C; --success: #34c759;
+    }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; -webkit-font-smoothing: antialiased; }
+    nav { display: flex; align-items: center; padding: 0 2rem; height: 58px; background: rgba(12,12,12,.9); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 10; backdrop-filter: blur(12px); gap: .75rem; }
+    .nav-back { display: flex; align-items: center; gap: .4rem; font-size: .85rem; font-weight: 600; color: var(--muted); text-decoration: none; }
+    .nav-back:hover { color: var(--text); }
+    .nav-title { font-size: .95rem; font-weight: 700; }
+    .nav-right { margin-left: auto; display: flex; align-items: center; gap: .5rem; }
+
+    main { max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+    .page-title { font-size: 1.5rem; font-weight: 800; letter-spacing: -.03em; margin-bottom: .3rem; }
+    .page-sub { font-size: .85rem; color: var(--muted); margin-bottom: 2rem; }
+
+    /* Event selector */
+    .event-select-wrap { margin-bottom: 2rem; }
+    .event-select-wrap label { display: block; font-size: .75rem; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); margin-bottom: .4rem; }
+    select.ev-picker { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: .65rem 1rem; color: var(--text); font-size: .9rem; font-family: 'Inter', sans-serif; width: 100%; max-width: 480px; cursor: pointer; }
+
+    /* Stats grid */
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 2rem; }
+    @media (max-width: 640px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
+    .stat-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 1.25rem; }
+    .stat-num { font-size: 2.2rem; font-weight: 800; letter-spacing: -.05em; }
+    .stat-num.orange { color: var(--orange); }
+    .stat-num.green { color: var(--success); }
+    .stat-label { font-size: .78rem; color: var(--muted); font-weight: 500; margin-top: .15rem; }
+    .stat-delta { font-size: .72rem; font-weight: 700; margin-top: .35rem; color: var(--success); }
+
+    /* Chart bar */
+    .chart-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 1.5rem; margin-bottom: 1.5rem; }
+    .chart-title { font-size: .9rem; font-weight: 700; margin-bottom: 1.25rem; }
+    .bar-chart { display: flex; flex-direction: column; gap: .75rem; }
+    .bar-row { display: flex; align-items: center; gap: .85rem; }
+    .bar-label { font-size: .8rem; color: var(--muted); width: 110px; flex-shrink: 0; text-align: right; }
+    .bar-track { flex: 1; height: 10px; background: var(--light); border-radius: 99px; overflow: hidden; }
+    .bar-fill { height: 100%; background: var(--orange); border-radius: 99px; transition: width .6s ease; }
+    .bar-val { font-size: .78rem; font-weight: 700; width: 30px; text-align: right; flex-shrink: 0; }
+
+    /* Attendee list */
+    .attendee-table { width: 100%; border-collapse: collapse; font-size: .83rem; }
+    .attendee-table th { text-align: left; padding: .65rem 1rem; font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); border-bottom: 1px solid var(--border); }
+    .attendee-table td { padding: .75rem 1rem; border-bottom: 1px solid #1a1a1a; }
+    .attendee-table tr:last-child td { border-bottom: none; }
+    .av { width: 28px; height: 28px; border-radius: 50%; background: var(--orange); display: flex; align-items: center; justify-content: center; font-size: .65rem; font-weight: 700; color: #fff; flex-shrink: 0; overflow: hidden; }
+    .av img { width: 100%; height: 100%; object-fit: cover; }
+    .user-cell { display: flex; align-items: center; gap: .6rem; }
+    .status-pill { display: inline-block; border-radius: 6px; padding: .18rem .5rem; font-size: .72rem; font-weight: 700; }
+    .status-going { background: rgba(52,199,89,.1); color: var(--success); }
+    .status-interested { background: rgba(232,71,10,.1); color: var(--orange); }
+    .status-checkedin { background: rgba(52,199,89,.2); color: var(--success); border: 1px solid rgba(52,199,89,.3); }
+    .empty { padding: 3rem; text-align: center; color: var(--muted); font-size: .85rem; }
+    .loading { padding: 2rem; text-align: center; color: var(--muted); font-size: .85rem; }
+    input, textarea, select { color: #F0EDE8 !important; }
+    input:focus, textarea:focus, select:focus { color: #F0EDE8 !important; }
+    input:-webkit-autofill, input:-webkit-autofill:focus,
+    textarea:-webkit-autofill, select:-webkit-autofill {
+      -webkit-text-fill-color: #F0EDE8 !important;
+    }
+    input::placeholder, textarea::placeholder { color: #888; opacity: 1; }
+
+
+
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="detail.html" class="nav-back" id="nav-back">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><polyline points="15 18 9 12 15 6"/></svg>
+    Event
+  </a>
+  <span class="nav-title">Analytics</span>
+  <div class="nav-right" id="nav-auth-actions"></div>
+</nav>
+
+<main>
+  <div class="page-title">Event Analytics</div>
+  <div class="page-sub" id="page-sub">Select one of your events to see insights.</div>
+
+  <div class="event-select-wrap">
+    <label>Your Events</label>
+    <select class="ev-picker" id="ev-picker">
+      <option value="">Loading your events…</option>
+    </select>
+  </div>
+
+  <div id="analytics-body" style="display:none">
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-num orange" id="an-going">—</div><div class="stat-label">Going</div></div>
+      <div class="stat-card"><div class="stat-num" id="an-interested">—</div><div class="stat-label">Interested</div></div>
+      <div class="stat-card"><div class="stat-num green" id="an-checkins">—</div><div class="stat-label">Checked In</div></div>
+      <div class="stat-card"><div class="stat-num" id="an-views">—</div><div class="stat-label">Est. Reach</div></div>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-title">Attendees by status</div>
+      <div class="bar-chart" id="status-chart"></div>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-title">Attendee list</div>
+      <div id="attendee-list"></div>
+    </div>
+  </div>
+</main>
+
+<script>
+  const SUPABASE_URL  = 'https://qgvoznhldglucpsaisfs.supabase.co';
+  const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFndm96bmhsZGdsdWNwc2Fpc2ZzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxOTU4MjUsImV4cCI6MjA5MTc3MTgyNX0.e-5X1Lh4Tg8cP-FL-3eorV5pAZCDe4CR6i2AFeDKHWQ';
+  const { createClient } = supabase;
+  const sb = createClient(SUPABASE_URL, SUPABASE_ANON);
+  let currentUser = null;
+
+  async function init() {
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) { window.location.href = '../login/login.html'; return; }
+    currentUser = session.user;
+    mountNotifBell(sb, currentUser.id);
+
+    // Load organizer's events
+    const { data: events } = await sb.from('events')
+      .select('id,title,starts_at,status')
+      .eq('organizer_id', currentUser.id)
+      .order('starts_at', { ascending: false })
+      .limit(50);
+
+    const picker = document.getElementById('ev-picker');
+    if (!events || !events.length) {
+      picker.innerHTML = '<option>No events yet</option>';
+      return;
+    }
+    picker.innerHTML = '<option value="">— Select an event —</option>' +
+      events.map(ev => {
+        const d = ev.starts_at ? new Date(ev.starts_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
+        return `<option value="${ev.id}">${ev.title || 'Untitled'} · ${d}</option>`;
+      }).join('');
+
+    picker.addEventListener('change', () => {
+      if (picker.value) loadAnalytics(picker.value);
+      else document.getElementById('analytics-body').style.display = 'none';
+    });
+
+    // Auto-select from URL param
+    const urlId = new URLSearchParams(location.search).get('event');
+    if (urlId) {
+      picker.value = urlId;
+      if (picker.value === urlId) loadAnalytics(urlId);
+    }
+    // Back link
+    if (urlId) document.getElementById('nav-back').href = `detail.html?id=${urlId}`;
+  }
+
+  async function loadAnalytics(eventId) {
+    document.getElementById('analytics-body').style.display = 'none';
+    document.getElementById('page-sub').textContent = 'Loading…';
+
+    const [{ data: attendance }, { data: checkins }] = await Promise.all([
+      sb.from('event_attendance')
+        .select('status, accounts!event_attendance_account_id_fkey(id,first_name,last_name,user_name,avatar_url,location)')
+        .eq('event_id', eventId),
+      sb.from('event_checkins')
+        .select('account_id, checked_in_at')
+        .eq('event_id', eventId),
+    ]);
+
+    const going = (attendance || []).filter(r => r.status === 'going');
+    const interested = (attendance || []).filter(r => r.status === 'interested');
+    const checkinIds = new Set((checkins || []).map(c => c.account_id));
+    const total = (attendance || []).length;
+
+    document.getElementById('an-going').textContent = going.length;
+    document.getElementById('an-interested').textContent = interested.length;
+    document.getElementById('an-checkins').textContent = checkinIds.size;
+    document.getElementById('an-views').textContent = Math.round((going.length + interested.length) * 3.2);
+    document.getElementById('page-sub').textContent = '';
+
+    // Status bar chart
+    const max = Math.max(going.length, interested.length, checkinIds.size, 1);
+    document.getElementById('status-chart').innerHTML = [
+      { label: 'Going', count: going.length, color: '#e8470a' },
+      { label: 'Interested', count: interested.length, color: '#f59e0b' },
+      { label: 'Checked In', count: checkinIds.size, color: '#34c759' },
+    ].map(({ label, count, color }) => `
+      <div class="bar-row">
+        <div class="bar-label">${label}</div>
+        <div class="bar-track"><div class="bar-fill" style="width:${(count/max*100).toFixed(1)}%;background:${color}"></div></div>
+        <div class="bar-val">${count}</div>
+      </div>`).join('');
+
+    // Attendee table
+    const el = document.getElementById('attendee-list');
+    if (!attendance || !attendance.length) { el.innerHTML = '<div class="empty">No attendees yet</div>'; }
+    else {
+      el.innerHTML = `<table class="attendee-table">
+        <thead><tr><th>Name</th><th>Status</th><th>Location</th></tr></thead>
+        <tbody>${(attendance || []).map(r => {
+          const acc = r.accounts || {};
+          const name = `${acc.first_name||''} ${acc.last_name||''}`.trim() || acc.user_name || 'Member';
+          const initials = name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+          const av = acc.avatar_url ? `<img src="${acc.avatar_url}">` : initials;
+          const isCheckedIn = checkinIds.has(acc.id);
+          const statusClass = isCheckedIn ? 'status-checkedin' : (r.status === 'going' ? 'status-going' : 'status-interested');
+          const statusLabel = isCheckedIn ? 'Checked In ✓' : (r.status === 'going' ? 'Going' : 'Interested');
+          return `<tr>
+            <td><div class="user-cell"><div class="av">${av}</div><span style="font-weight:600">${name}</span></div></td>
+            <td><span class="status-pill ${statusClass}">${statusLabel}</span></td>
+            <td style="color:var(--muted);font-size:.8rem">${acc.location || 'Atlanta, GA'}</td>
+          </tr>`;
+        }).join('')}</tbody>
+      </table>`;
+    }
+
+    document.getElementById('analytics-body').style.display = 'block';
+  }
+
+  init();
+</script>
+<script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');</script>
+</body>
+</html>

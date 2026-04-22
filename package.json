@@ -1,19 +1,39 @@
 {
   "name": "encore-main",
   "version": "1.0.0",
+<<<<<<< HEAD
   "description": "",
+=======
+  "description": "Atlanta's event discovery and community platform",
+>>>>>>> ddb62376644de61bb4c73ca407ebedbadf59bc0b
   "main": "index.js",
   "directories": {
     "test": "tests"
   },
   "scripts": {
+<<<<<<< HEAD
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
+=======
+    "test": "jest --testPathPattern=tests/(?!e2e)",
+    "test:unit": "jest --testPathPattern=tests/auth|tests/events",
+    "test:e2e": "playwright test",
+    "test:e2e:headed": "playwright test --headed",
+    "test:e2e:report": "playwright show-report",
+    "test:all": "npm run test && npm run test:e2e",
+    "serve": "npx serve . -l 5500"
+  },
+  "keywords": ["atlanta", "events", "community"],
+>>>>>>> ddb62376644de61bb4c73ca407ebedbadf59bc0b
   "author": "",
   "license": "ISC",
   "type": "commonjs",
   "devDependencies": {
+<<<<<<< HEAD
+=======
+    "@playwright/test": "^1.44.0",
+>>>>>>> ddb62376644de61bb4c73ca407ebedbadf59bc0b
     "jest": "^30.3.0"
   }
 }

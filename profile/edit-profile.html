@@ -3,6 +3,492 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Encore – Edit Profile</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="profile.css">
+  <link rel="stylesheet" href="../css/toast.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="../src/utils/notifications.js"></script>
+  <script type="module">
+    import { guardPage } from '../src/utils/guard.js';
+    guardPage();
+  </script>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#e8470a">
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="site-nav">
+    <a href="profile.html" class="nav-brand">
+      <div class="nav-brand-icon">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect x="2.5" y="11" width="5" height="10" rx="2.5" fill="#fff"/><rect x="9.5" y="5" width="5" height="16" rx="2.5" fill="#fff"/><rect x="16.5" y="8" width="5" height="8" rx="2.5" fill="#fff"/></svg>
+      </div>
+      <span class="nav-brand-name">Encore</span>
+    </a>
+    <div class="nav-links">
+      <a href="../homepage/home_page.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12L12 3l9 9"/><path d="M9 21V12h6v9"/></svg>
+        Explore
+      </a>
+      <a href="profile.html" class="active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+        Profile
+      </a>
+      <a href="../login/login.html" id="nav-logout">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Logout
+      </a>
+    </div>
+  </nav>
+
+  <!-- EDIT HERO -->
+  <section class="edit-hero">
+    <div class="edit-avatar-wrap">
+      <div class="avatar-placeholder">C</div>
+      <button class="btn-change-photo" title="Change photo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+      </button>
+    </div>
+    <div class="edit-hero-text">
+      <h1>Edit Profile</h1>
+      <p>Update your personal information and preferences</p>
+    </div>
+  </section>
+
+  <!-- EDIT MAIN -->
+  <div class="edit-main">
+
+    <!-- LEFT SIDEBAR: Preview + quick links -->
+    <aside>
+      <div class="card">
+        <h2 class="card-title">Profile Preview</h2>
+        <div style="display:flex; flex-direction:column; align-items:center; gap:.75rem; padding: .5rem 0 .25rem;">
+          <div class="avatar-placeholder" style="width:72px;height:72px;font-size:1.6rem;border:3px solid rgba(232,71,10,.25);color:var(--orange);background:rgba(232,71,10,.06);">C</div>
+          <div style="text-align:center;">
+            <p style="font-weight:700;font-size:1rem;letter-spacing:-.02em;">Current User</p>
+            <p style="font-size:.8rem;color:var(--muted);margin-top:.2rem;">Atlanta, GA</p>
+          </div>
+          <p style="font-size:.82rem;color:var(--muted);text-align:center;line-height:1.5;">Exploring the best events Atlanta has to offer!</p>
+          <div style="display:flex;gap:1.5rem;padding-top:.5rem;border-top:1px solid var(--border);width:100%;justify-content:center;">
+            <div style="text-align:center;">
+              <p style="font-weight:800;font-size:1.1rem;color:var(--text);">3</p>
+              <p style="font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;">Attending</p>
+            </div>
+            <div style="text-align:center;">
+              <p style="font-weight:800;font-size:1.1rem;color:var(--text);">24</p>
+              <p style="font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;">Connections</p>
+            </div>
+            <div style="text-align:center;">
+              <p style="font-weight:800;font-size:1.1rem;color:var(--text);">8</p>
+              <p style="font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;">Hosted</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 class="card-title">Quick Links</h2>
+        <div style="display:flex;flex-direction:column;gap:.5rem;">
+          <a href="#section-info" style="font-size:.875rem;color:var(--orange);text-decoration:none;display:flex;align-items:center;gap:.5rem;padding:.45rem .6rem;border-radius:7px;transition:background .18s;" onmouseover="this.style.background='var(--light)'" onmouseout="this.style.background='transparent'">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+            Personal Info
+          </a>
+          <a href="#section-interests" style="font-size:.875rem;color:var(--orange);text-decoration:none;display:flex;align-items:center;gap:.5rem;padding:.45rem .6rem;border-radius:7px;transition:background .18s;" onmouseover="this.style.background='var(--light)'" onmouseout="this.style.background='transparent'">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            Interests
+          </a>
+          <a href="#section-privacy" style="font-size:.875rem;color:var(--orange);text-decoration:none;display:flex;align-items:center;gap:.5rem;padding:.45rem .6rem;border-radius:7px;transition:background .18s;" onmouseover="this.style.background='var(--light)'" onmouseout="this.style.background='transparent'">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            Privacy
+          </a>
+          <a href="#section-danger" style="font-size:.875rem;color:var(--danger);text-decoration:none;display:flex;align-items:center;gap:.5rem;padding:.45rem .6rem;border-radius:7px;transition:background .18s;" onmouseover="this.style.background='#fff5f5'" onmouseout="this.style.background='transparent'">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+            Danger Zone
+          </a>
+        </div>
+      </div>
+    </aside>
+
+    <!-- RIGHT: Form sections -->
+    <div style="display:flex;flex-direction:column;gap:1.5rem;">
+
+      <!-- Personal Info -->
+      <div class="form-card" id="section-info">
+        <p class="form-section-title">Personal Information</p>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="first-name">First Name</label>
+            <input type="text" id="first-name" value="Current" placeholder="First name">
+          </div>
+          <div class="form-group">
+            <label for="last-name">Last Name</label>
+            <input type="text" id="last-name" value="User" placeholder="Last name">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email Address</label>
+          <input type="email" id="email" value="current.user@email.com" placeholder="Email">
+        </div>
+
+        <div class="form-group">
+          <label for="location">Location</label>
+          <input type="text" id="location" value="Atlanta, GA" placeholder="City, State">
+        </div>
+
+        <div class="form-group">
+          <label for="bio">Bio</label>
+          <textarea id="bio">Exploring the best events Atlanta has to offer!</textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="website">Website</label>
+          <input type="url" id="website" placeholder="https://yoursite.com">
+        </div>
+
+        <div class="form-actions">
+          <a href="profile.html" class="btn-cancel">Cancel</a>
+          <button class="btn-save">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Save Changes
+          </button>
+        </div>
+      </div>
+
+      <!-- Interests -->
+      <div class="form-card" id="section-interests">
+        <p class="form-section-title">Interests</p>
+        <p style="font-size:.82rem;color:var(--muted);margin-bottom:1rem;">Select the categories you enjoy — we'll personalize your event recommendations.</p>
+
+        <div class="interests-grid" id="interests-grid">
+          <label class="interest-chip"><input type="checkbox" value="Music"> Music</label>
+          <label class="interest-chip"><input type="checkbox" value="Food &amp; Drink"> Food &amp; Drink</label>
+          <label class="interest-chip"><input type="checkbox" value="Arts &amp; Culture"> Arts &amp; Culture</label>
+          <label class="interest-chip"><input type="checkbox" value="Sports"> Sports</label>
+          <label class="interest-chip"><input type="checkbox" value="Comedy"> Comedy</label>
+          <label class="interest-chip"><input type="checkbox" value="Nightlife"> Nightlife</label>
+          <label class="interest-chip"><input type="checkbox" value="Outdoor &amp; Adventure"> Outdoor &amp; Adventure</label>
+          <label class="interest-chip"><input type="checkbox" value="Film &amp; Media"> Film &amp; Media</label>
+          <label class="interest-chip"><input type="checkbox" value="Tech &amp; Innovation"> Tech &amp; Innovation</label>
+          <label class="interest-chip"><input type="checkbox" value="Health &amp; Wellness"> Health &amp; Wellness</label>
+          <label class="interest-chip"><input type="checkbox" value="Family"> Family</label>
+          <label class="interest-chip"><input type="checkbox" value="Business &amp; Networking"> Business &amp; Networking</label>
+        </div>
+
+        <div class="form-actions" style="margin-top:.5rem;">
+          <button class="btn-save">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Save Interests
+          </button>
+        </div>
+      </div>
+
+      <!-- Privacy Settings -->
+      <div class="form-card" id="section-privacy">
+        <p class="form-section-title">Privacy &amp; Notifications</p>
+
+        <div class="toggle-list">
+          <div class="toggle-row">
+            <div class="toggle-row-info">
+              <span class="toggle-row-label">Public Profile</span>
+              <span class="toggle-row-desc">Allow others to view your profile and activity</span>
+            </div>
+            <label class="toggle">
+              <input type="checkbox" id="toggle-public">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="toggle-row">
+            <div class="toggle-row-info">
+              <span class="toggle-row-label">Show Events Attending</span>
+              <span class="toggle-row-desc">Display which events you're attending on your profile</span>
+            </div>
+            <label class="toggle">
+              <input type="checkbox" id="toggle-attending">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="toggle-row">
+            <div class="toggle-row-info">
+              <span class="toggle-row-label">Show Connections</span>
+              <span class="toggle-row-desc">Let others see your social connections</span>
+            </div>
+            <label class="toggle">
+              <input type="checkbox" id="toggle-connections">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="toggle-row">
+            <div class="toggle-row-info">
+              <span class="toggle-row-label">Event Recommendations</span>
+              <span class="toggle-row-desc">Receive personalized event suggestions via email</span>
+            </div>
+            <label class="toggle">
+              <input type="checkbox" id="toggle-email-recs">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="toggle-row">
+            <div class="toggle-row-info">
+              <span class="toggle-row-label">Connection Requests</span>
+              <span class="toggle-row-desc">Get notified when someone wants to connect</span>
+            </div>
+            <label class="toggle">
+              <input type="checkbox" id="toggle-notify">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <div class="form-actions" style="margin-top:.5rem;">
+          <button class="btn-save">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Save Privacy Settings
+          </button>
+        </div>
+      </div>
+
+      <!-- Danger Zone -->
+      <div class="danger-zone" id="section-danger">
+        <p class="danger-title">Danger Zone</p>
+        <div class="danger-item">
+          <div class="danger-item-info">
+            <h4>Deactivate Account</h4>
+            <p>Temporarily hide your profile and stop receiving notifications</p>
+          </div>
+          <button class="btn-danger">Deactivate</button>
+        </div>
+        <div class="danger-item">
+          <div class="danger-item-info">
+            <h4>Delete Account</h4>
+            <p>Permanently remove your account and all associated data</p>
+          </div>
+          <button class="btn-danger">Delete Account</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    const SUPABASE_URL  = 'https://qgvoznhldglucpsaisfs.supabase.co';
+    const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFndm96bmhsZGdsdWNwc2Fpc2ZzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxOTU4MjUsImV4cCI6MjA5MTc3MTgyNX0.e-5X1Lh4Tg8cP-FL-3eorV5pAZCDe4CR6i2AFeDKHWQ';
+    const { createClient } = supabase;
+    const sb = createClient(SUPABASE_URL, SUPABASE_ANON);
+
+    let currentUser = null;
+    let currentProfile = null;
+
+    function showToast(msg, type = 'success') {
+      const t = document.createElement('div');
+      t.className = 'toast toast-' + type;
+      t.textContent = msg;
+      document.body.appendChild(t);
+      requestAnimationFrame(() => t.classList.add('toast-visible'));
+      setTimeout(() => { t.classList.remove('toast-visible'); setTimeout(() => t.remove(), 300); }, 3500);
+    }
+
+    // ── Interest chip toggle (UI) ───────────────────────────────────────────────
+    document.querySelectorAll('.interest-chip').forEach(chip => {
+      chip.addEventListener('click', () => chip.classList.toggle('checked'));
+    });
+
+    // ── Load profile into form ─────────────────────────────────────────────────
+    async function init() {
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session) { window.location.href = '../login/login.html'; return; }
+      currentUser = session.user;
+      mountNotifBell(sb, currentUser.id);
+
+      const [{ data: profile }, { data: interests }] = await Promise.all([
+        sb.from('accounts')
+          .select('first_name,last_name,user_name,bio,location,website_url,avatar_url,is_public,show_attending,show_connections,email_recommendations,notify_connections,created_at')
+          .eq('id', currentUser.id)
+          .single(),
+        sb.from('account_interests').select('interests(name)').eq('account_id', currentUser.id)
+      ]);
+
+      if (!profile) return;
+      currentProfile = profile;
+
+      // Personal info fields
+      document.getElementById('first-name').value = profile.first_name || '';
+      document.getElementById('last-name').value  = profile.last_name  || '';
+      document.getElementById('email').value       = currentUser.email  || '';
+      document.getElementById('location').value    = profile.location   || '';
+      document.getElementById('bio').value         = profile.bio        || '';
+      document.getElementById('website').value     = profile.website_url || '';
+
+      // Email field is read-only (changing email requires re-verification)
+      document.getElementById('email').readOnly = true;
+      document.getElementById('email').style.opacity = '.6';
+      document.getElementById('email').title = 'Email cannot be changed here';
+
+      // Interests — check boxes matching user's saved interests
+      const userInterestNames = new Set((interests || []).map(r => r.interests?.name).filter(Boolean));
+      document.querySelectorAll('#interests-grid input[type="checkbox"]').forEach(cb => {
+        const val = cb.value.replace(/&amp;/g, '&');
+        const isChecked = userInterestNames.has(val);
+        cb.checked = isChecked;
+        cb.closest('.interest-chip').classList.toggle('checked', isChecked);
+      });
+
+      // Privacy toggles
+      document.getElementById('toggle-public').checked     = profile.is_public             ?? true;
+      document.getElementById('toggle-attending').checked  = profile.show_attending         ?? true;
+      document.getElementById('toggle-connections').checked = profile.show_connections      ?? true;
+      document.getElementById('toggle-email-recs').checked = profile.email_recommendations  ?? true;
+      document.getElementById('toggle-notify').checked     = profile.notify_connections     ?? false;
+
+      // Profile preview sidebar
+      updatePreview(profile);
+    }
+
+    function updatePreview(profile) {
+      const name = [profile.first_name, profile.last_name].filter(Boolean).join(' ') || profile.user_name || 'Your Name';
+      const initials = name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) || '?';
+
+      const previewAv = document.querySelector('.edit-avatar-wrap .avatar-placeholder');
+      const sidebarAv = document.querySelector('.card .avatar-placeholder[style]');
+
+      if (previewAv) previewAv.textContent = initials;
+      if (sidebarAv) {
+        sidebarAv.textContent = initials;
+        if (profile.avatar_url) {
+          sidebarAv.style.backgroundImage = 'url(' + profile.avatar_url + ')';
+          sidebarAv.style.backgroundSize  = 'cover';
+          sidebarAv.style.backgroundPosition = 'center';
+          sidebarAv.textContent = '';
+        }
+      }
+
+      const nameEl = document.querySelector('.card p[style*="font-weight:700"]');
+      const locEl  = document.querySelector('.card p[style*="font-size:.8rem"]');
+      const bioEl  = document.querySelector('.card p[style*="font-size:.82rem"]');
+      if (nameEl) nameEl.textContent = name;
+      if (locEl)  locEl.textContent  = profile.location || 'Atlanta, GA';
+      if (bioEl)  bioEl.textContent  = profile.bio || 'Exploring the best events Atlanta has to offer!';
+    }
+
+    // ── Save personal info ─────────────────────────────────────────────────────
+    async function saveInfo() {
+      const btn = document.querySelector('#section-info .btn-save');
+      btn.disabled = true; btn.textContent = 'Saving…';
+
+      const updates = {
+        first_name:   document.getElementById('first-name').value.trim(),
+        last_name:    document.getElementById('last-name').value.trim(),
+        location:     document.getElementById('location').value.trim(),
+        bio:          document.getElementById('bio').value.trim(),
+        website_url:  document.getElementById('website').value.trim(),
+      };
+
+      const { error } = await sb.from('accounts').update(updates).eq('id', currentUser.id);
+      btn.disabled = false;
+      btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Save Changes';
+
+      if (error) { showToast('Save failed: ' + error.message, 'error'); return; }
+      Object.assign(currentProfile, updates);
+      updatePreview(currentProfile);
+      showToast('Profile updated!');
+    }
+
+    // ── Save interests ─────────────────────────────────────────────────────────
+    async function saveInterests() {
+      const btn = document.querySelector('#section-interests .btn-save');
+      btn.disabled = true; btn.textContent = 'Saving…';
+
+      const selected = [...document.querySelectorAll('#interests-grid input:checked')]
+        .map(cb => cb.value.replace(/&amp;/g, '&'));
+
+      if (selected.length) {
+        const { data: rows } = await sb.from('interests').select('id,name').in('name', selected);
+        await sb.from('account_interests').delete().eq('account_id', currentUser.id);
+        if (rows && rows.length) {
+          await sb.from('account_interests').insert(
+            rows.map(r => ({ account_id: currentUser.id, interest_id: r.id }))
+          );
+        }
+      } else {
+        await sb.from('account_interests').delete().eq('account_id', currentUser.id);
+      }
+
+      btn.disabled = false;
+      btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Save Interests';
+      showToast('Interests saved!');
+    }
+
+    // ── Save privacy settings ──────────────────────────────────────────────────
+    async function savePrivacy() {
+      const btn = document.querySelector('#section-privacy .btn-save');
+      btn.disabled = true; btn.textContent = 'Saving…';
+
+      const updates = {
+        is_public:             document.getElementById('toggle-public').checked,
+        show_attending:        document.getElementById('toggle-attending').checked,
+        show_connections:      document.getElementById('toggle-connections').checked,
+        email_recommendations: document.getElementById('toggle-email-recs').checked,
+        notify_connections:    document.getElementById('toggle-notify').checked,
+      };
+
+      const { error } = await sb.from('accounts').update(updates).eq('id', currentUser.id);
+      btn.disabled = false;
+      btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Save Privacy Settings';
+
+      if (error) { showToast('Save failed: ' + error.message, 'error'); return; }
+      showToast('Privacy settings saved!');
+    }
+
+    // ── Danger zone ────────────────────────────────────────────────────────────
+    async function deactivateAccount() {
+      if (!confirm('Deactivating will hide your profile from other users. Continue?')) return;
+      const { error } = await sb.from('accounts').update({ is_public: false }).eq('id', currentUser.id);
+      if (error) { showToast('Failed: ' + error.message, 'error'); return; }
+      document.getElementById('toggle-public').checked = false;
+      showToast('Profile deactivated — your profile is now private.');
+    }
+
+    async function deleteAccount() {
+      if (!confirm('This will sign you out and begin the account deletion process. Your account will be reviewed for removal. Continue?')) return;
+      // Sign out — full deletion requires a backend function (service role key).
+      // For now, make profile private and sign out.
+      await sb.from('accounts').update({ is_public: false }).eq('id', currentUser.id);
+      await sb.auth.signOut();
+      window.location.href = '../login/login.html';
+    }
+
+    // ── Logout ─────────────────────────────────────────────────────────────────
+    document.getElementById('nav-logout').addEventListener('click', async e => {
+      e.preventDefault();
+      await sb.auth.signOut();
+      window.location.href = '../login/login.html';
+    });
+
+    // ── Wire save buttons ──────────────────────────────────────────────────────
+    document.querySelector('#section-info .btn-save').addEventListener('click', saveInfo);
+    document.querySelector('#section-interests .btn-save').addEventListener('click', saveInterests);
+    document.querySelector('#section-privacy .btn-save').addEventListener('click', savePrivacy);
+
+    const [deactivateBtn, deleteBtn] = document.querySelectorAll('.btn-danger');
+    deactivateBtn.addEventListener('click', deactivateAccount);
+    deleteBtn.addEventListener('click', deleteAccount);
+
+    init();
+  </script>
+
+<script>
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');
+</script>
+</body>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>ATL Events – Edit Profile</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

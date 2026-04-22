@@ -3,11 +3,281 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<<<<<<< HEAD
   <title>ATL Events – Connections</title>
+=======
+  <title>Encore – Connections</title>
+>>>>>>> ddb62376644de61bb4c73ca407ebedbadf59bc0b
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="profile.css">
+<<<<<<< HEAD
+=======
+  <link rel="stylesheet" href="../css/toast.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="../src/utils/notifications.js"></script>
+  <script type="module">
+    import { guardPage } from '../src/utils/guard.js';
+    guardPage();
+
+    const SUPABASE_URL  = 'https://qgvoznhldglucpsaisfs.supabase.co';
+    const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFndm96bmhsZGdsdWNwc2Fpc2ZzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxOTU4MjUsImV4cCI6MjA5MTc3MTgyNX0.e-5X1Lh4Tg8cP-FL-3eorV5pAZCDe4CR6i2AFeDKHWQ';
+    const { createClient } = supabase;
+    const sb = createClient(SUPABASE_URL, SUPABASE_ANON);
+
+    let currentUserId = null;
+    let allCards = [];   // { el, name, interests } for client-side filter
+
+    // ── Toast ─────────────────────────────────────────────────────────────────
+    function showToast(msg, type = 'success') {
+      const t = document.createElement('div');
+      t.className = 'toast toast-' + type;
+      t.textContent = msg;
+      document.body.appendChild(t);
+      requestAnimationFrame(() => t.classList.add('toast-visible'));
+      setTimeout(() => { t.classList.remove('toast-visible'); setTimeout(() => t.remove(), 300); }, 3000);
+    }
+
+    // ── Build connection card DOM ─────────────────────────────────────────────
+    function buildCard(person, connId) {
+      const name = [person.first_name, person.last_name].filter(Boolean).join(' ') || person.user_name || 'User';
+      const initials = name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+      const interests = (person.interests || []);
+
+      const card = document.createElement('div');
+      card.className = 'connection-card';
+      card.dataset.name = name.toLowerCase();
+      card.dataset.interests = interests.map(i => i.toLowerCase()).join(' ');
+
+      // Avatar
+      const av = document.createElement('div');
+      av.className = 'conn-card-avatar';
+      if (person.avatar_url) {
+        av.style.backgroundImage = `url(${person.avatar_url})`;
+        av.style.backgroundSize = 'cover';
+        av.style.backgroundPosition = 'center';
+      } else {
+        av.textContent = initials;
+      }
+
+      const pName = document.createElement('p');
+      pName.className = 'conn-card-name';
+      pName.textContent = name;
+
+      const pMeta = document.createElement('p');
+      pMeta.className = 'conn-card-meta';
+      pMeta.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s-8-5.8-8-12a8 8 0 0 1 16 0c0 6.2-8 12-8 12z"/><circle cx="12" cy="10" r="3"/></svg>';
+      pMeta.appendChild(document.createTextNode(' ' + (person.location || 'Atlanta, GA')));
+
+      // Interests
+      const chips = document.createElement('div');
+      chips.className = 'conn-card-interests';
+      interests.slice(0, 3).forEach(tag => {
+        const sp = document.createElement('span');
+        sp.textContent = tag;
+        chips.appendChild(sp);
+      });
+
+      // Footer: View + Message + Disconnect
+      const footer = document.createElement('div');
+      footer.className = 'conn-card-footer';
+
+      const viewLink = document.createElement('a');
+      viewLink.className = 'btn-view-full';
+      viewLink.href = `connection-profile.html?id=${person.id}`;
+      viewLink.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg> View';
+
+      const msgBtn = document.createElement('button');
+      msgBtn.className = 'btn-message';
+      msgBtn.title = 'Message';
+      msgBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>';
+      msgBtn.addEventListener('click', () => {
+        window.location.href = `messages.html?to=${person.id}`;
+      });
+
+      const discBtn = document.createElement('button');
+      discBtn.className = 'btn-message';
+      discBtn.title = 'Disconnect';
+      discBtn.style.cssText = 'color:#ff3b30;border-color:#ffd0d0';
+      discBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
+      discBtn.addEventListener('click', async () => {
+        if (!confirm(`Disconnect from ${name}?`)) return;
+        const { error } = await sb.from('connections').delete().eq('id', connId);
+        if (error) { showToast('Failed to disconnect', 'error'); return; }
+        card.style.transition = 'opacity .25s';
+        card.style.opacity = '0';
+        setTimeout(() => {
+          card.remove();
+          allCards = allCards.filter(c => c.el !== card);
+          updateCount();
+        }, 250);
+        showToast(`Disconnected from ${name}`);
+      });
+
+      footer.appendChild(viewLink);
+      footer.appendChild(msgBtn);
+      footer.appendChild(discBtn);
+
+      card.appendChild(av);
+      card.appendChild(pName);
+      card.appendChild(pMeta);
+      card.appendChild(chips);
+      card.appendChild(footer);
+      return card;
+    }
+
+    // ── Build pending request card ─────────────────────────────────────────────
+    function buildPendingCard(conn, person, isIncoming) {
+      const name = [person.first_name, person.last_name].filter(Boolean).join(' ') || person.user_name || 'User';
+      const initials = name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+
+      const card = document.createElement('div');
+      card.className = 'connection-card';
+      card.style.border = '1.5px dashed #e8e8ec';
+
+      const av = document.createElement('div');
+      av.className = 'conn-card-avatar';
+      av.textContent = initials;
+
+      const pName = document.createElement('p');
+      pName.className = 'conn-card-name';
+      pName.textContent = name;
+
+      const badge = document.createElement('p');
+      badge.className = 'conn-card-meta';
+      badge.textContent = isIncoming ? 'Wants to connect with you' : 'Request sent — pending';
+      badge.style.fontStyle = 'italic';
+
+      const footer = document.createElement('div');
+      footer.className = 'conn-card-footer';
+
+      if (isIncoming) {
+        const acceptBtn = document.createElement('button');
+        acceptBtn.className = 'btn-view-full';
+        acceptBtn.textContent = 'Accept';
+        acceptBtn.addEventListener('click', async () => {
+          const { error } = await sb.from('connections').update({ status: 'accepted' }).eq('id', conn.id);
+          if (error) { showToast('Failed to accept', 'error'); return; }
+          showToast(`Connected with ${name}!`);
+          await loadConnections(currentUserId);
+        });
+
+        const declineBtn = document.createElement('button');
+        declineBtn.className = 'btn-message';
+        declineBtn.textContent = 'Decline';
+        declineBtn.addEventListener('click', async () => {
+          const { error } = await sb.from('connections').delete().eq('id', conn.id);
+          if (error) { showToast('Failed to decline', 'error'); return; }
+          card.remove();
+          showToast('Request declined');
+        });
+
+        footer.appendChild(acceptBtn);
+        footer.appendChild(declineBtn);
+      } else {
+        const cancelBtn = document.createElement('button');
+        cancelBtn.className = 'btn-message';
+        cancelBtn.textContent = 'Cancel Request';
+        cancelBtn.addEventListener('click', async () => {
+          const { error } = await sb.from('connections').delete().eq('id', conn.id);
+          if (error) { showToast('Failed to cancel', 'error'); return; }
+          card.remove();
+        });
+        footer.appendChild(cancelBtn);
+      }
+
+      card.appendChild(av);
+      card.appendChild(pName);
+      card.appendChild(badge);
+      card.appendChild(footer);
+      return card;
+    }
+
+    // ── Update total count display ─────────────────────────────────────────────
+    function updateCount() {
+      const total = document.querySelectorAll('#connections-grid .connection-card').length;
+      document.getElementById('total-count').textContent = total;
+    }
+
+    // ── Filter (client-side) ──────────────────────────────────────────────────
+    window.filterConnections = function() {
+      const query = document.getElementById('search-input').value.toLowerCase();
+      const filter = document.getElementById('filter-select').value;
+      let visible = 0;
+
+      allCards.forEach(({ el, name, interests }) => {
+        const matchSearch = name.includes(query);
+        const matchFilter = filter === 'all' || filter === 'recent' || interests.includes(filter);
+        const show = matchSearch && matchFilter;
+        el.style.display = show ? '' : 'none';
+        if (show) visible++;
+      });
+
+      document.getElementById('no-results').style.display = visible === 0 ? 'block' : 'none';
+    };
+
+    // ── Load connections ──────────────────────────────────────────────────────
+    async function loadConnections(userId) {
+      const grid = document.getElementById('connections-grid');
+      const pendingGrid = document.getElementById('pending-grid');
+      const pendingSection = document.getElementById('pending-section');
+      allCards = [];
+      grid.innerHTML = '<p style="color:#6b6b7b;font-size:.85rem;padding:.5rem 0">Loading…</p>';
+
+      // Fetch accepted connections
+      const { data: accepted } = await sb
+        .from('connections')
+        .select('id, requester_id, addressee_id, requester:accounts!connections_requester_id_fkey(id,first_name,last_name,user_name,location,avatar_url), addressee:accounts!connections_addressee_id_fkey(id,first_name,last_name,user_name,location,avatar_url)')
+        .eq('status', 'accepted')
+        .or(`requester_id.eq.${userId},addressee_id.eq.${userId}`);
+
+      // Fetch pending
+      const { data: pending } = await sb
+        .from('connections')
+        .select('id, requester_id, addressee_id, requester:accounts!connections_requester_id_fkey(id,first_name,last_name,user_name), addressee:accounts!connections_addressee_id_fkey(id,first_name,last_name,user_name)')
+        .eq('status', 'pending')
+        .or(`requester_id.eq.${userId},addressee_id.eq.${userId}`);
+
+      grid.innerHTML = '';
+
+      // Render accepted
+      if (!accepted || !accepted.length) {
+        grid.innerHTML = '<p style="color:#6b6b7b;font-size:.85rem;grid-column:1/-1;padding:1rem 0">No connections yet — explore events to meet people!</p>';
+      } else {
+        accepted.forEach(conn => {
+          const person = conn.requester_id === userId ? conn.addressee : conn.requester;
+          if (!person) return;
+          const card = buildCard(person, conn.id);
+          allCards.push({ el: card, name: card.dataset.name, interests: card.dataset.interests });
+          grid.appendChild(card);
+        });
+        document.getElementById('total-count').textContent = accepted.length;
+      }
+
+      // Render pending
+      pendingGrid.innerHTML = '';
+      const hasPending = pending && pending.length;
+      pendingSection.style.display = hasPending ? 'block' : 'none';
+      if (hasPending) {
+        pending.forEach(conn => {
+          const isIncoming = conn.addressee_id === userId;
+          const person = isIncoming ? conn.requester : conn.addressee;
+          if (!person) return;
+          pendingGrid.appendChild(buildPendingCard(conn, person, isIncoming));
+        });
+      }
+    }
+
+    // ── Boot ──────────────────────────────────────────────────────────────────
+    sb.auth.getSession().then(async ({ data: { session } }) => {
+      if (!session) return;
+      currentUserId = session.user.id;
+      mountNotifBell(sb, currentUserId);
+      await loadConnections(currentUserId);
+    });
+  </script>
+>>>>>>> ddb62376644de61bb4c73ca407ebedbadf59bc0b
   <style>
     /* ── PAGE-SPECIFIC ── */
     .connections-hero {
@@ -203,7 +473,23 @@
       .connections-hero { padding: 1.75rem 1.25rem; flex-direction: column; align-items: flex-start; }
       .connections-grid { grid-template-columns: 1fr 1fr; }
     }
+<<<<<<< HEAD
   </style>
+=======
+    input, textarea, select { color: #F0EDE8 !important; }
+    input:focus, textarea:focus, select:focus { color: #F0EDE8 !important; }
+    input:-webkit-autofill, input:-webkit-autofill:focus,
+    textarea:-webkit-autofill, select:-webkit-autofill {
+      -webkit-text-fill-color: #F0EDE8 !important;
+    }
+    input::placeholder, textarea::placeholder { color: #888; opacity: 1; }
+
+
+
+  </style>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#e8470a">
+>>>>>>> ddb62376644de61bb4c73ca407ebedbadf59bc0b
 </head>
 <body>
 
@@ -211,6 +497,7 @@
   <nav class="site-nav">
     <a href="profile.html" class="nav-brand">
       <div class="nav-brand-icon">
+<<<<<<< HEAD
         <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
           <rect x="3" y="4" width="18" height="18" rx="3" fill="none" stroke="#fff" stroke-width="2"/>
           <line x1="3" y1="9" x2="21" y2="9" stroke="#fff" stroke-width="2"/>
@@ -219,6 +506,11 @@
         </svg>
       </div>
       <span class="nav-brand-name">ATL Events</span>
+=======
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect x="2.5" y="11" width="5" height="10" rx="2.5" fill="#fff"/><rect x="9.5" y="5" width="5" height="16" rx="2.5" fill="#fff"/><rect x="16.5" y="8" width="5" height="8" rx="2.5" fill="#fff"/></svg>
+      </div>
+      <span class="nav-brand-name">Encore</span>
+>>>>>>> ddb62376644de61bb4c73ca407ebedbadf59bc0b
     </a>
     <div class="nav-links">
       <a href="../homepage/home_page.html">
@@ -229,7 +521,11 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
         Profile
       </a>
+<<<<<<< HEAD
       <a href="../../login/signup/login.html" id="nav-logout">
+=======
+      <a href="../login/login.html" id="nav-logout">
+>>>>>>> ddb62376644de61bb4c73ca407ebedbadf59bc0b
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
         Logout
       </a>
@@ -240,10 +536,17 @@
   <section class="connections-hero">
     <div class="connections-hero-text">
       <h1>Your Connections</h1>
+<<<<<<< HEAD
       <p>People you've met and connected with through ATL Events</p>
     </div>
     <div class="connections-hero-stat">
       <strong>24</strong>
+=======
+      <p>People you've met and connected with through Encore</p>
+    </div>
+    <div class="connections-hero-stat">
+      <strong id="total-count">–</strong>
+>>>>>>> ddb62376644de61bb4c73ca407ebedbadf59bc0b
       <span>Total Connections</span>
     </div>
   </section>
@@ -271,6 +574,7 @@
       </select>
     </div>
 
+<<<<<<< HEAD
     <!-- Recent Connections -->
     <p class="section-label">Recent</p>
 
@@ -444,6 +748,19 @@
         </div>
       </div>
 
+=======
+    <!-- Pending requests (hidden until there are some) -->
+    <div id="pending-section" style="display:none">
+      <p class="section-label">Pending Requests</p>
+      <div class="connections-grid" id="pending-grid"></div>
+    </div>
+
+    <!-- Connections -->
+    <p class="section-label">Your Connections</p>
+
+    <div class="connections-grid" id="connections-grid">
+      <p style="color:#6b6b7b;font-size:.85rem">Loading…</p>
+>>>>>>> ddb62376644de61bb4c73ca407ebedbadf59bc0b
     </div>
 
     <!-- No results message (hidden by default) -->
@@ -453,6 +770,7 @@
 
   </div>
 
+<<<<<<< HEAD
   <script>
     function filterConnections() {
       const query = document.getElementById('search-input').value.toLowerCase();
@@ -474,5 +792,36 @@
     }
   </script>
 
+=======
+  <!-- Mobile bottom tab bar -->
+  <nav class="mobile-tab-bar">
+    <a href="../homepage/home_page.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12L12 3l9 9"/><path d="M9 21V12h6v9"/></svg>
+      Explore
+    </a>
+    <a href="profile.html" class="active">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+      Profile
+    </a>
+    <a href="messages.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      Messages
+    </a>
+    <a href="../community/community.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Community
+    </a>
+  </nav>
+  <style>
+    .mobile-tab-bar{display:none;position:fixed;bottom:0;left:0;right:0;height:60px;background:#141414;border-top:1px solid #262626;z-index:100;align-items:stretch;justify-content:space-around;padding:0 .25rem;padding-bottom:env(safe-area-inset-bottom)}
+    .mobile-tab-bar a{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.2rem;text-decoration:none;color:#9A9590;font-size:.65rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;transition:color .18s;padding:.5rem 0}
+    .mobile-tab-bar a.active,.mobile-tab-bar a:hover{color:#e8470a}
+    .mobile-tab-bar a svg{width:22px;height:22px}
+    @media(max-width:768px){.mobile-tab-bar{display:flex}body{padding-bottom:calc(60px + env(safe-area-inset-bottom))}}
+  </style>
+<script>
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');
+</script>
+>>>>>>> ddb62376644de61bb4c73ca407ebedbadf59bc0b
 </body>
 </html>

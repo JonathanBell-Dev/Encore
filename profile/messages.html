@@ -3,11 +3,23 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<<<<<<< HEAD
   <title>ATL Events – Messages</title>
+=======
+  <title>Encore – Messages</title>
+>>>>>>> ddb62376644de61bb4c73ca407ebedbadf59bc0b
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="profile.css">
+<<<<<<< HEAD
+=======
+  <link rel="stylesheet" href="../css/toast.css">
+  <script type="module">
+    import { guardPage } from '../src/utils/guard.js';
+    guardPage();
+  </script>
+>>>>>>> ddb62376644de61bb4c73ca407ebedbadf59bc0b
   <style>
     /* ── Messages layout ── */
     .messages-layout {
@@ -22,7 +34,11 @@
 
     /* ── Thread list ── */
     .thread-panel {
+<<<<<<< HEAD
       background: #fff;
+=======
+      background: var(--card);
+>>>>>>> ddb62376644de61bb4c73ca407ebedbadf59bc0b
       border-radius: 14px;
       border: 1px solid var(--border);
       display: flex;
@@ -94,7 +110,11 @@
 
     /* ── Chat panel ── */
     .chat-panel {
+<<<<<<< HEAD
       background: #fff;
+=======
+      background: var(--card);
+>>>>>>> ddb62376644de61bb4c73ca407ebedbadf59bc0b
       border-radius: 14px;
       border: 1px solid var(--border);
       display: flex;
@@ -183,7 +203,11 @@
       overflow-y: auto;
     }
     .chat-input-bar textarea:focus {
+<<<<<<< HEAD
       border-color: var(--orange); background: #fff;
+=======
+      border-color: var(--orange); background: var(--light);
+>>>>>>> ddb62376644de61bb4c73ca407ebedbadf59bc0b
       box-shadow: 0 0 0 3px rgba(232,71,10,.1);
     }
     .btn-send {
@@ -215,7 +239,11 @@
     }
     .new-msg-modal-overlay.open { display: flex; }
     .new-msg-modal {
+<<<<<<< HEAD
       background: #fff; border-radius: 16px;
+=======
+      background: var(--card); border-radius: 16px;
+>>>>>>> ddb62376644de61bb4c73ca407ebedbadf59bc0b
       width: min(460px, 94vw); padding: 1.75rem;
       box-shadow: 0 20px 60px rgba(0,0,0,.2);
       animation: modal-in .2s ease;
@@ -253,7 +281,23 @@
       }
       .thread-panel { height: 280px; }
     }
+<<<<<<< HEAD
   </style>
+=======
+    input, textarea, select { color: #F0EDE8 !important; }
+    input:focus, textarea:focus, select:focus { color: #F0EDE8 !important; }
+    input:-webkit-autofill, input:-webkit-autofill:focus,
+    textarea:-webkit-autofill, select:-webkit-autofill {
+      -webkit-text-fill-color: #F0EDE8 !important;
+    }
+    input::placeholder, textarea::placeholder { color: #888; opacity: 1; }
+
+
+
+  </style>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#e8470a">
+>>>>>>> ddb62376644de61bb4c73ca407ebedbadf59bc0b
 </head>
 <body>
 
@@ -261,6 +305,7 @@
   <nav class="site-nav">
     <a href="../homepage/home_page.html" class="nav-brand">
       <div class="nav-brand-icon">
+<<<<<<< HEAD
         <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
           <rect x="3" y="4" width="18" height="18" rx="3" fill="none" stroke="#fff" stroke-width="2"/>
           <line x1="3" y1="9" x2="21" y2="9" stroke="#fff" stroke-width="2"/>
@@ -269,6 +314,11 @@
         </svg>
       </div>
       <span class="nav-brand-name">ATL Events</span>
+=======
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect x="2.5" y="11" width="5" height="10" rx="2.5" fill="#fff"/><rect x="9.5" y="5" width="5" height="16" rx="2.5" fill="#fff"/><rect x="16.5" y="8" width="5" height="8" rx="2.5" fill="#fff"/></svg>
+      </div>
+      <span class="nav-brand-name">Encore</span>
+>>>>>>> ddb62376644de61bb4c73ca407ebedbadf59bc0b
     </a>
     <div class="nav-links">
       <a href="../homepage/home_page.html">
@@ -279,9 +329,12 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
         Profile
       </a>
+<<<<<<< HEAD
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
         Profile
       </a>
+=======
+>>>>>>> ddb62376644de61bb4c73ca407ebedbadf59bc0b
       <a href="messages.html" class="active">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
         Messages
@@ -364,10 +417,18 @@
 
   <!-- Supabase CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<<<<<<< HEAD
   <script>
     // ── CONFIG ────────────────────────────────────────────────────────────────
     const SUPABASE_URL  = 'https://wzbubvzbbfgohzurlvmw.supabase.co';
     const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind6YnVidnpiYmZnb2h6dXJsdm13Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA3NjMxNzAsImV4cCI6MjA4NjMzOTE3MH0.Il2_RJJG_tiyngweV-nNOxGvVZQUbWbZwMAx21CgzNA';
+=======
+  <script src="../src/utils/notifications.js"></script>
+  <script>
+    // ── CONFIG ────────────────────────────────────────────────────────────────
+    const SUPABASE_URL  = 'https://qgvoznhldglucpsaisfs.supabase.co';
+    const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFndm96bmhsZGdsdWNwc2Fpc2ZzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxOTU4MjUsImV4cCI6MjA5MTc3MTgyNX0.e-5X1Lh4Tg8cP-FL-3eorV5pAZCDe4CR6i2AFeDKHWQ';
+>>>>>>> ddb62376644de61bb4c73ca407ebedbadf59bc0b
     // ─────────────────────────────────────────────────────────────────────────
 
     const { createClient } = supabase;
@@ -381,6 +442,7 @@
     // ── Boot ──────────────────────────────────────────────────────────────────
     async function init() {
       const { data: { session } } = await sb.auth.getSession();
+<<<<<<< HEAD
       if (!session) { window.location.href = '../../login/signup/login.html'; return; }
       currentUser = session.user;
 
@@ -389,6 +451,17 @@
       // If ?user= param, open that conversation directly
       const params = new URLSearchParams(window.location.search);
       const targetUser = params.get('user');
+=======
+      if (!session) { window.location.href = '../login/login.html'; return; }
+      currentUser = session.user;
+      mountNotifBell(sb, currentUser.id);
+
+      await loadThreads();
+
+      // If ?user= or ?to= param, open that conversation directly
+      const params = new URLSearchParams(window.location.search);
+      const targetUser = params.get('user') || params.get('to');
+>>>>>>> ddb62376644de61bb4c73ca407ebedbadf59bc0b
       if (targetUser) openChat(targetUser);
     }
 
@@ -413,8 +486,12 @@
       // Fetch partner details
       const partnerIds = [...seen.keys()];
       if (!partnerIds.length) {
+<<<<<<< HEAD
         document.getElementById('thread-list').innerHTML =
           '<div style="padding:1.5rem;text-align:center;color:var(--muted);font-size:.85rem;">No messages yet.</div>';
+=======
+        showThreadEmptyState();
+>>>>>>> ddb62376644de61bb4c73ca407ebedbadf59bc0b
         return;
       }
 
@@ -428,10 +505,48 @@
       renderThreads(threads);
     }
 
+<<<<<<< HEAD
     function renderThreads(list) {
       const el = document.getElementById('thread-list');
       if (!list.length) {
         el.innerHTML = '<div style="padding:1.5rem;text-align:center;color:var(--muted);font-size:.85rem;">No messages yet.</div>';
+=======
+    function showThreadEmptyState() {
+      const el = document.getElementById('thread-list');
+      el.innerHTML = '';
+      const wrap = document.createElement('div');
+      wrap.style.cssText = 'padding:2rem 1.25rem;text-align:center;display:flex;flex-direction:column;align-items:center;gap:.75rem;';
+
+      const icon = document.createElement('div');
+      icon.innerHTML = '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="opacity:.3"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>';
+
+      const h = document.createElement('p');
+      h.style.cssText = 'font-size:.875rem;font-weight:700;color:var(--text);';
+      h.textContent = 'No conversations yet';
+
+      const sub = document.createElement('p');
+      sub.style.cssText = 'font-size:.8rem;color:var(--muted);line-height:1.5;max-width:200px;';
+      sub.textContent = 'Connect with people at events and start chatting.';
+
+      const btn = document.createElement('button');
+      btn.textContent = 'Start a conversation';
+      btn.style.cssText = 'margin-top:.25rem;padding:.5rem 1rem;background:var(--orange);color:#fff;border:none;border-radius:8px;font-size:.8rem;font-weight:700;cursor:pointer;font-family:"Inter",sans-serif;';
+      btn.addEventListener('click', () => {
+        document.getElementById('open-new-msg').click();
+      });
+
+      wrap.appendChild(icon);
+      wrap.appendChild(h);
+      wrap.appendChild(sub);
+      wrap.appendChild(btn);
+      el.appendChild(wrap);
+    }
+
+    function renderThreads(list) {
+      const el = document.getElementById('thread-list');
+      if (!list.length) {
+        showThreadEmptyState();
+>>>>>>> ddb62376644de61bb4c73ca407ebedbadf59bc0b
         return;
       }
       el.innerHTML = list.map(({ otherId, latestMsg, other }) => {
@@ -521,17 +636,32 @@
 
     function renderMessages(msgs) {
       const container = document.getElementById('chat-messages');
+<<<<<<< HEAD
       if (!msgs.length) {
         container.innerHTML = '<div style="flex:1;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:.85rem;">No messages yet. Say hello! 👋</div>';
         return;
       }
 
       let html = '';
+=======
+      container.innerHTML = '';
+
+      if (!msgs.length) {
+        const ph = document.createElement('div');
+        ph.setAttribute('data-placeholder', '');
+        ph.style.cssText = 'flex:1;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:.85rem;';
+        ph.textContent = 'No messages yet. Say hello! 👋';
+        container.appendChild(ph);
+        return;
+      }
+
+>>>>>>> ddb62376644de61bb4c73ca407ebedbadf59bc0b
       let lastDate = '';
       for (const msg of msgs) {
         const d = new Date(msg.created_at);
         const dateLabel = d.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
         if (dateLabel !== lastDate) {
+<<<<<<< HEAD
           html += `<div class="msg-date-sep">${dateLabel}</div>`;
           lastDate = dateLabel;
         }
@@ -544,26 +674,133 @@
           <div class="msg-time" style="${mine ? 'text-align:right' : 'text-align:left'}; padding:0 ${mine ? '0' : '0'};">${tStr}</div>`;
       }
       container.innerHTML = html;
+=======
+          const sep = document.createElement('div');
+          sep.className = 'msg-date-sep';
+          sep.textContent = dateLabel;
+          container.appendChild(sep);
+          lastDate = dateLabel;
+        }
+        const mine = msg.sender_id === currentUser.id;
+        const tStr = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+
+        const row = document.createElement('div');
+        row.className = 'msg-row' + (mine ? ' mine' : '');
+        const bubble = document.createElement('div');
+        bubble.className = 'msg-bubble';
+        bubble.textContent = msg.body; // textContent — XSS-safe
+        row.appendChild(bubble);
+        container.appendChild(row);
+
+        const timeEl = document.createElement('div');
+        timeEl.className = 'msg-time';
+        timeEl.style.textAlign = mine ? 'right' : 'left';
+        timeEl.textContent = tStr;
+        container.appendChild(timeEl);
+      }
+>>>>>>> ddb62376644de61bb4c73ca407ebedbadf59bc0b
       container.scrollTop = container.scrollHeight;
     }
 
     // ── Realtime subscription ─────────────────────────────────────────────────
+<<<<<<< HEAD
     function subscribeRealtime(otherId) {
       if (realtimeSub) { sb.removeChannel(realtimeSub); }
       realtimeSub = sb
         .channel('messages-' + otherId)
+=======
+    // Subscribes to both incoming AND outgoing messages for the active thread.
+    // Incoming: lets the other person's messages appear without a manual refresh.
+    // Outgoing: handles the case where the user has messages open in multiple tabs.
+    function subscribeRealtime(otherId) {
+      if (realtimeSub) { sb.removeChannel(realtimeSub); }
+
+      realtimeSub = sb
+        .channel('messages-' + currentUser.id + '-' + otherId)
+>>>>>>> ddb62376644de61bb4c73ca407ebedbadf59bc0b
         .on('postgres_changes', {
           event: 'INSERT',
           schema: 'public',
           table: 'messages',
           filter: `recipient_id=eq.${currentUser.id}`
         }, payload => {
+<<<<<<< HEAD
           if (payload.new.sender_id === otherId) {
             loadMessages(otherId);
             loadThreads();
           }
         })
         .subscribe();
+=======
+          // Incoming message from the active conversation
+          if (payload.new.sender_id === otherId) {
+            appendMessage(payload.new);
+            loadThreads(); // refresh thread preview
+
+            // Mark as read immediately since the chat is open
+            sb.from('messages')
+              .update({ read_at: new Date().toISOString() })
+              .eq('id', payload.new.id)
+              .then(() => {});
+          }
+        })
+        .on('postgres_changes', {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'messages',
+          filter: `sender_id=eq.${currentUser.id}`
+        }, payload => {
+          // Outgoing message (handles multi-tab: message sent from another tab)
+          if (payload.new.recipient_id === otherId) {
+            appendMessage(payload.new);
+          }
+        })
+        .subscribe((status) => {
+          if (status === 'CHANNEL_ERROR') {
+            showToast('Live updates disconnected. Refresh to reconnect.', 'warning');
+          }
+        });
+    }
+
+    // ── Append a single message bubble (used by Realtime) ────────────────────
+    function appendMessage(msg) {
+      const container = document.getElementById('chat-messages');
+
+      // Remove "no messages" placeholder if present
+      const placeholder = container.querySelector('[data-placeholder]');
+      if (placeholder) placeholder.remove();
+
+      const mine = msg.sender_id === currentUser.id;
+      const d    = new Date(msg.created_at);
+      const tStr = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+
+      // Date separator if needed
+      const dateLabel = d.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+      const lastSep = container.querySelector('.msg-date-sep:last-of-type');
+      if (!lastSep || lastSep.textContent.trim() !== dateLabel) {
+        const sep = document.createElement('div');
+        sep.className = 'msg-date-sep';
+        sep.textContent = dateLabel;
+        container.appendChild(sep);
+      }
+
+      const row = document.createElement('div');
+      row.className = 'msg-row' + (mine ? ' mine' : '');
+
+      const bubble = document.createElement('div');
+      bubble.className = 'msg-bubble';
+      bubble.textContent = msg.body; // textContent — XSS-safe
+
+      const timeEl = document.createElement('div');
+      timeEl.className = 'msg-time';
+      timeEl.style.textAlign = mine ? 'right' : 'left';
+      timeEl.textContent = tStr;
+
+      row.appendChild(bubble);
+      container.appendChild(row);
+      container.appendChild(timeEl);
+      container.scrollTop = container.scrollHeight;
+>>>>>>> ddb62376644de61bb4c73ca407ebedbadf59bc0b
     }
 
     // ── Send message ──────────────────────────────────────────────────────────
@@ -572,9 +809,16 @@
       const body  = input.value.trim();
       if (!body || !activeOtherId) return;
 
+<<<<<<< HEAD
       input.value = '';
       input.style.height = '';
       document.getElementById('btn-send').disabled = true;
+=======
+      const btn = document.getElementById('btn-send');
+      input.value = '';
+      input.style.height = '';
+      btn.disabled = true;
+>>>>>>> ddb62376644de61bb4c73ca407ebedbadf59bc0b
 
       const { error } = await sb.from('messages').insert({
         sender_id:    currentUser.id,
@@ -582,12 +826,26 @@
         body
       });
 
+<<<<<<< HEAD
       document.getElementById('btn-send').disabled = false;
 
       if (!error) {
         await loadMessages(activeOtherId);
         await loadThreads();
       }
+=======
+      btn.disabled = false;
+
+      if (error) {
+        showToast('Failed to send message. Please try again.', 'error');
+        input.value = body; // restore unsent text
+        return;
+      }
+
+      // Optimistically append and refresh thread list
+      appendMessage({ sender_id: currentUser.id, recipient_id: activeOtherId, body, created_at: new Date().toISOString() });
+      loadThreads();
+>>>>>>> ddb62376644de61bb4c73ca407ebedbadf59bc0b
     }
 
     // ── User search for new message ────────────────────────────────────────────
@@ -675,12 +933,53 @@
     document.getElementById('nav-logout').addEventListener('click', async e => {
       e.preventDefault();
       await sb.auth.signOut();
+<<<<<<< HEAD
       window.location.href = '../../login/signup/login.html';
     });
 
     // ── Helpers ───────────────────────────────────────────────────────────────
     function escHtml(str) {
       return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+=======
+      window.location.href = '../login/login.html';
+    });
+
+    // ── Toast helper (inline — no ES module import needed for this page) ──────
+    function showToast(message, type = 'success') {
+      let c = document.getElementById('toast-container');
+      if (!c) {
+        c = document.createElement('div');
+        c.id = 'toast-container';
+        document.body.appendChild(c);
+      }
+      const item = document.createElement('div');
+      item.className = `toast toast-${type}`;
+      const icons = { success: '✓', error: '✕', info: 'i', warning: '!' };
+      const iconEl = document.createElement('span');
+      iconEl.className = 'toast-icon';
+      iconEl.textContent = icons[type] || 'i';
+      const msgEl = document.createElement('span');
+      msgEl.className = 'toast-msg';
+      msgEl.textContent = message;
+      const closeEl = document.createElement('button');
+      closeEl.className = 'toast-close';
+      closeEl.textContent = '×';
+      closeEl.onclick = () => dismiss(item);
+      item.append(iconEl, msgEl, closeEl);
+      c.appendChild(item);
+      requestAnimationFrame(() => item.classList.add('toast-visible'));
+      setTimeout(() => dismiss(item), 3500);
+      function dismiss(el) {
+        el.classList.remove('toast-visible');
+        el.classList.add('toast-hiding');
+        el.addEventListener('transitionend', () => el.remove(), { once: true });
+      }
+    }
+
+    // ── Helpers ───────────────────────────────────────────────────────────────
+    function escHtml(str) {
+      return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+>>>>>>> ddb62376644de61bb4c73ca407ebedbadf59bc0b
     }
     function formatTime(iso) {
       const d = new Date(iso), now = new Date();
@@ -694,5 +993,38 @@
     // ── Boot ──────────────────────────────────────────────────────────────────
     init();
   </script>
+<<<<<<< HEAD
+=======
+
+  <!-- Mobile bottom tab bar -->
+  <nav class="mobile-tab-bar">
+    <a href="../homepage/home_page.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12L12 3l9 9"/><path d="M9 21V12h6v9"/></svg>
+      Explore
+    </a>
+    <a href="profile.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+      Profile
+    </a>
+    <a href="messages.html" class="active">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      Messages
+    </a>
+    <a href="../community/community.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Community
+    </a>
+  </nav>
+  <style>
+    .mobile-tab-bar{display:none;position:fixed;bottom:0;left:0;right:0;height:60px;background:#141414;border-top:1px solid #262626;z-index:100;align-items:stretch;justify-content:space-around;padding:0 .25rem;padding-bottom:env(safe-area-inset-bottom)}
+    .mobile-tab-bar a{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.2rem;text-decoration:none;color:#6b6b7b;font-size:.65rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;transition:color .18s;padding:.5rem 0}
+    .mobile-tab-bar a.active,.mobile-tab-bar a:hover{color:#e8470a}
+    .mobile-tab-bar a svg{width:22px;height:22px}
+    @media(max-width:768px){.mobile-tab-bar{display:flex}body{padding-bottom:calc(60px + env(safe-area-inset-bottom))}}
+  </style>
+<script>
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');
+</script>
+>>>>>>> ddb62376644de61bb4c73ca407ebedbadf59bc0b
 </body>
 </html>

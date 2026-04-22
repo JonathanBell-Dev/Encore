@@ -798,7 +798,6 @@
       if (error) showAlert(error.message);
     }
 
-    // ── Toggle password visibility ──
     function togglePassword(inputId, btn) {
       const input = document.getElementById(inputId);
       const eyeOn = btn.querySelector('.eye-icon');
@@ -815,7 +814,6 @@
       }
     }
 
-    // ── Forgot password ──
     async function handleForgotPassword() {
       const email = document.getElementById('login-email').value.trim();
       if (!email) { showAlert('Enter your email address first, then click Forgot password.'); return; }
