@@ -4,7 +4,6 @@
     { "source": "/", "destination": "/homepage/home_page.html" }
   ],
   "routes": [
-    { "handle": "filesystem" },
-    { "src": "/(.*)", "dest": "/homepage/home_page.html" }
+    { "handle": "filesystem" }
   ]
 }
