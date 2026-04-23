@@ -3,9 +3,6 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<<<<<<< HEAD
-  <title>ATL Events – Profile</title>
-=======
   <meta property="og:site_name" content="Encore ATL">
   <meta property="og:type" content="website">
   <meta property="og:title" content="My Profile — Encore ATL">
@@ -18,19 +15,15 @@
   <meta name="twitter:description" content="Your Encore profile. Events attended, connections, and your ATL story.">
   <meta name="twitter:image" content="https://qgvoznhldglucpsaisfs.supabase.co/storage/v1/object/public/encore-assets/og-default.jpg">
   <title>Encore – Profile</title>
->>>>>>> ddb62376644de61bb4c73ca407ebedbadf59bc0b
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="profile.css">
-<<<<<<< HEAD
-=======
   <link rel="stylesheet" href="../css/toast.css">
   <script type="module">
     import { guardPage } from '../src/utils/guard.js';
     guardPage();
   </script>
->>>>>>> ddb62376644de61bb4c73ca407ebedbadf59bc0b
   <style>
     /* ── Dynamic state helpers ── */
     .skeleton {
@@ -53,7 +46,7 @@
     .modal-overlay.open { display: flex; }
 
     .modal {
-      background: #fff; border-radius: 16px;
+      background: #141414; border-radius: 16px;
       width: min(560px, 94vw); max-height: 90vh; overflow-y: auto;
       padding: 2rem; box-shadow: 0 20px 60px rgba(0,0,0,.2);
       animation: modal-in .2s ease;
@@ -61,35 +54,31 @@
     @keyframes modal-in { from { transform: translateY(16px); opacity: 0; } }
 
     .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
-    .modal-header h2 { font-size: 1.2rem; font-weight: 800; letter-spacing: -.02em; }
+    .modal-header h2 { font-size: 1.2rem; font-weight: 800; letter-spacing: -.02em; color: #F0EDE8; }
     .modal-close {
       background: none; border: none; cursor: pointer;
       width: 32px; height: 32px; border-radius: 8px;
       display: flex; align-items: center; justify-content: center;
-      color: #6b6b7b; transition: background .15s;
+      color: #9A9590; transition: background .15s;
     }
-    .modal-close:hover { background: #f4f4f6; }
+    .modal-close:hover { background: #2a2a2a; }
 
     .modal .form-group { margin-bottom: 1rem; }
     .modal .form-group label {
-      display: block; font-size: .78rem; font-weight: 600; color: #6b6b7b;
+      display: block; font-size: .78rem; font-weight: 600; color: #9A9590;
       text-transform: uppercase; letter-spacing: .07em; margin-bottom: .4rem;
     }
     .modal .form-group input,
     .modal .form-group textarea {
       width: 100%; padding: .7rem .9rem;
-      border: 1.5px solid #e8e8ec; border-radius: 8px;
-      font-family: 'Inter', sans-serif; font-size: .9rem; color: #111118;
-      background: #f9f9fb; outline: none; resize: vertical;
+      border: 1.5px solid #262626; border-radius: 8px;
+      font-family: 'Inter', sans-serif; font-size: .9rem; color: #F0EDE8;
+      background: #1C1C1C; outline: none; resize: vertical;
       transition: border-color .18s, box-shadow .18s;
     }
     .modal .form-group input:focus,
     .modal .form-group textarea:focus {
-<<<<<<< HEAD
-      border-color: #e8470a; box-shadow: 0 0 0 3px rgba(232,71,10,.1); background: #fff;
-=======
       border-color: #e8470a; box-shadow: 0 0 0 3px rgba(232,71,10,.1); background: #1C1C1C;
->>>>>>> ddb62376644de61bb4c73ca407ebedbadf59bc0b
     }
     .modal .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; }
 
@@ -98,22 +87,22 @@
     }
     .interest-chip-modal {
       padding: .4rem .85rem; border-radius: 20px;
-      border: 1.5px solid #e8e8ec; background: #f9f9fb;
-      font-size: .8rem; font-weight: 500; cursor: pointer;
+      border: 1.5px solid #262626; background: #1C1C1C;
+      font-size: .8rem; font-weight: 500; cursor: pointer; color: #9A9590;
       transition: all .15s; user-select: none;
     }
     .interest-chip-modal.selected {
-      border-color: #e8470a; background: rgba(232,71,10,.07); color: #e8470a;
+      border-color: #e8470a; background: rgba(232,71,10,.1); color: #e8470a;
     }
     .interest-chip-modal input { display: none; }
 
     .modal-actions { display: flex; gap: .75rem; margin-top: 1.5rem; justify-content: flex-end; }
     .btn-cancel-modal {
-      padding: .65rem 1.2rem; border: 1.5px solid #e8e8ec; border-radius: 9px;
+      padding: .65rem 1.2rem; border: 1.5px solid #262626; border-radius: 9px;
       background: none; font-family: 'Inter', sans-serif; font-size: .875rem;
-      font-weight: 600; cursor: pointer; color: #6b6b7b; transition: border-color .15s;
+      font-weight: 600; cursor: pointer; color: #9A9590; transition: border-color .15s;
     }
-    .btn-cancel-modal:hover { border-color: #aaa; }
+    .btn-cancel-modal:hover { border-color: #666; color: #F0EDE8; }
     .btn-save-modal {
       padding: .65rem 1.4rem; border: none; border-radius: 9px;
       background: #e8470a; color: #fff;
@@ -158,9 +147,6 @@
     }
     .btn-msg:hover { border-color: #e8470a; color: #e8470a; background: rgba(232,71,10,.05); }
     .btn-msg svg { width: 12px; height: 12px; }
-<<<<<<< HEAD
-  </style>
-=======
     input, textarea, select { color: #F0EDE8 !important; }
     input:focus, textarea:focus, select:focus { color: #F0EDE8 !important; }
     input:-webkit-autofill, input:-webkit-autofill:focus,
@@ -174,30 +160,16 @@
   </style>
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#e8470a">
->>>>>>> ddb62376644de61bb4c73ca407ebedbadf59bc0b
 </head>
 <body>
 
   <!-- NAV -->
   <nav class="site-nav">
-<<<<<<< HEAD
-    <a href="#" class="nav-brand">
-      <div class="nav-brand-icon">
-        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-          <rect x="3" y="4" width="18" height="18" rx="3" fill="none" stroke="#fff" stroke-width="2"/>
-          <line x1="3" y1="9" x2="21" y2="9" stroke="#fff" stroke-width="2"/>
-          <line x1="8" y1="2" x2="8" y2="6" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
-          <line x1="16" y1="2" x2="16" y2="6" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
-        </svg>
-      </div>
-      <span class="nav-brand-name">ATL Events</span>
-=======
     <a href="../homepage/home_page.html" class="nav-brand">
       <div class="nav-brand-icon">
         <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect x="2.5" y="11" width="5" height="10" rx="2.5" fill="#fff"/><rect x="9.5" y="5" width="5" height="16" rx="2.5" fill="#fff"/><rect x="16.5" y="8" width="5" height="8" rx="2.5" fill="#fff"/></svg>
       </div>
       <span class="nav-brand-name">Encore</span>
->>>>>>> ddb62376644de61bb4c73ca407ebedbadf59bc0b
     </a>
     <div class="nav-links">
       <a href="../homepage/home_page.html">
@@ -253,8 +225,6 @@
   </section>
 
   <!-- MAIN CONTENT -->
-<<<<<<< HEAD
-=======
   <!-- Profile completeness nudge (shown by JS when profile is incomplete) -->
   <div id="profile-nudge" style="display:none;background:rgba(232,71,10,.08);border-bottom:1px solid rgba(232,71,10,.25);padding:.75rem 2rem;font-family:'Inter',sans-serif;font-size:.85rem;color:#F0EDE8;display:none;align-items:center;gap:.75rem;justify-content:center;flex-wrap:wrap;">
     <span id="profile-nudge-msg">Complete your profile to connect with more Atlanta locals.</span>
@@ -262,19 +232,15 @@
     <button onclick="document.getElementById('profile-nudge').style.display='none'" style="background:none;border:none;color:#9A9590;cursor:pointer;font-size:1.1rem;line-height:1;padding:0 .25rem;">&times;</button>
   </div>
 
->>>>>>> ddb62376644de61bb4c73ca407ebedbadf59bc0b
   <main>
 
     <!-- LEFT SIDEBAR -->
     <aside>
-<<<<<<< HEAD
-=======
       <a href="../events/create.html" class="btn-host-event">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         Host an Event
       </a>
 
->>>>>>> ddb62376644de61bb4c73ca407ebedbadf59bc0b
       <div class="card">
         <h2 class="card-title">Interests</h2>
         <ul class="interests-list" id="interests-list">
@@ -316,8 +282,6 @@
 
     <!-- EVENTS SECTION -->
     <section class="events-section">
-<<<<<<< HEAD
-=======
 
       <!-- My Hosted Events -->
       <div id="hosted-section" style="display:none; margin-bottom:1.75rem;">
@@ -328,7 +292,6 @@
         <div id="hosted-grid" style="display:flex;flex-direction:column;gap:.75rem;"></div>
       </div>
 
->>>>>>> ddb62376644de61bb4c73ca407ebedbadf59bc0b
       <nav class="tabs">
         <a href="profile.html" class="active">Upcoming</a>
         <a href="past.html">Past</a>
@@ -398,18 +361,11 @@
 
   <!-- Supabase CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-<<<<<<< HEAD
-  <script>
-    // ── CONFIG ────────────────────────────────────────────────────────────────
-    const SUPABASE_URL  = 'https://wzbubvzbbfgohzurlvmw.supabase.co';
-    const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind6YnVidnpiYmZnb2h6dXJsdm13Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA3NjMxNzAsImV4cCI6MjA4NjMzOTE3MH0.Il2_RJJG_tiyngweV-nNOxGvVZQUbWbZwMAx21CgzNA';
-=======
   <script src="../src/utils/notifications.js"></script>
   <script>
     // ── CONFIG ────────────────────────────────────────────────────────────────
     const SUPABASE_URL  = 'https://qgvoznhldglucpsaisfs.supabase.co';
     const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFndm96bmhsZGdsdWNwc2Fpc2ZzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxOTU4MjUsImV4cCI6MjA5MTc3MTgyNX0.e-5X1Lh4Tg8cP-FL-3eorV5pAZCDe4CR6i2AFeDKHWQ';
->>>>>>> ddb62376644de61bb4c73ca407ebedbadf59bc0b
     // ─────────────────────────────────────────────────────────────────────────
 
     const { createClient } = supabase;
@@ -437,31 +393,19 @@
     // ── Guard: redirect to login if not authenticated ─────────────────────────
     async function init() {
       const { data: { session } } = await sb.auth.getSession();
-<<<<<<< HEAD
-      if (!session) { window.location.href = '../../login/signup/login.html'; return; }
-      currentUser = session.user;
-      await loadProfile();
-      await loadConnections();
-      await loadUpcomingEvents();
-=======
       if (!session) { window.location.href = '../login/login.html'; return; }
       currentUser = session.user;
       mountNotifBell(sb, currentUser.id);
       await loadProfile();
       await loadConnections();
       await Promise.all([loadHostedEvents(), loadUpcomingEvents()]);
->>>>>>> ddb62376644de61bb4c73ca407ebedbadf59bc0b
     }
 
     // ── Load profile directly from accounts ─────────────────────────────────
     async function loadProfile() {
       const { data: acct, error: acctErr } = await sb
         .from('accounts')
-<<<<<<< HEAD
-        .select('id, first_name, last_name, user_name, bio, avatar_url, website_url, is_public')
-=======
         .select('id, first_name, last_name, user_name, bio, location, avatar_url, website_url, is_public')
->>>>>>> ddb62376644de61bb4c73ca407ebedbadf59bc0b
         .eq('id', currentUser.id)
         .single();
 
@@ -498,11 +442,7 @@
       }
       document.getElementById('hero-name').textContent =
         [data.first_name, data.last_name].filter(Boolean).join(' ') || data.user_name || 'Your Name';
-<<<<<<< HEAD
-      document.getElementById('hero-location-text').textContent = 'Atlanta, GA';
-=======
       document.getElementById('hero-location-text').textContent = data.location || 'Atlanta, GA';
->>>>>>> ddb62376644de61bb4c73ca407ebedbadf59bc0b
       document.getElementById('hero-location').style.opacity = '1';
       document.getElementById('hero-bio').textContent = data.bio || 'Exploring the best events Atlanta has to offer!';
       document.getElementById('hero-bio').style.opacity = '1';
@@ -517,8 +457,6 @@
 
       // Interests sidebar
       await loadInterests();
-<<<<<<< HEAD
-=======
 
       // Profile completeness nudge
       const missing = [];
@@ -531,7 +469,6 @@
           `Add ${missing.join(', ')} to help others find and connect with you.`;
         nudge.style.display = 'flex';
       }
->>>>>>> ddb62376644de61bb4c73ca407ebedbadf59bc0b
     }
 
     // ── Load user interests ───────────────────────────────────────────────────
@@ -559,13 +496,8 @@
           id,
           requester_id,
           addressee_id,
-<<<<<<< HEAD
-          requester:accounts!connections_requester_fk(id, first_name, last_name, avatar_url),
-          addressee:accounts!connections_addressee_fk(id, first_name, last_name, avatar_url)
-=======
           requester:accounts!connections_requester_id_fkey(id, first_name, last_name, avatar_url),
           addressee:accounts!connections_addressee_id_fkey(id, first_name, last_name, avatar_url)
->>>>>>> ddb62376644de61bb4c73ca407ebedbadf59bc0b
         `)
         .or(`requester_id.eq.${currentUser.id},addressee_id.eq.${currentUser.id}`)
         .eq('status', 'accepted')
@@ -597,8 +529,6 @@
       }).join('');
     }
 
-<<<<<<< HEAD
-=======
     // ── Load events hosted by the current user ───────────────────────────────
     async function loadHostedEvents() {
       const { data, error } = await sb
@@ -623,7 +553,7 @@
         const isDraft = ev.status === 'draft';
 
         const row = document.createElement('div');
-        row.style.cssText = 'display:flex;align-items:center;gap:.85rem;background:#fff;border:1px solid var(--border);border-radius:12px;padding:.9rem 1rem;';
+        row.style.cssText = 'display:flex;align-items:center;gap:.85rem;background:#1C1C1C;border:1px solid var(--border);border-radius:12px;padding:.9rem 1rem;';
 
         const info = document.createElement('div');
         info.style.cssText = 'flex:1;min-width:0;';
@@ -642,7 +572,7 @@
         viewBtn.onmouseout  = () => { viewBtn.style.background=''; viewBtn.style.color='var(--orange)'; };
 
         const delBtn = document.createElement('button');
-        delBtn.style.cssText = 'flex-shrink:0;background:#fff0f0;border:1px solid #ffd0d0;color:var(--danger,#ff3b30);border-radius:7px;padding:.4rem .6rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .18s;';
+        delBtn.style.cssText = 'flex-shrink:0;background:rgba(255,59,48,.1);border:1px solid rgba(255,59,48,.3);color:var(--danger,#ff3b30);border-radius:7px;padding:.4rem .6rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .18s;';
         delBtn.title = 'Delete event';
         delBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>';
         delBtn.addEventListener('click', async () => {
@@ -666,7 +596,6 @@
       });
     }
 
->>>>>>> ddb62376644de61bb4c73ca407ebedbadf59bc0b
     // ── Load upcoming events the user is attending ────────────────────────────
     async function loadUpcomingEvents() {
       const now = new Date().toISOString();
@@ -762,10 +691,7 @@
         first_name:  document.getElementById('edit-first').value.trim(),
         last_name:   document.getElementById('edit-last').value.trim(),
         user_name:   document.getElementById('edit-username').value.trim(),
-<<<<<<< HEAD
-=======
         location:    document.getElementById('edit-location').value.trim(),
->>>>>>> ddb62376644de61bb4c73ca407ebedbadf59bc0b
         bio:         document.getElementById('edit-bio').value.trim(),
         website_url: document.getElementById('edit-website').value.trim(),
       };
@@ -827,11 +753,7 @@
     document.getElementById('nav-logout').addEventListener('click', async e => {
       e.preventDefault();
       await sb.auth.signOut();
-<<<<<<< HEAD
-      window.location.href = '../../login/signup/login.html';
-=======
       window.location.href = '../login/login.html';
->>>>>>> ddb62376644de61bb4c73ca407ebedbadf59bc0b
     });
 
     // ── Event listeners ───────────────────────────────────────────────────────
@@ -855,8 +777,6 @@
     // ── Boot ──────────────────────────────────────────────────────────────────
     init();
   </script>
-<<<<<<< HEAD
-=======
 
   <!-- Mobile bottom tab bar -->
   <nav class="mobile-tab-bar">
@@ -878,7 +798,7 @@
     </a>
   </nav>
   <style>
-    .mobile-tab-bar{display:none;position:fixed;bottom:0;left:0;right:0;height:60px;background:#fff;border-top:1px solid #e8e8ec;z-index:100;align-items:stretch;justify-content:space-around;padding:0 .25rem;padding-bottom:env(safe-area-inset-bottom)}
+    .mobile-tab-bar{display:none;position:fixed;bottom:0;left:0;right:0;height:60px;background:#0C0C0C;border-top:1px solid #262626;z-index:100;align-items:stretch;justify-content:space-around;padding:0 .25rem;padding-bottom:env(safe-area-inset-bottom)}
     .mobile-tab-bar a{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.2rem;text-decoration:none;color:#6b6b7b;font-size:.65rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;transition:color .18s;padding:.5rem 0}
     .mobile-tab-bar a.active,.mobile-tab-bar a:hover{color:#e8470a}
     .mobile-tab-bar a svg{width:22px;height:22px}
@@ -887,6 +807,5 @@
 <script>
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');
 </script>
->>>>>>> ddb62376644de61bb4c73ca407ebedbadf59bc0b
 </body>
 </html>

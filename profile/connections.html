@@ -3,17 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<<<<<<< HEAD
-  <title>ATL Events – Connections</title>
-=======
   <title>Encore – Connections</title>
->>>>>>> ddb62376644de61bb4c73ca407ebedbadf59bc0b
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="profile.css">
-<<<<<<< HEAD
-=======
   <link rel="stylesheet" href="../css/toast.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="../src/utils/notifications.js"></script>
@@ -277,7 +271,6 @@
       await loadConnections(currentUserId);
     });
   </script>
->>>>>>> ddb62376644de61bb4c73ca407ebedbadf59bc0b
   <style>
     /* ── PAGE-SPECIFIC ── */
     .connections-hero {
@@ -473,9 +466,6 @@
       .connections-hero { padding: 1.75rem 1.25rem; flex-direction: column; align-items: flex-start; }
       .connections-grid { grid-template-columns: 1fr 1fr; }
     }
-<<<<<<< HEAD
-  </style>
-=======
     input, textarea, select { color: #F0EDE8 !important; }
     input:focus, textarea:focus, select:focus { color: #F0EDE8 !important; }
     input:-webkit-autofill, input:-webkit-autofill:focus,
@@ -489,7 +479,6 @@
   </style>
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#e8470a">
->>>>>>> ddb62376644de61bb4c73ca407ebedbadf59bc0b
 </head>
 <body>
 
@@ -497,20 +486,9 @@
   <nav class="site-nav">
     <a href="profile.html" class="nav-brand">
       <div class="nav-brand-icon">
-<<<<<<< HEAD
-        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-          <rect x="3" y="4" width="18" height="18" rx="3" fill="none" stroke="#fff" stroke-width="2"/>
-          <line x1="3" y1="9" x2="21" y2="9" stroke="#fff" stroke-width="2"/>
-          <line x1="8" y1="2" x2="8" y2="6" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
-          <line x1="16" y1="2" x2="16" y2="6" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
-        </svg>
-      </div>
-      <span class="nav-brand-name">ATL Events</span>
-=======
         <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect x="2.5" y="11" width="5" height="10" rx="2.5" fill="#fff"/><rect x="9.5" y="5" width="5" height="16" rx="2.5" fill="#fff"/><rect x="16.5" y="8" width="5" height="8" rx="2.5" fill="#fff"/></svg>
       </div>
       <span class="nav-brand-name">Encore</span>
->>>>>>> ddb62376644de61bb4c73ca407ebedbadf59bc0b
     </a>
     <div class="nav-links">
       <a href="../homepage/home_page.html">
@@ -521,11 +499,7 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
         Profile
       </a>
-<<<<<<< HEAD
-      <a href="../../login/signup/login.html" id="nav-logout">
-=======
       <a href="../login/login.html" id="nav-logout">
->>>>>>> ddb62376644de61bb4c73ca407ebedbadf59bc0b
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
         Logout
       </a>
@@ -536,17 +510,10 @@
   <section class="connections-hero">
     <div class="connections-hero-text">
       <h1>Your Connections</h1>
-<<<<<<< HEAD
-      <p>People you've met and connected with through ATL Events</p>
-    </div>
-    <div class="connections-hero-stat">
-      <strong>24</strong>
-=======
       <p>People you've met and connected with through Encore</p>
     </div>
     <div class="connections-hero-stat">
       <strong id="total-count">–</strong>
->>>>>>> ddb62376644de61bb4c73ca407ebedbadf59bc0b
       <span>Total Connections</span>
     </div>
   </section>
@@ -574,181 +541,6 @@
       </select>
     </div>
 
-<<<<<<< HEAD
-    <!-- Recent Connections -->
-    <p class="section-label">Recent</p>
-
-    <div class="connections-grid" id="connections-grid">
-
-      <div class="connection-card" data-name="sarah johnson" data-interests="music arts">
-        <div class="conn-card-avatar female-1">SJ</div>
-        <p class="conn-card-name">Sarah Johnson</p>
-        <p class="conn-card-meta">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s-8-5.8-8-12a8 8 0 0 1 16 0c0 6.2-8 12-8 12z"/><circle cx="12" cy="10" r="3"/></svg>
-          Atlanta, GA
-        </p>
-        <div class="conn-card-interests">
-          <span>Music</span><span>Arts &amp; Culture</span>
-        </div>
-        <div class="conn-card-footer">
-          <a href="connection-profile.html?id=sarah-johnson" class="btn-view-full">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
-            View Profile
-          </a>
-          <button class="btn-message">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-          </button>
-        </div>
-      </div>
-
-      <div class="connection-card" data-name="marcus williams" data-interests="music food">
-        <div class="conn-card-avatar male-1">MW</div>
-        <p class="conn-card-name">Marcus Williams</p>
-        <p class="conn-card-meta">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s-8-5.8-8-12a8 8 0 0 1 16 0c0 6.2-8 12-8 12z"/><circle cx="12" cy="10" r="3"/></svg>
-          Decatur, GA
-        </p>
-        <div class="conn-card-interests">
-          <span>Music</span><span>Food &amp; Drink</span>
-        </div>
-        <div class="conn-card-footer">
-          <a href="connection-profile.html?id=marcus-williams" class="btn-view-full">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
-            View Profile
-          </a>
-          <button class="btn-message">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-          </button>
-        </div>
-      </div>
-
-      <div class="connection-card" data-name="emily chen" data-interests="arts food">
-        <div class="conn-card-avatar female-2">EC</div>
-        <p class="conn-card-name">Emily Chen</p>
-        <p class="conn-card-meta">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s-8-5.8-8-12a8 8 0 0 1 16 0c0 6.2-8 12-8 12z"/><circle cx="12" cy="10" r="3"/></svg>
-          Atlanta, GA
-        </p>
-        <div class="conn-card-interests">
-          <span>Arts &amp; Culture</span><span>Food &amp; Drink</span>
-        </div>
-        <div class="conn-card-footer">
-          <a href="connection-profile.html?id=emily-chen" class="btn-view-full">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
-            View Profile
-          </a>
-          <button class="btn-message">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-          </button>
-        </div>
-      </div>
-
-      <div class="connection-card" data-name="james thompson" data-interests="music">
-        <div class="conn-card-avatar male-2">JT</div>
-        <p class="conn-card-name">James Thompson</p>
-        <p class="conn-card-meta">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s-8-5.8-8-12a8 8 0 0 1 16 0c0 6.2-8 12-8 12z"/><circle cx="12" cy="10" r="3"/></svg>
-          Marietta, GA
-        </p>
-        <div class="conn-card-interests">
-          <span>Music</span><span>Nightlife</span>
-        </div>
-        <div class="conn-card-footer">
-          <a href="connection-profile.html?id=james-thompson" class="btn-view-full">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
-            View Profile
-          </a>
-          <button class="btn-message">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-          </button>
-        </div>
-      </div>
-
-      <div class="connection-card" data-name="aisha robinson" data-interests="arts food">
-        <div class="conn-card-avatar female-3">AR</div>
-        <p class="conn-card-name">Aisha Robinson</p>
-        <p class="conn-card-meta">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s-8-5.8-8-12a8 8 0 0 1 16 0c0 6.2-8 12-8 12z"/><circle cx="12" cy="10" r="3"/></svg>
-          Atlanta, GA
-        </p>
-        <div class="conn-card-interests">
-          <span>Arts &amp; Culture</span><span>Food &amp; Drink</span>
-        </div>
-        <div class="conn-card-footer">
-          <a href="connection-profile.html?id=aisha-robinson" class="btn-view-full">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
-            View Profile
-          </a>
-          <button class="btn-message">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-          </button>
-        </div>
-      </div>
-
-      <div class="connection-card" data-name="derek foster" data-interests="music food">
-        <div class="conn-card-avatar male-3">DF</div>
-        <p class="conn-card-name">Derek Foster</p>
-        <p class="conn-card-meta">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s-8-5.8-8-12a8 8 0 0 1 16 0c0 6.2-8 12-8 12z"/><circle cx="12" cy="10" r="3"/></svg>
-          Sandy Springs, GA
-        </p>
-        <div class="conn-card-interests">
-          <span>Music</span><span>Food &amp; Drink</span>
-        </div>
-        <div class="conn-card-footer">
-          <a href="connection-profile.html?id=derek-foster" class="btn-view-full">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
-            View Profile
-          </a>
-          <button class="btn-message">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-          </button>
-        </div>
-      </div>
-
-      <div class="connection-card" data-name="priya patel" data-interests="arts food">
-        <div class="conn-card-avatar female-1">PP</div>
-        <p class="conn-card-name">Priya Patel</p>
-        <p class="conn-card-meta">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s-8-5.8-8-12a8 8 0 0 1 16 0c0 6.2-8 12-8 12z"/><circle cx="12" cy="10" r="3"/></svg>
-          Alpharetta, GA
-        </p>
-        <div class="conn-card-interests">
-          <span>Arts &amp; Culture</span><span>Food &amp; Drink</span>
-        </div>
-        <div class="conn-card-footer">
-          <a href="connection-profile.html?id=priya-patel" class="btn-view-full">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
-            View Profile
-          </a>
-          <button class="btn-message">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-          </button>
-        </div>
-      </div>
-
-      <div class="connection-card" data-name="carlos mendez" data-interests="music arts">
-        <div class="conn-card-avatar male-1">CM</div>
-        <p class="conn-card-name">Carlos Mendez</p>
-        <p class="conn-card-meta">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s-8-5.8-8-12a8 8 0 0 1 16 0c0 6.2-8 12-8 12z"/><circle cx="12" cy="10" r="3"/></svg>
-          Atlanta, GA
-        </p>
-        <div class="conn-card-interests">
-          <span>Music</span><span>Arts &amp; Culture</span>
-        </div>
-        <div class="conn-card-footer">
-          <a href="connection-profile.html?id=carlos-mendez" class="btn-view-full">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
-            View Profile
-          </a>
-          <button class="btn-message">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-          </button>
-        </div>
-      </div>
-
-=======
     <!-- Pending requests (hidden until there are some) -->
     <div id="pending-section" style="display:none">
       <p class="section-label">Pending Requests</p>
@@ -760,7 +552,6 @@
 
     <div class="connections-grid" id="connections-grid">
       <p style="color:#6b6b7b;font-size:.85rem">Loading…</p>
->>>>>>> ddb62376644de61bb4c73ca407ebedbadf59bc0b
     </div>
 
     <!-- No results message (hidden by default) -->
@@ -770,29 +561,6 @@
 
   </div>
 
-<<<<<<< HEAD
-  <script>
-    function filterConnections() {
-      const query = document.getElementById('search-input').value.toLowerCase();
-      const filter = document.getElementById('filter-select').value;
-      const cards = document.querySelectorAll('.connection-card');
-      let visible = 0;
-
-      cards.forEach(card => {
-        const name = card.dataset.name || '';
-        const interests = card.dataset.interests || '';
-        const matchesSearch = name.includes(query);
-        const matchesFilter = filter === 'all' || filter === 'recent' || interests.includes(filter);
-        const show = matchesSearch && matchesFilter;
-        card.style.display = show ? '' : 'none';
-        if (show) visible++;
-      });
-
-      document.getElementById('no-results').style.display = visible === 0 ? 'block' : 'none';
-    }
-  </script>
-
-=======
   <!-- Mobile bottom tab bar -->
   <nav class="mobile-tab-bar">
     <a href="../homepage/home_page.html">
@@ -822,6 +590,5 @@
 <script>
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');
 </script>
->>>>>>> ddb62376644de61bb4c73ca407ebedbadf59bc0b
 </body>
 </html>
