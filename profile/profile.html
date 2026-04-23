@@ -37,6 +37,22 @@
     .skeleton-text  { height: 1em; width: 60%; }
     .skeleton-sub   { height: .8em; width: 40%; margin-top: .35rem; }
 
+    /* Force dark theme — overrides any conflicted CSS */
+    html, body { background: #0C0C0C !important; color: #F0EDE8 !important; }
+    nav.site-nav { background: rgba(12,12,12,0.95) !important; border-bottom: 1px solid #262626 !important; }
+    nav.site-nav a { color: #9A9590 !important; }
+    nav.site-nav a:hover, nav.site-nav a.active { color: #F0EDE8 !important; }
+    nav.site-nav a.active { color: #e8470a !important; }
+    main { background: #0C0C0C !important; }
+    .card { background: #141414 !important; border-color: #262626 !important; color: #F0EDE8 !important; }
+    .tabs { background: #141414 !important; border-color: #262626 !important; }
+    .tabs a { color: #9A9590 !important; }
+    .tabs a.active { color: #e8470a !important; background: rgba(232,71,10,.08) !important; }
+    .interests-list li { background: #1C1C1C !important; border-color: #262626 !important; color: #9A9590 !important; }
+    .empty-state { background: #141414 !important; border-color: #262626 !important; }
+    .empty-state h3, .empty-state p { color: #9A9590 !important; }
+    .btn-msg { border-color: #262626 !important; color: #9A9590 !important; background: transparent !important; }
+
     /* Edit profile inline form (modal overlay) */
     .modal-overlay {
       display: none; position: fixed; inset: 0; z-index: 200;
@@ -140,8 +156,8 @@
     /* Message button on connection cards */
     .btn-msg {
       padding: .3rem .7rem; border-radius: 7px;
-      border: 1.5px solid #e8e8ec; background: none;
-      font-size: .75rem; font-weight: 600; color: #6b6b7b;
+      border: 1.5px solid #262626; background: none;
+      font-size: .75rem; font-weight: 600; color: #9A9590;
       cursor: pointer; transition: all .15s; text-decoration: none;
       display: inline-flex; align-items: center; gap: .3rem;
     }
